@@ -1,5 +1,5 @@
-static const int HealthMax = 3300;	// Max standard health
-static const int HealthExtra = 1100;	// Max regenerable health
+static const int HealthMax = 2900;	// Max standard health
+static const int HealthExtra = 600;	// Max regenerable health
 
 static const float SpeedExtra = 50.0;	// Extra speed while low health
 static const float GlowRange = 1200.0;	// Max outline range
