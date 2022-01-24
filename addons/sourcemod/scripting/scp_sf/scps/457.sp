@@ -1,5 +1,6 @@
-static const int HealthKill = 450;
+static const int HealthKill = 200;
 static const int HealthSplit = 2500;
+static const int HealthMax = 2500;
 
 static int Index457;
 
@@ -12,7 +13,7 @@ public bool SCP457_Create(int client)
 {
 	Classes_VipSpawn(client);
 
-	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 649, 50, 13, "1 ; 0.061538 ; 28 ; 0.5 ; 60 ; 0.3 ; 138 ; 2.5 ; 208 ; 1 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "60 ; 0.1 ; 1 ; 0.061538 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 3.0 ; 28 ; 0.5 ; 138 ; 1.25 ; 208 ; 1 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 14);
@@ -71,6 +72,24 @@ public Action SCP457_OnDealDamage(int client, int victim, int &inflictor, float 
 		TF2_AddCondition(victim, TFCond_Gas, 3.0, client); 
 
 	return Plugin_Continue;
+	if(Client[victim].IdleAt < GetGameTime())
+	{
+		damage = 1.0;
+		damagetype &= ~DMG_CRIT;
+		Client[victim].HudIn = GetGameTime()+6.0;
+		return Plugin_Changed;
+	}
+
+	if(damagecustom!=TF_CUSTOM_BACKSTAB || damage<108)
+	{
+		Client[victim].HudIn = GetGameTime()+6.0;
+		return Plugin_Continue;
+	}
+
+	damage = 1.0;
+	damagetype &= ~DMG_CRIT;
+	Client[victim].HudIn = GetGameTime()+13.0;
+	return Plugin_Changed;
 }
 
 public bool SCP457_OnPickup(int client, int entity)
