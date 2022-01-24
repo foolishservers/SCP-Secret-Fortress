@@ -3,11 +3,11 @@ static int IndexHeavyRed;
 static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
-static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
-static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
-static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
-static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
-static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
+//static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
+//static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
+//static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
+//static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
+//static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
 
 public void HeavyBlu_Enable(int index)
 {
@@ -348,7 +348,7 @@ public void Seeman_Enable(int index)
 	IndexSeeman = index;
 }
 
-public bool Seeman_Create(int client)
+public bool Seeman_Create(int client)//scp682
 {
 	Classes_VipSpawn(client);
 
@@ -359,7 +359,7 @@ public bool Seeman_Create(int client)
 			Client[client].Extra2++;
 	}
 
-	int weapon = SpawnWeapon(client, "tf_weapon_stickbomb", 307, 101, 5, "2 ; 3.1 ; 28 ; 0.5 ; 68 ; 2 ; 207 ; 0 ; 252 ; 0.6 ; 476 ; 0.5 ; 2025 ; 1", 0);
+	int weapon = SpawnWeapon(client, "tf_weapon_stickbomb", 307, 101, 5, "2 ; 3.1 ; 28 ; 0.5 ; 68 ; 2 ; 207 ; 0 ; 252 ; 0.6 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 20);
