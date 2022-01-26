@@ -367,6 +367,15 @@ public bool Seeman_Create(int client)//scp682
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 		CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 	}
+	
+	for(int target=1; target<=MaxClients; target++)
+	{
+		if(Client[target].Class == IndexSeeldier)
+		{
+			EmitSoundToClient(client, Seeduo);
+			break;
+		}
+	}
 
 	return false;
 }
