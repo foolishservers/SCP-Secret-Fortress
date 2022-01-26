@@ -7,6 +7,7 @@ static int Index457;
 public void SCP457_Enable(int index)
 {
 	Index457 = index;
+	Health[client] = HealthMax;
 }
 
 public bool SCP457_Create(int client)
