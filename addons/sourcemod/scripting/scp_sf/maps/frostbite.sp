@@ -381,7 +381,7 @@ public bool Seeman_Create(int client)//scp682
 
 public void Seeman_OnKill(int client, int victim)
 {
-	Seeman_Kill(int client);
+	Seeman_Kill(client);
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
