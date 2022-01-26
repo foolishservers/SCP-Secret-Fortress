@@ -4,7 +4,7 @@ static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
-static const char Seeduo[] = "682\roar.mp3";
+static const char Seeduo[] = "682/roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
 static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
 static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
@@ -368,14 +368,6 @@ public bool Seeman_Create(int client)//scp682
 		CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 	}
 
-	for(int target=1; target<=MaxClients; target++)
-	{
-		if(Client[target].Class == IndexSeeldier)
-		{
-			EmitSoundToClient(client, Seeduo);
-			break;
-		}
-	}
 	return false;
 }
 
@@ -429,6 +421,7 @@ static bool Seeman_Kill(int client)
 		case 0:
 		{
 			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
+			ChangeGlobalSong(GetGameTime()+10.0, NukeSong);
 			return false;
 		}
 		default:
