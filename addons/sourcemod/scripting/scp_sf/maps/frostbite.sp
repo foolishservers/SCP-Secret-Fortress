@@ -1,7 +1,7 @@
 static int IndexHeavyBlu;
 static int IndexHeavyRed;
 static int IndexSeeman;
-static int IndexSeeldier;
+//static int IndexSeeldier;
 static int IndexSeeldier2;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
 static const char Seeduo[] = "682/roar.mp3";
