@@ -8,13 +8,12 @@ static int Index457;
 public void SCP457_Enable(int index)
 {
 	Index457 = index;
-	Health[client] = HealthMax;
 }
 
 public bool SCP457_Create(int client)
 {
 	Classes_VipSpawn(client);
-
+	Health[client] = HealthMax;
 	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "60 ; 0.1 ; 1 ; 0.061538 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 3.0 ; 28 ; 0.5 ; 138 ; 1.25 ; 208 ; 1 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
