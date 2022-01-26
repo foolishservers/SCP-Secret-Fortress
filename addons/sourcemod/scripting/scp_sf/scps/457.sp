@@ -69,9 +69,11 @@ public void SCP457_OnMaxHealth(int client, int &health)
 public Action SCP457_OnDealDamage(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(TF2_GetPlayerClass(victim) == TFClass_Pyro)
+	{
 		TF2_AddCondition(victim, TFCond_Gas, 3.0, client); 
 
-	return Plugin_Continue;
+		return Plugin_Continue;
+	}
 	if(Client[victim].IdleAt < GetGameTime())
 	{
 		damage = 1.0;
