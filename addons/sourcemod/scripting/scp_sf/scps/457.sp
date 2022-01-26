@@ -1,6 +1,7 @@
 static const int HealthKill = 200;
 static const int HealthSplit = 2500;
 static const int HealthMax = 2500;
+static int Health[MAXTF2PLAYERS];
 
 static int Index457;
 
