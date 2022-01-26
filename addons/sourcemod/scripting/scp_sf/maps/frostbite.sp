@@ -419,34 +419,26 @@ static bool Seeman_Kill(int client)
 		case 5:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
+			TF2_AddCondition(client, TFCond_SmallBulletResist, 999);
 		}
 		case 3:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+			TF2_AddCondition(client, TFCond_RegenBuffed, 999);
 		}
 		case 2:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+			TF2_AddCondition(client, TFCond_CritHype, 999);
 		}
 		case 1:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+			TF2_AddCondition(client, TFCond_DefenseBuffed, 999);
 		}
 		case 0:
 		{
-			SetEntityMoveType(client, MOVETYPE_NONE);
-			TF2_AddCondition(client, TFCond_MegaHeal, 4.5);
-			CreateTimer(4.5, Seeman_NukeTimer, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
-
-			ChangeGlobalSong(GetGameTime()+10.0, NukeSong);
-
-			int weapon = SpawnWeapon(client, "tf_weapon_bottle", 1, 101, 5, "2 ; 3.1 ; 68 ; 2 ; 207 ; 0 ; 252 ; 0.6 ; 2025 ; 1", 0);
-			if(weapon > MaxClients)
-			{
-				ApplyStrangeRank(weapon, 20);
-				SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
-				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-			}
+			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999);
 			return false;
 		}
 		default:
