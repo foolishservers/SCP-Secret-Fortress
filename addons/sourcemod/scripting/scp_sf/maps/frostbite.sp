@@ -4,7 +4,7 @@ static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
-static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
+static const char Seeduo[] = "682\roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
 static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
 static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
@@ -359,7 +359,7 @@ public bool Seeman_Create(int client)//scp682
 			Client[client].Extra2++;
 	}
 
-	int weapon = SpawnWeapon(client, "tf_weapon_stickbomb", 307, 101, 5, "2 ; 3.1 ; 28 ; 0.5 ; 68 ; 2 ; 207 ; 0 ; 252 ; 0.6 ; 476 ; 0.5 ; 2025 ; 1", 0); 
+	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 593, 101, 5, "2 ; 2.5 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.3 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 20);
@@ -381,17 +381,7 @@ public bool Seeman_Create(int client)//scp682
 
 public void Seeman_OnKill(int client, int victim)
 {
-	if(Seeman_Kill(client) && IndexSeeldier)
-	{
-		for(int i=1; i<=MaxClients; i++)
-		{
-			if(IsClientInGame(i) && Client[i].Class==IndexSeeldier)
-			{
-				Seeldier_Kill(i, victim);
-				break;
-			}
-		}
-	}
+	Seeman_Kill(int client);
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
