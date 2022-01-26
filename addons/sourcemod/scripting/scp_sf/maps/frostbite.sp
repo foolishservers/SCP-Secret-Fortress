@@ -3,11 +3,11 @@ static int IndexHeavyRed;
 static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
-//static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
-//static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
-//static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
-//static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
-//static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
+static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
+static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
+static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
+static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
+static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
 
 public void HeavyBlu_Enable(int index)
 {
