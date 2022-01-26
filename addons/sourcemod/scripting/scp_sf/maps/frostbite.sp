@@ -419,26 +419,26 @@ static bool Seeman_Kill(int client)
 		case 5:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
-			TF2_AddCondition(client, TFCond_SmallBulletResist, 999);
+			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
 		}
 		case 3:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
-			TF2_AddCondition(client, TFCond_RegenBuffed, 999);
+			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
 		}
 		case 2:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-			TF2_AddCondition(client, TFCond_CritHype, 999);
+			TF2_AddCondition(client, TFCond_CritHype, 999.0);
 		}
 		case 1:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
-			TF2_AddCondition(client, TFCond_DefenseBuffed, 999);
+			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
 		}
 		case 0:
 		{
-			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999);
+			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
 			return false;
 		}
 		default:
