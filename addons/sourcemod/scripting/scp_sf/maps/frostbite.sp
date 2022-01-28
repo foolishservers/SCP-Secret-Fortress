@@ -3,7 +3,7 @@ static int IndexHeavyRed;
 static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
-static int 682ks;
+//static int 682ks;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
 static const char Seeduo[] = "682\roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
@@ -347,12 +347,12 @@ public Action HeavyRed_OnTakeDamage(int client, int attacker, int &inflictor, fl
 public void Seeman_Enable(int index)
 {
 	IndexSeeman = index;
-	682ks = 0; 
 }
 
 public bool Seeman_Create(int client)//scp682
 {
 	Classes_VipSpawn(client);
+	682ks = 0; 
 
 	Client[client].Extra2 = 3;
 	for(int i=1; i<=MaxClients; i++)
