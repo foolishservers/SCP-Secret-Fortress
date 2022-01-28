@@ -381,7 +381,40 @@ public bool Seeman_Create(int client)//scp682
 
 public void Seeman_OnKill(int client, int victim)
 {
-	Seeman_Kill(client);
+	switch(Client[client].Extra2--)
+	{
+		case 5:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
+			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
+		}
+		case 3:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+		}
+		case 2:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+			TF2_AddCondition(client, TFCond_CritHype, 999.0);
+		}
+		case 1:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+		}
+		case 0:
+		{
+			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
+			return false;
+		}
+		default:
+		{
+			if(Client[client].Extra2 < 0)
+				return false;
+		}
+	}
+	return true;
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
