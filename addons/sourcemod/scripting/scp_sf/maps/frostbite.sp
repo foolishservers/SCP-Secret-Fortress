@@ -352,7 +352,7 @@ public void Seeman_Enable(int index)
 public bool Seeman_Create(int client)//scp682
 {
 	Classes_VipSpawn(client);
-	682ks = 0.1; 
+	682ks = 0.0; 
 
 	Client[client].Extra2 = 3;
 	for(int i=1; i<=MaxClients; i++)
