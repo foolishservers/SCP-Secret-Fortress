@@ -3,6 +3,7 @@ static int IndexHeavyRed;
 static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
+static int 682ks;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
 static const char Seeduo[] = "682\roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
@@ -346,6 +347,7 @@ public Action HeavyRed_OnTakeDamage(int client, int attacker, int &inflictor, fl
 public void Seeman_Enable(int index)
 {
 	IndexSeeman = index;
+	682ks = 0; 
 }
 
 public bool Seeman_Create(int client)//scp682
@@ -381,40 +383,8 @@ public bool Seeman_Create(int client)//scp682
 
 public void Seeman_OnKill(int client, int victim)
 {
-	switch(Client[client].Extra2--)
-	{
-		case 5:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
-			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
-		}
-		case 3:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
-			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
-		}
-		case 2:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-			TF2_AddCondition(client, TFCond_CritHype, 999.0);
-		}
-		case 1:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
-			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
-		}
-		case 0:
-		{
-			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
-			return false;
-		}
-		default:
-		{
-			if(Client[client].Extra2 < 0)
-				return false;
-		}
-	}
-	return true;
+	int add(682ks, 1);
+	Seeman_Kill(client);
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
@@ -437,37 +407,35 @@ public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &ch
 
 static bool Seeman_Kill(int client)
 {
-	switch(Client[client].Extra2--)
+	switch(682ks)
 	{
-		case 5:
+		case 2:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
 		}
-		case 3:
+		case 4:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
 			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
 		}
-		case 2:
+		case 7:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
 			TF2_AddCondition(client, TFCond_CritHype, 999.0);
 		}
-		case 1:
+		case 9:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
 			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
 		}
-		case 0:
-		{
+		case 13:
+		{	
+			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
 			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
+			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
 			return false;
-		}
-		default:
-		{
-			if(Client[client].Extra2 < 0)
-				return false;
 		}
 	}
 	return true;
