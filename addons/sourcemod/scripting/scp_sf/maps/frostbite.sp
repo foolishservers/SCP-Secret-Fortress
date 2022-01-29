@@ -11,7 +11,6 @@ static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
 static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
 static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
 
-float OFF_THE_MAP[3] = {16383.0, 16383.0, -16383.0};
 
 public void HeavyBlu_Enable(int index)
 {
