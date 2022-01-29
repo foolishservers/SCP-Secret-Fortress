@@ -1,3 +1,4 @@
+#define POWERUP "item_powerup_rune"
 static int IndexHeavyBlu;
 static int IndexHeavyRed;
 static int IndexSeeman;
@@ -9,6 +10,23 @@ static const char Seeduo[] = "682\roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
 static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
 static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
+
+float OFF_THE_MAP[3] = {16383.0, 16383.0, -16383.0};
+
+public void OnEntityCreated(int entity, const char[] classname)
+{
+	if(Enabled && !StrContains(classname, POWERUP))
+		SDKHook(entity, SDKHook_Spawn, KillOnSpawn); 
+}
+
+public Action KillOnSpawn(int entity)
+{
+	if(Enabled && IsValidEdict(entity) && entity>MaxClients)
+	{
+		TeleportEntity(entity, OFF_THE_MAP, NULL_VECTOR, NULL_VECTOR);
+		AcceptEntityInput(entity, "Kill");
+	}
+}
 
 public void HeavyBlu_Enable(int index)
 {
@@ -355,7 +373,7 @@ public bool Seeman_Create(int client)//scp682
 
 	Client[client].Extra2 = 0;
 
-	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 593, 101, 5, "2 ; 2.5 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.3 ; 476 ; 0.5 ; 2025 ; 1", 0); 
+	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 326, 101, 5, "2 ; 2.5 ; 5 ; 0.8 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.3 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 20);
@@ -376,27 +394,36 @@ public void Seeman_OnKill(int client, int victim)
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
 		}
-		case 4:
+		case 5:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
 			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+			TF2_AddCondition(client, TFCond_RuneVampire, 999.0);
 		}
-		case 7:
+		case 8:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-			TF2_AddCondition(client, TFCond_CritHype, 999.0);
+			TF2_AddCondition(client, TFCond_MiniCritOnKill, 999.0);
 		}
-		case 9:
+		case 11:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
 			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
-			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
 		}
-		case 13:
+		case 20:
 		{	
 			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
-			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
-			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
+			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
+			if(weapon > MaxClients)
+			{
+				ApplyStrangeRank(weapon, 18);
+				SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
+				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+
+			}
+			TF2_AddCondition(client, TFCond_HalloweenQuickHeal, 999.0);
+			TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
+	
 			//return false;
 		}
 	}
