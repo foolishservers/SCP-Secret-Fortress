@@ -13,21 +13,6 @@ static const char NukeSong[] = "freak_fortress_2/seesolo/seeman_nuke.mp3";
 
 float OFF_THE_MAP[3] = {16383.0, 16383.0, -16383.0};
 
-public void OnEntityCreated(int entity, const char[] classname)
-{
-	if(Enabled && !StrContains(classname, POWERUP))
-		SDKHook(entity, SDKHook_Spawn, KillOnSpawn); 
-}
-
-public Action KillOnSpawn(int entity)
-{
-	if(Enabled && IsValidEdict(entity) && entity>MaxClients)
-	{
-		TeleportEntity(entity, OFF_THE_MAP, NULL_VECTOR, NULL_VECTOR);
-		AcceptEntityInput(entity, "Kill");
-	}
-}
-
 public void HeavyBlu_Enable(int index)
 {
 	IndexHeavyBlu = index;
