@@ -421,8 +421,8 @@ public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &ch
 	return Plugin_Continue;
 }
 
-static bool Seeman_Kill(int client)
-{
+//static bool Seeman_Kill(int client)
+//{
 //	switch(682ks)
 //	{
 //		case 2:
@@ -455,7 +455,7 @@ static bool Seeman_Kill(int client)
 //		}
 //	}
 //	return true;
-}
+//}
 
 public Action Seeman_CaberTimer(Handle timer, int ref)
 {
@@ -493,10 +493,10 @@ public Action Seeman_NukeTimer(Handle timer, int userid)
 	}
 }
 
-public void Seeldier_Enable(int index)
-{
-	IndexSeeldier = index;
-}
+//public void Seeldier_Enable(int index)
+//{
+	//IndexSeeldier = index;
+//}
 
 public void Seeldier2_Enable(int index)
 {
