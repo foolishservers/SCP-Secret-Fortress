@@ -423,38 +423,38 @@ public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &ch
 
 static bool Seeman_Kill(int client)
 {
-	switch(682ks)
-	{
-		case 2:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
-			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
-		}
-		case 4:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
-			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
-		}
-		case 7:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-			TF2_AddCondition(client, TFCond_CritHype, 999.0);
-		}
-		case 9:
-		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
-			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
-			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
-		}
-		case 13:
-		{	
-			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
-			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
-			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
-			return false;
-		}
-	}
-	return true;
+//	switch(682ks)
+//	{
+//		case 2:
+//		{
+//			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
+//			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
+//		}
+//		case 4:
+//		{
+//			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+//			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+//		}
+//		case 7:
+//		{
+//			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+//			TF2_AddCondition(client, TFCond_CritHype, 999.0);
+//		}
+//		case 9:
+//		{
+//			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+//			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+//			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
+//		}
+//		case 13:
+//		{	
+//			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
+//			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
+//			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
+//			return false;
+//		}
+//	}
+//	return true;
 }
 
 public Action Seeman_CaberTimer(Handle timer, int ref)
