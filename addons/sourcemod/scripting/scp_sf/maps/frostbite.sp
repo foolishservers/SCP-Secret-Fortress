@@ -3,7 +3,7 @@ static int IndexHeavyRed;
 static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
-static const int 682ks = 0;
+//static const int 682ks = 0;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
 static const char Seeduo[] = "682\roar.mp3";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
@@ -353,12 +353,7 @@ public bool Seeman_Create(int client)//scp682
 {
 	Classes_VipSpawn(client);
 
-	Client[client].Extra2 = 3;
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(IsClientInGame(i) && GetClientTeam(i)>view_as<int>(TFTeam_Spectator))
-			Client[client].Extra2++;
-	}
+	Client[client].Extra2 = 0;
 
 	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 593, 101, 5, "2 ; 2.5 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.3 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
@@ -368,22 +363,44 @@ public bool Seeman_Create(int client)//scp682
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 		CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 	}
-
-	for(int target=1; target<=MaxClients; target++)
-	{
-		if(Client[target].Class == IndexSeeldier)
-		{
-			EmitSoundToClient(client, Seeduo);
-			break;
-		}
-	}
 	return false;
 }
 
 public void Seeman_OnKill(int client, int victim)
 {
-	int add(682ks, 1);
-	Seeman_Kill(client);
+	Client[client].Extra2++;
+	switch(Client[client].Extra2)
+	{
+		case 2:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
+			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
+		}
+		case 4:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+		}
+		case 7:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+			TF2_AddCondition(client, TFCond_CritHype, 999.0);
+		}
+		case 9:
+		{
+			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
+		}
+		case 13:
+		{	
+			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
+			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
+			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
+			//return false;
+		}
+	}
+	//return true;
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
