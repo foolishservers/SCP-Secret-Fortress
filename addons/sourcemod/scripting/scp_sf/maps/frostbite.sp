@@ -378,7 +378,7 @@ public void Seeman_OnKill(int client, int victim)
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
-			ChangeGlobalSong(FAR_FUTURE, NukeSong)
+			ChangeGlobalSong(FAR_FUTURE, NukeSong);
 		}
 		case 5:
 		{
