@@ -357,7 +357,7 @@ public bool Seeman_Create(int client)//scp682
 
 	Client[client].Extra2 = 0;
 
-	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 326, 101, 5, "2 ; 2.5 ; 5 ; 0.8 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.3 ; 476 ; 0.5 ; 2025 ; 1", 0); 
+	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 326, 101, 5, "264 ; 1.15 ; 149 ; 3 ; 737 ; 1 ; 190 ; 10 ; 2 ; 2.5 ; 5 ; 0.6 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.1 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 20);
@@ -397,7 +397,7 @@ public void Seeman_OnKill(int client, int victim)
 		case 20:
 		{	
 			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
-			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
+			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "149 ; 5 ; 54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
 			if(weapon > MaxClients)
 			{
 				ApplyStrangeRank(weapon, 18);
