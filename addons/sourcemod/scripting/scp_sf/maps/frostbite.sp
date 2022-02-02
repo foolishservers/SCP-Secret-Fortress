@@ -356,6 +356,7 @@ public bool Seeman_Create(int client)//scp682
 	Classes_VipSpawn(client);
 
 	Client[client].Extra2 = 0;
+	Client[client].Extra3 = 0;
 
 	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 326, 101, 5, "264 ; 1.15 ; 149 ; 3 ; 737 ; 1 ; 190 ; 10 ; 2 ; 2.5 ; 5 ; 0.6 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.1 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
@@ -377,26 +378,30 @@ public void Seeman_OnKill(int client, int victim)
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
+			ChangeGlobalSong(FAR_FUTURE, NukeSong)
 		}
 		case 5:
 		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+			TF2_RemoveCondition(client, TFCond_SmallBulletResist);
+			TF2_AddCondition(client, TFCond_UberBulletResist, 999.0);
 		}
 		case 8:
 		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-			TF2_AddCondition(client, TFCond_MiniCritOnKill, 999.0);
-			TF2_AddCondition(client, TFCond_HalloweenGiant, 999.0);
+			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
+			TF2_AddCondition(client, TFCond_Buffed, 999.0);
+			TF2_AddCondition(client, TFCond_RuneVampire, 999.0);
 		}
 		case 11:
 		{
-			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
 			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+			TF2_AddCondition(client, TFCond_SmallFireResist, 999.0);
 		}
 		case 20:
 		{	
-			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
+			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
 			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "149 ; 5 ; 54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
 			if(weapon > MaxClients)
 			{
@@ -407,11 +412,103 @@ public void Seeman_OnKill(int client, int victim)
 			}
 			TF2_AddCondition(client, TFCond_HalloweenQuickHeal, 999.0);
 			TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
+			TF2_RemoveCondition(client, TFCond_SmallFireResist);
 	
 			//return false;
 		}
 	}
 	//return true;
+}
+
+public bool SCP682_OnPickup(int client, int entity)
+{
+	char buffer[64];
+	GetEntityClassname(entity, buffer, sizeof(buffer));
+	if(StrEqual(buffer, "tf_dropped_weapon"))
+	{
+		ApplyHealEvent(client, 50);
+		SetEntityHealth(client, GetClientHealth(client)+50);
+		Client[client].Extra3++
+		RemoveEntity(entity);
+		switch(Client[client].Extra3)
+		{
+			case 3:
+			{
+				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+				TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
+			}
+			case 8:
+			{
+				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+				TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
+				TF2_RemoveCondition(client, TFCond_SmallBulletResist);
+				TF2_AddCondition(client, TFCond_UberBulletResist, 999.0);
+				ChangeGlobalSong(FAR_FUTURE, NukeSong);
+			}
+			case 16:
+			{
+				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+				TF2_AddCondition(client, TFCond_Buffed, 999.0);
+				TF2_AddCondition(client, TFCond_RuneVampire, 999.0);
+			}
+			case 26:
+			{
+				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
+				TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
+				TF2_AddCondition(client, TFCond_SmallFireResist, 999.0);
+			}
+			case 40:
+			{	
+				CPrintToChatAll("%s%t", PREFIX, "seeman_1");
+				//int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "149 ; 5 ; 54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
+				if(weapon > MaxClients)
+					{
+						ApplyStrangeRank(weapon, 18);
+						SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
+						SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+					}
+				TF2_AddCondition(client, TFCond_HalloweenQuickHeal, 999.0);
+				TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
+				TF2_RemoveCondition(client, TFCond_SmallFireResist);
+			}
+			return true;
+	}
+	else if(!StrContains(buffer, "prop_dynamic"))
+	{
+		GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
+		if(!StrContains(buffer, "scp_trigger", false))
+		{
+			ClassEnum class;
+			if(Classes_GetByIndex(Client[client].Class, class))
+			{
+				switch(class.Group)
+				{
+					case 0:
+						AcceptEntityInput(entity, "FireUser1", client, client);
+
+					case 1:
+						AcceptEntityInput(entity, "FireUser2", client, client);
+
+					case 2:
+						AcceptEntityInput(entity, "FireUser3", client, client);
+
+					default:
+						AcceptEntityInput(entity, "FireUser4", client, client);
+				}
+				return true;
+			}
+		}
+	}
+	else if(StrEqual(buffer, "func_button"))
+	{
+		GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
+		if(!StrContains(buffer, "scp_trigger", false))
+		{
+			AcceptEntityInput(entity, "Press", client, client);
+			return true;
+		}
+	}
+	return false;
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
@@ -432,77 +529,7 @@ public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &ch
 	return Plugin_Continue;
 }
 
-//static bool Seeman_Kill(int client)
-//{
-//	switch(682ks)
-//	{
-//		case 2:
-//		{
-//			CPrintToChatAll("%s%t", PREFIX, "seeman_5");
-//			TF2_AddCondition(client, TFCond_SmallBulletResist, 999.0);
-//		}
-//		case 4:
-//		{
-//			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
-//			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
-//		}
-//		case 7:
-//		{
-//			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
-//			TF2_AddCondition(client, TFCond_CritHype, 999.0);
-//		}
-//		case 9:
-//		{
-//			CPrintToChatAll("%s%t", PREFIX, "seeman_1");
-//			TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
-//			TF2_AddCondition(client, TFCond_PlagueRune, 999.0);
-//		}
-//		case 13:
-//		{	
-//			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
-//			TF2_AddCondition(client, TFCond_CritOnFirstBlood, 999.0);
-//			TF2_AddCondition(client, TFCond_MegaHeal, 999.0);
-//			return false;
-//		}
-//	}
-//	return true;
-//}
 
-public Action Seeman_CaberTimer(Handle timer, int ref)
-{
-	int entity = EntRefToEntIndex(ref);
-	if(entity <= MaxClients)
-		return Plugin_Stop;
-
-	SetEntProp(entity, Prop_Send, "m_bBroken", 0);
-	SetEntProp(entity, Prop_Send, "m_iDetonated", 0);
-	return Plugin_Continue;
-}
-
-public Action Seeman_NukeTimer(Handle timer, int userid)
-{
-	int client = GetClientOfUserId(userid);
-	if(client && IsClientInGame(client) && Client[client].Class==IndexSeeman)
-	{
-		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-		for(int i=1; i<=MaxClients; i++)
-		{
-			if(i!=client && IsClientInGame(i) && IsPlayerAlive(i))
-			{
-				if(TF2_IsPlayerInCondition(i, TFCond_HalloweenGhostMode))
-					TF2_RemoveCondition(i, TFCond_HalloweenGhostMode);
-
-				SDKHooks_TakeDamage(i, client, client, 3000.34, DMG_BLAST|DMG_CRUSH|DMG_CRIT, weapon);
-			}
-		}
-
-		ChangeGlobalSong(FAR_FUTURE, NukeSong);
-
-		FakeClientCommand(client, "+taunt");
-		FakeClientCommand(client, "+taunt");
-		SetEntityMoveType(client, MOVETYPE_WALK);
-	}
-}
 
 //public void Seeldier_Enable(int index)
 //{
