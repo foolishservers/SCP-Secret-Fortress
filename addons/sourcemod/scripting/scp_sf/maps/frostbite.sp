@@ -382,12 +382,12 @@ public void Seeman_OnKill(int client, int victim)
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
 			TF2_AddCondition(client, TFCond_RegenBuffed, 999.0);
-			TF2_AddCondition(client, TFCond_RuneVampire, 999.0);
 		}
 		case 8:
 		{
 			CPrintToChatAll("%s%t", PREFIX, "seeman_2");
 			TF2_AddCondition(client, TFCond_MiniCritOnKill, 999.0);
+			TF2_AddCondition(client, TFCond_HalloweenGiant, 999.0);
 		}
 		case 11:
 		{
@@ -397,7 +397,7 @@ public void Seeman_OnKill(int client, int victim)
 		case 20:
 		{	
 			CPrintToChatAll("%s%t", PREFIX, "SCP-682의 최종 진화가 감지되었습니다. 행운을 빈다.");
-			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
+			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
 			if(weapon > MaxClients)
 			{
 				ApplyStrangeRank(weapon, 18);
