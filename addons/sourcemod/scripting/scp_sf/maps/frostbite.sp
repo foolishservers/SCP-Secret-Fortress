@@ -420,6 +420,42 @@ public void Seeman_OnKill(int client, int victim)
 	//return true;
 }
 
+public Action Seeman_CaberTimer(Handle timer, int ref)
+{
+	int entity = EntRefToEntIndex(ref);
+	if(entity <= MaxClients)
+		return Plugin_Stop;
+
+	SetEntProp(entity, Prop_Send, "m_bBroken", 0);
+	SetEntProp(entity, Prop_Send, "m_iDetonated", 0);
+	return Plugin_Continue;
+}
+
+public Action Seeman_NukeTimer(Handle timer, int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(client && IsClientInGame(client) && Client[client].Class==IndexSeeman)
+	{
+		int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		for(int i=1; i<=MaxClients; i++)
+		{
+			if(i!=client && IsClientInGame(i) && IsPlayerAlive(i))
+			{
+				if(TF2_IsPlayerInCondition(i, TFCond_HalloweenGhostMode))
+					TF2_RemoveCondition(i, TFCond_HalloweenGhostMode);
+
+				SDKHooks_TakeDamage(i, client, client, 3000.34, DMG_BLAST|DMG_CRUSH|DMG_CRIT, weapon);
+			}
+		}
+
+		ChangeGlobalSong(FAR_FUTURE, NukeSong);
+
+		FakeClientCommand(client, "+taunt");
+		FakeClientCommand(client, "+taunt");
+		SetEntityMoveType(client, MOVETYPE_WALK);
+	}
+}
+
 public bool SCP682_OnPickup(int client, int entity)
 {
 	char buffer[64];
