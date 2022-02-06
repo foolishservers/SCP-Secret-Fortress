@@ -467,7 +467,7 @@ public bool SCP682_OnPickup(int client, int entity)
 				TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
 				TF2_RemoveCondition(client, TFCond_SmallFireResist);
 			}
-			return true;
+			return Plugin_Continue;
 	}
 	
 	else if(!StrContains(buffer, "prop_dynamic"))
@@ -511,8 +511,8 @@ public bool SCP682_OnPickup(int client, int entity)
 
 public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {		
-	SetEntityHealth(client, GetClientHealth(client)+15);	
-	return Plugin_Continue;
+	SetEntityHealth(client, GetClientHealth(client)+15);
+	return Plugin_Changed;
 }
 
 public Action Seeman_CaberTimer(Handle timer, int ref)
