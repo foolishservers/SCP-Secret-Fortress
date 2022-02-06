@@ -416,10 +416,10 @@ public void Seeman_OnKill(int client, int victim)
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 			}
 			ChangeGlobalSong(FAR_FUTURE, NukeSong);
-			return false;
+			///return false;
 		}
 	}
-	return true;
+	//return true;
 }
 
 public bool SCP682_OnPickup(int client, int entity)
