@@ -354,10 +354,8 @@ public void Seeman_Enable(int index)
 public bool Seeman_Create(int client)//scp682
 {
 	Classes_VipSpawn(client);
-
 	Client[client].Extra2 = 0;
-	Client[client].Extra3 = 0;
-
+	Client[client].Extra3 = 0.0;
 	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 326, 101, 5, "264 ; 1.15 ; 149 ; 3 ; 737 ; 1 ; 190 ; 10 ; 2 ; 2.5 ; 5 ; 0.6 ; 28 ; 0.5 ; 68 ; 2 ; 252 ; 0.1 ; 476 ; 0.5 ; 2025 ; 1", 0); 
 	if(weapon > MaxClients)
 	{
@@ -402,6 +400,7 @@ public void Seeman_OnKill(int client, int victim)
 		case 20:
 		{	
 			CPrintToChatAll("%s%t", PREFIX, "seeman_3");
+			TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 			int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "149 ; 5 ; 54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
 			if(weapon > MaxClients)
 			{
@@ -410,9 +409,8 @@ public void Seeman_OnKill(int client, int victim)
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 
 			}
-			TF2_AddCondition(client, TFCond_HalloweenQuickHeal, 999.0);
-			TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
 			TF2_RemoveCondition(client, TFCond_SmallFireResist);
+			ChangeGlobalSong(FAR_FUTURE, NukeSong);
 	
 			//return false;
 		}
@@ -485,24 +483,17 @@ public bool SCP682_OnPickup(int client, int entity)
 			{
 				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
 				TF2_AddCondition(client, TFCond_Buffed, 999.0);
-				TF2_AddCondition(client, TFCond_RuneVampire, 999.0);
+				TF2_AddCondition(client, TFCond_SmallFireResist, 999.0);
 			}
 			case 26:
 			{
 				CPrintToChatAll("%s%t", PREFIX, "seeman_2");
 				TF2_AddCondition(client, TFCond_DefenseBuffed, 999.0);
-				TF2_AddCondition(client, TFCond_SmallFireResist, 999.0);
+				TF2_AddCondition(client, TFCond_BlastFireResist, 999.0);
 			}
 			case 40:
 			{	
 				CPrintToChatAll("%s%t", PREFIX, "seeman_1");
-				//int weapon = SpawnWeapon(client, "tf_weapon_knife", 8, 90, 13, "149 ; 5 ; 54 ; 1.3 ; 263 ; 1.34 ; 264 ; 1.5 ; 2 ; 3 ; 5 ; 0.3 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
-				if(weapon > MaxClients)
-					{
-						ApplyStrangeRank(weapon, 18);
-						SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
-						SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-					}
 				TF2_AddCondition(client, TFCond_HalloweenQuickHeal, 999.0);
 				TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
 				TF2_RemoveCondition(client, TFCond_SmallFireResist);
@@ -545,6 +536,12 @@ public bool SCP682_OnPickup(int client, int entity)
 		}
 	}
 	return false;
+}
+
+public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+{		
+	SetEntityHealth(client, GetClientHealth(client)+damage);	
+	//return Plugin_Continue;
 }
 
 public Action Seeman_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
