@@ -434,7 +434,7 @@ public bool SCP682_OnPickup(int client, int entity)
 	{
 		ApplyHealEvent(client, 10);
 		SetEntityHealth(client, GetClientHealth(client)+10);
-		Client[client].Extra3++
+		Client[client].Extra3++;
 		RemoveEntity(entity);
 		switch(Client[client].Extra3)
 		{
@@ -512,7 +512,7 @@ public bool SCP682_OnPickup(int client, int entity)
 public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {		
 	SetEntityHealth(client, GetClientHealth(client)+15);	
-	//return Plugin_Continue;
+	return Plugin_Continue;
 }
 
 public Action Seeman_CaberTimer(Handle timer, int ref)
