@@ -467,7 +467,9 @@ public bool SCP682_OnPickup(int client, int entity)
 				TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
 				TF2_RemoveCondition(client, TFCond_SmallFireResist);
 			}
+			return true;
 	}
+	
 	else if(!StrContains(buffer, "prop_dynamic"))
 	{
 		GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
@@ -494,6 +496,7 @@ public bool SCP682_OnPickup(int client, int entity)
 			}
 		}
 	}
+	
 	else if(StrEqual(buffer, "func_button"))
 	{
 		GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
