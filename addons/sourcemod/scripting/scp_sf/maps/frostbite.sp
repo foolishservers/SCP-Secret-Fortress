@@ -416,11 +416,10 @@ public void Seeman_OnKill(int client, int victim)
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 			}
 			ChangeGlobalSong(FAR_FUTURE, NukeSong);
-
-//return false;
+			return false;
 		}
 	}
-//return true;
+	return true;
 }
 
 public bool SCP682_OnPickup(int client, int entity)
@@ -430,7 +429,7 @@ public bool SCP682_OnPickup(int client, int entity)
 	if(StrEqual(buffer, "tf_dropped_weapon"))
 	{
 		ApplyHealEvent(client, 10);
-		SetEntityHealth(client, GetClientHealth(client)+10);
+		SetEntityHealth(client, GetClientHealth(client)++10);
 		Client[client].Extra3++;
 		RemoveEntity(entity);
 		switch(Client[client].Extra3)
@@ -510,7 +509,7 @@ public bool SCP682_OnPickup(int client, int entity)
 
 public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	SetEntityHealth(client, GetClientHealth(client)+15);
+	SetEntityHealth(client, GetClientHealth(client)++15);
 	return Plugin_Changed;
 }
 
