@@ -467,7 +467,7 @@ public bool SCP682_OnPickup(int client, int entity)
 				TF2_AddCondition(client, TFCond_UberFireResist, 999.0);
 				TF2_RemoveCondition(client, TFCond_SmallFireResist);
 			}
-			return Plugin_Continue;
+			//return Plugin_Continue;
 	}
 	
 	else if(!StrContains(buffer, "prop_dynamic"))
