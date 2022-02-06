@@ -362,7 +362,6 @@ public bool Seeman_Create(int client)//scp682
 		ApplyStrangeRank(weapon, 20);
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-		CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 	}
 	return false;
 }
@@ -383,7 +382,7 @@ public void Seeman_OnKill(int client, int victim)
 				ApplyStrangeRank(weapon, 20);
 				SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-				CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+			
 			}
 			
 			ChangeGlobalSong(FAR_FUTURE, NukeSong);
@@ -403,7 +402,6 @@ public void Seeman_OnKill(int client, int victim)
 				ApplyStrangeRank(weapon, 20);
 				SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-				CreateTimer(1.5, Seeman_CaberTimer, EntIndexToEntRef(weapon), TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 			}
 		}
 		case 20:
