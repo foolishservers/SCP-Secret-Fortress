@@ -508,8 +508,9 @@ public bool SCP682_OnPickup(int client, int entity)
 	}
 	return false;
 }
+
 public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{		
+{	
 	SetEntityHealth(client, GetClientHealth(client)+15);
 	return Plugin_Changed;
 }
