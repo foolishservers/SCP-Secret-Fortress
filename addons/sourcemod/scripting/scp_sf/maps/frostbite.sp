@@ -429,7 +429,7 @@ public bool SCP682_OnPickup(int client, int entity)
 	if(StrEqual(buffer, "tf_dropped_weapon"))
 	{
 		ApplyHealEvent(client, 10);
-		SetEntityHealth(client, GetClientHealth(client)++10);
+		SetEntityHealth(client, GetClientHealth(client) + 10);
 		Client[client].Extra3++;
 		RemoveEntity(entity);
 		switch(Client[client].Extra3)
