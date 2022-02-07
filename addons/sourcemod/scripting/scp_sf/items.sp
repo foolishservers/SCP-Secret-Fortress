@@ -1430,6 +1430,44 @@ public Action Items_DisarmerHit(int client, int victim, int &inflictor, float &d
 	return Plugin_Continue;
 }
 
+public Action Items_ScpouterHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapo, float damageForce[3], float damagePosition[3], int damagecustom)
+{
+	if(IsSCP(victim), Client[client].Class))
+	{
+		bool cancel;
+		if(!Client[victim].Scpouter)
+		{
+				TF2_AddCondition(victim, TFCond_PasstimePenaltyDebuff);
+				BfWrite bf = view_as<BfWrite>(StartMessageOne("HudNotifyCustom", victim));
+				if(bf)
+				{
+					char buffer[64];
+					FormatEx(buffer, sizeof(buffer), "%T", "disarmed", client);
+					bf.WriteString(buffer);
+					bf.WriteString("ico_notify_flag_moving_alt");
+					bf.WriteByte(view_as<int>(TFTeam_Red));
+					EndMessage();
+				}
+
+				ClassEnum class;
+				if(Classes_GetByIndex(Client[victim].Class, class) && class.Group==2 && !class.Vip)
+					GiveAchievement(Achievement_DisarmMTF, client);
+
+				CreateTimer(1.0, CheckAlivePlayers, _, TIMER_FLAG_NO_MAPCHANGE);
+				Client[victim].Scpouter = client;
+			}
+		}
+
+		if(!cancel)
+		{
+			//Client[victim].Disarmer = client;
+			//SDKCall_SetSpeed(victim);
+			return Plugin_Handled;
+		}
+	}
+	return Plugin_Continue;
+}
+
 public Action Items_HeadshotHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") != HITGROUP_HEAD ||
