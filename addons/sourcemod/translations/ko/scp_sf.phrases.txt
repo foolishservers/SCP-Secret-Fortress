@@ -1348,11 +1348,11 @@
 	}
 	"desc_seeman"
 	{
-		"ko"		"혐오스러운 인간을 모두 죽여라.\n인간을 죽이다 보면 진화를 하게 된다."
+		"ko"		"혐오스러운 인간을 모두 죽여라.\n아이템을 줍거나 인간을 죽이면 진화를 하게 된다."
 	}
 	"train_seeman"
 	{
-		"ko"		"혐오스러운 인간을 모두 죽여라.\n인간을 죽이다 보면 진화를 하게 된다.\nM2,E,+use를 사용해 상호작용 할 수 있습니다."
+		"ko"		"혐오스러운 인간을 모두 죽여라.\아이템을 줍거나 인간을 죽이면 진화를 하게 된다.\nM2,E,+use를 사용해 상호작용 할 수 있습니다."
 	}
 	"class_seeldier"
 	{
@@ -1464,19 +1464,19 @@
 	}
 	"seeman_5"
 	{
-		"ko"		"{darkred}SCP-682{default} 의 첫번째 진화가 감지되었습니다."
+		"ko"		"{darkred}SCP-682{default} 의 공격적 진화가 감지되었습니다."
 	}
 	"seeman_3"
 	{
-		"ko"		"{darkred}SCP-682{default} 의 두번째 진화가 감지되었습니다."
+		"ko"		"{darkred}SCP-682{default} 의 최종 공격적 진화가 감지되었습니다. 행운을 빈다."
 	}
 	"seeman_2"
 	{
-		"ko"		"{darkred}SCP-682{default} 의 세번째 진화가 감지되었습니다."
+		"ko"		"{darkred}SCP-682{default} 의 방어적 진화가 감지되었습니다."
 	}
 	"seeman_1"
 	{
-		"ko"		"{darkred}SCP-682{default} 의 네번째 진화가 감지되었습니다."
+		"ko"		"{darkred}SCP-682{default} 의 최종 방어적 진화가 감지되었습니다. 행운을 빈다."
 	}
 	"mtf_spawn_pandora"
 	{
