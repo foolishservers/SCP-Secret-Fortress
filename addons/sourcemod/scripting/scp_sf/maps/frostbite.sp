@@ -466,6 +466,7 @@ public bool SCP682_OnPickup(int client, int entity)
 				TF2_RemoveCondition(client, TFCond_SmallFireResist);
 			}
 			//return Plugin_Continue;
+		}
 	}
 
 	else if(!StrContains(buffer, "prop_dynamic"))
@@ -507,9 +508,9 @@ public bool SCP682_OnPickup(int client, int entity)
 	return false;
 }
 
-public Action 682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
+public Action SCP682_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	SetEntityHealth(client, GetClientHealth(client)++15);
+	SetEntityHealth(client, GetClientHealth(client) + 15);
 	return Plugin_Changed;
 }
 
