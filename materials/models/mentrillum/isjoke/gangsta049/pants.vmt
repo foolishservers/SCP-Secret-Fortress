@@ -1,0 +1,8 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/mentrillum/isjoke/gangsta049/pants"
+	"$bumpmap" "models/mentrillum/isjoke/gangsta049/pants_n"
+	"$nocull" 1
+"$model" "1"
+
+}
