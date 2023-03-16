@@ -2114,6 +2114,58 @@ public bool Items_207Button(int client, int weapon, int &buttons, int &holding)
 	return false;
 }
 
+static float snake_toolDelay[MAXTF2PLAYERS];
+
+public Action Items_snake_toolAction(Handle timer, int client)
+{
+	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if (IsValidEntity(weapon))
+	{	
+		if (!Items_IsDelayedActionCancelled(client))
+		{
+			snake_toolDelay[client] = GetGameTime() + 15.0;
+			TF2_AddCondition(client, TFCond_Stealthed, 5.0);
+			ClientCommand(client, "playgamesound misc/halloween/spell_stealth.wav");
+			
+			Items_CancelDelayedAction(client);
+		}
+		else 
+		{
+			ViewModel_SetAnimation(client, "idle");
+		}
+	}
+
+	return Plugin_Continue;
+}
+
+public bool Items_snake_toolButton(int client, int weapon, int &buttons, int &holding)
+{
+	if(!holding && (buttons & IN_ATTACK))
+	{
+		holding = IN_ATTACK;
+
+		if (!Items_InDelayedAction(client))
+		{
+			float engineTime = GetGameTime();
+			if(snake_toolDelay[client] > engineTime)
+			{
+				ClientCommand(client, "playgamesound items/medshotno1.wav");
+				PrintCenterText(client, "%T", "in_cooldown", client);
+				return false;
+			}
+			
+			Items_StartDelayedAction(client, 1.5, Items_snake_toolAction, client);
+			ViewModel_SetAnimation(client, "use");			
+		}
+	}
+	else if (!(buttons & IN_ATTACK))
+	{
+		Items_CancelDelayedAction(client);
+	}
+	
+	return false;
+}
+
 static float SCP268Delay[MAXTF2PLAYERS];
 
 public Action Items_268Action(Handle timer, int client)
