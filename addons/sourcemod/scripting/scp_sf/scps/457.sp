@@ -1,11 +1,7 @@
-#pragma semicolon 1
-#pragma newdecls required
-
-static const int HealthKill = 450;
-static const int HealthSplit = 2500;
-
-static const int HealthKillSZF = 200;		// Gain health on kill in SZF
-static const int HealthSplitSZF = 1000;		// Needed health to split in SZF
+static const int HealthKill = 200;
+static const int HealthSplit = 1500;
+static const int HealthMax = 1500;
+static int Health[MAXTF2PLAYERS];
 
 static int Index457;
 
@@ -17,8 +13,8 @@ public void SCP457_Enable(int index)
 public bool SCP457_Create(int client)
 {
 	Classes_VipSpawn(client);
-
-	int weapon = SpawnWeapon(client, "tf_weapon_fireaxe", 649, 50, 13, "1 ; 0.061538 ; 28 ; 0.5 ; 60 ; 0.3 ; 138 ; 2.5 ; 208 ; 1 ; 219 ; 1 ; 252 ; 0.65", false);
+	Health[client] = HealthMax;
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "60 ; 0.1 ; 1 ; 0.061538 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 2.0 ; 28 ; 0.5 ; 138 ; 0.01 ; 71 ; 2.5 ; 208 ; 5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8 ; 363 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 14);
@@ -44,18 +40,6 @@ public void SCP457_OnButton(int client, int button)
 public void SCP457_OnDeath(int client, Event event)
 {
 	Classes_DeathScp(client, event);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp457terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
-	
 	CreateTimer(0.1, Timer_DissolveRagdoll, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -86,9 +70,29 @@ public void SCP457_OnMaxHealth(int client, int &health)
 public Action SCP457_OnDealDamage(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(TF2_GetPlayerClass(victim) == TFClass_Pyro)
+	{
 		TF2_AddCondition(victim, TFCond_Gas, 3.0, client); 
 
-	return Plugin_Continue;
+		return Plugin_Continue;
+	}
+	if(Client[victim].IdleAt < GetGameTime())
+	{
+		damage = 1.0;
+		damagetype &= ~DMG_CRIT;
+		Client[victim].HudIn = GetGameTime()+6.0;
+		return Plugin_Changed;
+	}
+
+	if(damagecustom!=TF_CUSTOM_BACKSTAB || damage<108)
+	{
+		Client[victim].HudIn = GetGameTime()+6.0;
+		return Plugin_Continue;
+	}
+
+	damage = 1.0;
+	damagetype &= ~DMG_CRIT;
+	Client[victim].HudIn = GetGameTime()+13.0;
+	return Plugin_Changed;
 }
 
 public bool SCP457_OnPickup(int client, int entity)
@@ -170,30 +174,4 @@ public Action SCP457_Timer(Handle timer, DataPack pack)
 		}
 	}
 	return Plugin_Continue;
-}
-
-// SZF only
-
-public void SZF457_OnKill(int client, int victim)
-{
-	int health = GetClientHealth(client);
-	int newHealth = health+HealthKillSZF;
-	if(newHealth >= HealthSplitSZF)
-	{
-		newHealth -= 500;
-
-		DataPack pack;
-		CreateDataTimer(0.5, SCP457_Timer, pack, TIMER_FLAG_NO_MAPCHANGE);
-		pack.WriteCell(GetClientUserId(client));
-		pack.WriteCell(GetClientUserId(victim));
-		pack.WriteCell(newHealth);
-	}
-
-	ApplyHealEvent(client, newHealth-health);
-	SetEntityHealth(client, newHealth);
-}
-
-public void SZF457_OnMaxHealth(int client, int &health)
-{
-	health = HealthSplitSZF;
 }
