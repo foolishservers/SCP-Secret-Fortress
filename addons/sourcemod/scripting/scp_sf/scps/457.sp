@@ -1,6 +1,6 @@
-static const int HealthKill = 200;
-static const int HealthSplit = 1500;
-static const int HealthMax = 1500;
+static const int HealthKill = 150;
+static const int HealthSplit = 2500;
+static const int HealthMax = 2500;
 static int Health[MAXTF2PLAYERS];
 
 static int Index457;
@@ -14,7 +14,7 @@ public bool SCP457_Create(int client)
 {
 	Classes_VipSpawn(client);
 	Health[client] = HealthMax;
-	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "60 ; 0.1 ; 1 ; 0.061538 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 2.0 ; 28 ; 0.5 ; 138 ; 0.01 ; 71 ; 2.5 ; 208 ; 5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8 ; 363 ; 1", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "182 ; 2 ; 737 ; 2 ; 60 ; 0.1 ; 1 ; 0.061538 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 2.0 ; 28 ; 0.5 ; 138 ; 0.01 ; 71 ; 100 ; 208 ; 5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8 ; 363 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 14);
