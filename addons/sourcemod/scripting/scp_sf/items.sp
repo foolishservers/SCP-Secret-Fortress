@@ -1534,6 +1534,44 @@ public Action Items_DisarmerHit(int client, int victim, int &inflictor, float &d
 	return Plugin_Continue;
 }
 
+public Action Items_scpcapHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapo, float damageForce[3], float damagePosition[3], int damagecustom)
+{
+	if(IsSCP(victim))
+	{
+		bool cancel;
+		if(!Client[victim].scpcap)
+		{
+			cancel = Items_IsHoldingWeapon(victim);
+			if(!cancel)
+			{
+				TF2_AddCondition(victim, TFCond_SpeedBuffAlly);
+				BfWrite bf = view_as<BfWrite>(StartMessageOne("HudNotifyCustom", victim));
+				if(bf)
+				{
+					char buffer[64];
+					FormatEx(buffer, sizeof(buffer), "%T", "scpcaped", client);
+					bf.WriteString(buffer);
+					bf.WriteString("ico_notify_flag_moving_alt");
+					bf.WriteByte(view_as<int>(TFTeam_Red));
+					EndMessage();
+				}
+
+				CreateTimer(1.0, CheckAlivePlayers, _, TIMER_FLAG_NO_MAPCHANGE);
+				Client[victim].scpcap = client;
+			}
+		}
+
+		if(!cancel)
+		{
+			//Client[victim].Disarmer = client;
+			//SDKCall_SetSpeed(victim);
+			return Plugin_Handled;
+		}
+	}
+	return Plugin_Continue;
+}
+
+
 public Action Items_HeadshotHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") != HITGROUP_HEAD ||
@@ -2125,6 +2163,7 @@ public Action Items_snake_toolAction(Handle timer, int client)
 		{
 			snake_toolDelay[client] = GetGameTime() + 15.0;
 			TF2_AddCondition(client, TFCond_Stealthed, 5.0);
+			TF2_AddCondition(client, TFCond_DodgeChance, 5.0);
 			ClientCommand(client, "playgamesound misc/halloween/spell_stealth.wav");
 			
 			Items_CancelDelayedAction(client);
@@ -2720,6 +2759,73 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 			return false;
 		}
 	}
+
+public bool Items_scpcapButton(int client, int weapon, int &buttons, int &holding)
+{
+	static int previousTarget[MAXTF2PLAYERS];
+	static float scpcapCharge[MAXTF2PLAYERS];
+
+	if(!(buttons & IN_ATTACK2))
+	{
+		previousTarget[client] = -1;
+		scpcapCharge[client] = 0.0;
+		return false;
+	}
+
+	float engineTime = GetGameTime();
+	static float delay[MAXTF2PLAYERS];
+
+	// Only allow the disarmer and disarmed player's team to undisarm (to prevent griefing and accidents)
+	bool canUnscpcap= Client[target].scpcap > 0 && (client == Client[target].scpcap || isTargetTeammate);
 	
+	if((canscpcap || canscpcap) && delay[client] < engineTime)
+	{
+		delay[client] = engineTime + 0.1;
+		scpcapCharge[client] += 10.0;
+		
+		SetHudTextParamsEx(-1.0, 0.6, 0.35, Client[client].Colors, Client[client].Colors, 0, 1.0, 0.01, 0.5);
+		if(canscpcap)
+		{
+			ShowSyncHudText(client, HudPlayer, "%t", "scpcap_other", target, scpcapCharge[client]);
+			ShowSyncHudText(target, HudPlayer, "%t", "scpcap_me", client, scpcapCharge[client]);
+		}
+		else if (canscpcap)
+		{
+			ShowSyncHudText(client, HudPlayer, "%t", "scpcap_other", target, scpcapCharge[client]);
+			ShowSyncHudText(target, HudPlayer, "%t", "scpcap_me", client, scpcapCharge[client]);
+		}
+	
+		if(scpcapCharge[client] >= 100.0)
+		{
+			if(canscpcap)
+			{
+				TF2_AddCondition(target, TFCond_SpeedBuffAlly);
+				BfWrite bf = view_as<BfWrite>(StartMessageOne("HudNotifyCustom", target));
+				if(bf)
+				{
+					char buffer[64];
+					FormatEx(buffer, sizeof(buffer), "%T", "scpcaped", client);
+					bf.WriteString(buffer);
+					bf.WriteString("ico_notify_flag_moving_alt");
+					bf.WriteByte(view_as<int>(TFTeam_Red));
+					EndMessage();
+				}
+				
+				
+				Client[target].scpcap = client;
+			}
+			else if (canUnscpcap)
+			{
+				TF2_RemoveCondition(target, TFCond_SpeedBuffAlly);
+				Client[target].scpcap = 0;
+			}
+			
+			scpcapCharge[client] = 0.0;
+			previousTarget[client] = -1;
+			delay[client] = engineTime + 1.0;
+			
+			return false;
+		}
+	}
 	return true;
 }
