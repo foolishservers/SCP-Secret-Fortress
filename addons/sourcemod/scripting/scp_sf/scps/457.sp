@@ -1,6 +1,6 @@
-static const int HealthKill = 100;
-static const int HealthSplit = 2250;
-static const int HealthMax = 2500;
+static const int HealthKill = 50;
+static const int HealthSplit = 1600;
+static const int HealthMax = 2400;
 static int Health[MAXTF2PLAYERS];
 
 static int Index457;
@@ -14,7 +14,7 @@ public bool SCP457_Create(int client)
 {
 	Classes_VipSpawn(client);
 	Health[client] = HealthMax;
-	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "16 ; 1 ; 182 ; 3 ; 737 ; 3 ; 60 ; 0.1 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 2.25 ; 28 ; 0.5 ; 138 ; 0.25 ; 71 ; 150 ; 208 ; 5 ; 252 ; 0.65 ; 412 ; 0.8 ; 363 ; 1", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 649, 50, 13, "1 ; 0.5 ; 16 ; 1 ; 182 ; 3 ; 737 ; 3 ; 60 ; 0.1 ; 5 ; 0.1 ; 263 ; 10 ; 264 ; 2.25 ; 28 ; 0.5 ; 138 ; 0.1 ; 71 ; 175 ; 208 ; 10 ; 252 ; 0.65 ; 412 ; 0.8 ; 363 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 14);
@@ -49,7 +49,7 @@ public void SCP457_OnKill(int client, int victim)
 	int newHealth = health+HealthKill;
 	if(newHealth >= HealthSplit)
 	{
-		newHealth -= 1000;
+		newHealth -= 500;
 
 		DataPack pack;
 		CreateDataTimer(0.5, SCP457_Timer, pack, TIMER_FLAG_NO_MAPCHANGE);
@@ -101,7 +101,7 @@ public bool SCP457_OnPickup(int client, int entity)
 	GetEntityClassname(entity, buffer, sizeof(buffer));
 	if(StrEqual(buffer, "tf_dropped_weapon"))
 	{
-		ApplyHealEvent(client, 50);
+		ApplyHealEvent(client, 25);
 		SetEntityHealth(client, GetClientHealth(client)+50);
 		RemoveEntity(entity);
 		return true;
