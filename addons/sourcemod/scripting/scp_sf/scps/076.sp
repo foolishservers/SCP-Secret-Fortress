@@ -56,7 +56,7 @@ public void SCP076_OnKill(int client, int victim)
 		TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 		SetEntityHealth(client, GetClientHealth(client)+HealthRage);
 
-		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "2 ; 11 ; 5 ; 1.75 ; 252 ; 0 ; 326 ; 1.67", 2, true);
+		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "2 ; 11 ; 5 ; 1.75 ; 252 ; 0 ; 326 ; 1.67 ; 778 ; 0.25", 2, true);
 		if(weapon > MaxClients)
 		{
 			ApplyStrangeRank(weapon, 18);
