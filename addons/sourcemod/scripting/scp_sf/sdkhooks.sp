@@ -67,6 +67,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_Spawn, OnDoorSpawned);
 	}
+	else if(StrEqual(classname, "obj_dispenser"))
+	{
+		SDKHook(entity, SDKHook_SpawnPost, OnDispenserSpawnPost);
+	}
 }
 
 public void OnSmallHealthSpawned(int entity)
@@ -339,6 +343,12 @@ public Action OnDoorTouch(int entity, int client)
 	}
 	
 	return Plugin_Continue;
+}
+
+public void OnDispenserSpawnPost(int entity)
+{
+	SetVariantInt(1);
+	AcceptEntityInput(entity, "SetSolidToPlayer");
 }
 
 public void OnPlayerManagerThink(int entity) 
