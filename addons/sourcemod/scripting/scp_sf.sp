@@ -3362,7 +3362,7 @@ public Action CH_ShouldCollide(int client, int entity, bool &result)
 		{
 			static char buffer[16];
 			GetEntityClassname(entity, buffer, sizeof(buffer));
-			if(!StrContains(buffer, "func_door") || StrEqual(buffer, "func_movelinear") || !StrContains(buffer, "func_brush") || !StrContains(buffer, "obj_dispenser"))
+			if(!StrContains(buffer, "func_door") || StrEqual(buffer, "func_movelinear") || !StrContains(buffer, "func_brush"))
 			{
 				result = Classes_OnDoorWalk(client, entity);
 				return Plugin_Handled;
