@@ -54,7 +54,7 @@ public bool SCP049_Create(int client)
 
 public bool SCP0492_Create(int client)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0.5 ; 264 ; 0.6", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "137 ; 1.5 ; 2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0.5 ; 264 ; 0.6", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 4);
