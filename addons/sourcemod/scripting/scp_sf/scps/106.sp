@@ -14,19 +14,20 @@ public bool SCP106_Create(int client)
 	Client[client].Pos[1] = 0.0;
 	Client[client].Pos[2] = 0.0;
 	Client[client].Extra2 = 0;
-
+	int account = GetSteamAccountID(client, false);
+	
 	int weapon = SpawnWeapon(client, "tf_weapon_shovel", 649, 60, 13, "1 ; 0.769231 ; 28 ; 0 ; 66 ; 0.1 ; 252 ; 0 ; 412 ; 0.8 ; 64 ; 0.5", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 12);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
+		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 	}
 
 	weapon = SpawnWeapon(client, "tf_weapon_sapper", 735, 60, 13, "427 ; 10 ; 428 ; 5.0 ; 425 ; 3.0 ; 433 ; 1", false);
 	if(weapon > MaxClients)
 	{
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
+		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
 
 	ViewModel_Create(client, ModelMelee);
