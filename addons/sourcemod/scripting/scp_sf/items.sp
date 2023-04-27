@@ -213,7 +213,7 @@ void Items_RoundStart()
 	}
 }
 
-bool Items_GetWeaponByIndex(int index, WeaponEnum weapon)
+public bool Items_GetWeaponByIndex(int index, WeaponEnum weapon)
 {
 	int length = Weapons.Length;
 	for(int i; i<length; i++)

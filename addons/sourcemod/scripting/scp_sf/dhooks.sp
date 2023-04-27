@@ -29,6 +29,7 @@ void DHook_Setup(GameData gamedata)
 	DHook_CreateDetour(gamedata, "CTFPlayer::Taunt", DHook_TauntPre, DHook_TauntPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::TeamFortress_CalculateMaxSpeed", DHook_CalculateMaxSpeedPre, DHook_CalculateMaxSpeedPost);
 	DHook_CreateDetour(gamedata, "PassServerEntityFilter", _, Detour_PassServerEntityFilterPost);
+	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre);
 	
 	// TODO: DHook_CreateDetour version of this
 	AllowedToHealTarget = new DynamicDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
@@ -662,5 +663,27 @@ public MRESReturn Detour_PassServerEntityFilterPost(DHookReturn ret, DHookParam 
 		return MRES_Supercede;
 	}
 	
+	return MRES_Ignored;
+}
+
+public MRESReturn Detour_GiveAmmoPre(int client, DHookReturn ret, DHookParam param)
+{
+	int entity = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if(entity>MaxClients && IsValidEntity(entity) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
+	{
+		WeaponEnum weapon;
+		
+		int index = Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon);
+		if (!index)
+			return MRES_Ignored;
+
+		if (weapon.Type != ITEM_TYPE_WEAPON)
+			return MRES_Ignored;
+		
+		param.Set(2, weapon.Bullet);
+
+		return MRES_ChangedHandled;
+	}
+
 	return MRES_Ignored;
 }
