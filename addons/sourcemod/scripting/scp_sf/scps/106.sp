@@ -24,7 +24,7 @@ public bool SCP106_Create(int client)
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 	}
 
-	weapon = SpawnWeapon(client, "tf_weapon_sapper", 735, 60, 13, "427 ; 10 ; 428 ; 5.0 ; 425 ; 3.0 ; 433 ; 1", false);
+	weapon = SpawnWeapon(client, "tf_weapon_sapper", 1102, 60, 13, "427 ; 10 ; 428 ; 5.0 ; 425 ; 3.0 ; 433 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
