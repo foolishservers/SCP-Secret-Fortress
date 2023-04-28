@@ -29,7 +29,7 @@ void DHook_Setup(GameData gamedata)
 	DHook_CreateDetour(gamedata, "CTFPlayer::Taunt", DHook_TauntPre, DHook_TauntPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::TeamFortress_CalculateMaxSpeed", DHook_CalculateMaxSpeedPre, DHook_CalculateMaxSpeedPost);
 	DHook_CreateDetour(gamedata, "PassServerEntityFilter", _, Detour_PassServerEntityFilterPost);
-	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre, Detour_GiveAmmoPost);
+	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre);
 	
 	// TODO: DHook_CreateDetour version of this
 	AllowedToHealTarget = new DynamicDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
@@ -683,24 +683,6 @@ public MRESReturn Detour_GiveAmmoPre(int client, DHookReturn ret, DHookParam par
 		param.Set(2, weapon.Bullet);
 
 		return MRES_ChangedHandled;
-	}
-
-	return MRES_Ignored;
-}
-
-public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam param)
-{
-	for(int i=1; i<AMMO_MAX; i++)
-	{
-		int ammo = GetAmmo(client, i);
-		int max = Classes_GetMaxAmmo(client, i);
-		Items_Ammo(client, i, max);
-
-		if(ammo > max)
-		{
-			ammo = max;
-			SetAmmo(client, ammo, i);
-		}
 	}
 
 	return MRES_Ignored;
