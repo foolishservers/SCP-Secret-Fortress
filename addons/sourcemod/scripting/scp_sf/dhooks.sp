@@ -29,7 +29,7 @@ void DHook_Setup(GameData gamedata)
 	DHook_CreateDetour(gamedata, "CTFPlayer::Taunt", DHook_TauntPre, DHook_TauntPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::TeamFortress_CalculateMaxSpeed", DHook_CalculateMaxSpeedPre, DHook_CalculateMaxSpeedPost);
 	DHook_CreateDetour(gamedata, "PassServerEntityFilter", _, Detour_PassServerEntityFilterPost);
-	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre);
+	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre, Detour_GiveAmmoPost);
 	
 	// TODO: DHook_CreateDetour version of this
 	AllowedToHealTarget = new DynamicDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
@@ -680,9 +680,66 @@ public MRESReturn Detour_GiveAmmoPre(int client, DHookReturn ret, DHookParam par
 		if (weapon.Type != ITEM_TYPE_WEAPON)
 			return MRES_Ignored;
 		
-		param.Set(2, weapon.Bullet);
+		int type = weapon.Bullet;
+		if (type != 10 && type != 11)
+		{
+			param.Set(2, type);
+		}
 
 		return MRES_ChangedHandled;
+	}
+
+	return MRES_Ignored;
+}
+
+public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam param)
+{
+	int entity = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+	if(entity>MaxClients && IsValidEntity(entity) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
+	{
+		WeaponEnum weapon;
+		
+		int index = Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon);
+		if (!index)
+			return MRES_Ignored;
+
+		if (weapon.Type != ITEM_TYPE_WEAPON)
+			return MRES_Ignored;
+		
+		int ammo = DHookGetReturn(ret);
+		
+		int type = weapon.Bullet;
+		switch (type)
+		{
+			case 10:	// 44 mag.
+			{
+				int finalammo = GetAmmo(client, 10) + ammo;
+				int max = Classes_GetMaxAmmo(client, 10);
+				if (finalammo > max)
+				{
+					finalammo = max;
+					SetAmmo(client, finalammo, 10);
+				}
+				else
+				{
+					SetAmmo(client, finalammo, 10);
+				}
+			}
+			case 11:	// 12 ga.
+			{
+				int finalammo = GetAmmo(client, 10) + ammo;
+				int max = Classes_GetMaxAmmo(client, 10);
+				if (finalammo > max)
+				{
+					finalammo = max;
+					SetAmmo(client, finalammo, 10);
+				}
+				else
+				{
+					SetAmmo(client, finalammo, 10);
+				}
+			}
+		}
 	}
 
 	return MRES_Ignored;
