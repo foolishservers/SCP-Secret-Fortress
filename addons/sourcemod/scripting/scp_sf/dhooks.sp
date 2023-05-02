@@ -727,16 +727,16 @@ public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam pa
 			}
 			case 11:	// 12 ga.
 			{
-				int finalammo = GetAmmo(client, 10) + ammo;
-				int max = Classes_GetMaxAmmo(client, 10);
+				int finalammo = GetAmmo(client, 11) + ammo;
+				int max = Classes_GetMaxAmmo(client, 11);
 				if (finalammo > max)
 				{
 					finalammo = max;
-					SetAmmo(client, finalammo, 10);
+					SetAmmo(client, finalammo, 11);
 				}
 				else
 				{
-					SetAmmo(client, finalammo, 10);
+					SetAmmo(client, finalammo, 11);
 				}
 			}
 		}
