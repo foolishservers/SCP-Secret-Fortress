@@ -11,7 +11,36 @@ public bool SCP035_Create(int client)
 	Client[client].Extra2 = 0;
 	
 	//TF2Attrib_SetByDefIndex(client, 490, -3.0);
+	Classes_GetByIndex(Index035, class);
 
+	ChangeClientTeamEx(client, class.Team);
+	SetEntityHealth(client, class.Health);
+	return false;
+}
+
+static int Index035;
+
+public bool Items_035Button(int client, int entity, int &buttons, int &holding)
+{
+	if(!holding)
+	{
+		if(!IsSCP(client) && buttons & IN_ATTACK)
+		{
+			holding = IN_ATTACK;
+			
+			Client[client].Class = Index035;
+			TF2_RespawnPlayer(target);
+			Client[target].Floor = Client[client].Floor;
+
+			SetEntProp(target, Prop_Send, "m_bDucked", true);
+			SetEntityFlags(target, GetEntityFlags(target)|FL_DUCKING);
+
+			static float pos[3];
+			GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
+			TeleportEntity(target, pos, NULL_VECTOR, NULL_VECTOR);
+
+		}
+	}
 	return false;
 }
 
