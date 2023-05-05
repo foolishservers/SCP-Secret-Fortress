@@ -30,7 +30,7 @@ public bool Items_035Button(int client, int entity, int &buttons, int &holding)
 			
 			Client[client].Class = Index035;
 			TF2_RespawnPlayer(client);
-			Client[target].Floor = Client[client].Floor;
+			Client[client].Floor = Client[client].Floor;
 
 			SetEntProp(client, Prop_Send, "m_bDucked", true);
 			SetEntityFlags(client, GetEntityFlags(client)|FL_DUCKING);
