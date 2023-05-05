@@ -18,32 +18,6 @@ public bool SCP035_Create(int client)
 	return false;
 }
 
-static int Index035;
-
-public bool Items_035Button(int client, int entity, int &buttons, int &holding)
-{
-	if(!holding)
-	{
-		if(!IsSCP(client) && buttons & IN_ATTACK)
-		{
-			holding = IN_ATTACK;
-			
-			Client[client].Class = Index035;
-			TF2_RespawnPlayer(client);
-			Client[client].Floor = Client[client].Floor;
-
-			SetEntProp(client, Prop_Send, "m_bDucked", true);
-			SetEntityFlags(client, GetEntityFlags(client)|FL_DUCKING);
-
-			static float pos[3];
-			GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
-			TeleportEntity(client, pos, NULL_VECTOR, NULL_VECTOR);
-
-		}
-	}
-	return false;
-}
-
 public void SCP035_OnKill(int client, int victim)
 {
 	SetEntityHealth(client, GetClientHealth(client)+HealthKill);
