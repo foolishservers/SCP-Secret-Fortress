@@ -29,15 +29,15 @@ public bool Items_035Button(int client, int entity, int &buttons, int &holding)
 			holding = IN_ATTACK;
 			
 			Client[client].Class = Index035;
-			TF2_RespawnPlayer(target);
+			TF2_RespawnPlayer(client);
 			Client[target].Floor = Client[client].Floor;
 
-			SetEntProp(target, Prop_Send, "m_bDucked", true);
-			SetEntityFlags(target, GetEntityFlags(target)|FL_DUCKING);
+			SetEntProp(client, Prop_Send, "m_bDucked", true);
+			SetEntityFlags(client, GetEntityFlags(client)|FL_DUCKING);
 
 			static float pos[3];
 			GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
-			TeleportEntity(target, pos, NULL_VECTOR, NULL_VECTOR);
+			TeleportEntity(client, pos, NULL_VECTOR, NULL_VECTOR);
 
 		}
 	}
