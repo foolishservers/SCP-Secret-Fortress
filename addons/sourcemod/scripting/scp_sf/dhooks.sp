@@ -711,10 +711,26 @@ public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam pa
 		int type = weapon.Bullet;
 		switch (type)
 		{
+			case 7:	// 5mm.
+			{
+				int finalammo = GetAmmo(client, 7) + ammo;
+				int max = Classes_GetMaxAmmo(client, 7);
+				Items_Ammo(client, 7, max);
+				if (finalammo > max)
+				{
+					finalammo = max;
+					SetAmmo(client, finalammo, 7);
+				}
+				else
+				{
+					SetAmmo(client, finalammo, 7);
+				}
+			}
 			case 10:	// 44 mag.
 			{
 				int finalammo = GetAmmo(client, 10) + ammo;
 				int max = Classes_GetMaxAmmo(client, 10);
+				Items_Ammo(client, 10, max);
 				if (finalammo > max)
 				{
 					finalammo = max;
@@ -729,6 +745,7 @@ public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam pa
 			{
 				int finalammo = GetAmmo(client, 11) + ammo;
 				int max = Classes_GetMaxAmmo(client, 11);
+				Items_Ammo(client, 11, max);
 				if (finalammo > max)
 				{
 					finalammo = max;
