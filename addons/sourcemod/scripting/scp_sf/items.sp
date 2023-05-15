@@ -2345,6 +2345,32 @@ public void Items_HeavySprint(int client, float &drain)
 	}
 }
 
+public void Items_MecaItem(int client, int type, int &amount)
+{
+	switch(type)
+	{
+		case 1:	// Weapons
+			amount += 5;
+	}
+}
+public void Items_MecaSpeed(int client, float &speed)
+{
+	speed *= 0.8;
+}
+
+public void Items_MecaSprint(int client, float &drain)
+{
+	ClassEnum class;
+	if(Classes_GetByIndex(Client[client].Class, class) && class.Vip)
+	{
+		drain *= 1.5;
+	}
+	else
+	{
+		drain *= 1.25;
+	}
+}
+
 public int Items_KeycardJan(int client, AccessEnum access)
 {
 	if(access == Access_Main)
