@@ -1,9 +1,9 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static const float Speeds[6] = {240.0, 246.0, 252.0, 258.0, 264.0, 276.0};
-static const int MaxHeads = 5;
-static const int HealthKill = 100;
+static const float Speeds[6] = {240.0, 245.0, 250.0, 255.0, 260.0, 275.0};
+static const int MaxHeads = 6;
+static const int HealthKill = 150;
 static const int HealthRage = 175;
 
 public bool SCP076_Create(int client)
@@ -12,7 +12,7 @@ public bool SCP076_Create(int client)
 
 	Client[client].Extra2 = 0;
 
-	int weapon = SpawnWeapon(client, "tf_weapon_sword", 195, 1, 13, "2 ; 1.5 ; 5 ; 0.75 ; 28 ; 0.5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_sword", 195, 1, 13, "206 ; 2.5 ; 736 ; 5 ; 2 ; 1.5 ; 5 ; 1.15 ; 28 ; 0.5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 11);
@@ -56,7 +56,7 @@ public void SCP076_OnKill(int client, int victim)
 		TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 		SetEntityHealth(client, GetClientHealth(client)+HealthRage);
 
-		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "2 ; 11 ; 137 ; 2 ; 5 ; 1.75 ; 252 ; 0 ; 326 ; 1.67 ; 778 ; 0.25", 2, true);
+		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "54 ; 1.1 ; 206 ; 2.5 ; 2 ; 11 ; 137 ; 2 ; 5 ; 1.75 ; 252 ; 0 ; 326 ; 1.67 ; 778 ; 0.25", 2, true);
 		if(weapon > MaxClients)
 		{
 			ApplyStrangeRank(weapon, 18);
