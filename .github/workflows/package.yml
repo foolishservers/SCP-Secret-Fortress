@@ -3,7 +3,7 @@ name: Package
 on:
   push:
     branches:
-        - silient
+        - resilient
   pull_request:
     branches: 
         - master
