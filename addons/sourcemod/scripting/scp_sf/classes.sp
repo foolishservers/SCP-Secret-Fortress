@@ -467,7 +467,16 @@ void Classes_PlayerSpawn(int client)
 					char name[16];
 					SCPList.GetString(i, name, sizeof(name));
 					
-					FormatEx(list, sizeof(list), "%s | %s", list, name);
+					if (i == 0)
+					{
+						list = name;
+					}
+					else
+					{
+						char buffer[19];
+						FormatEx(buffer, sizeof(buffer), " | %s", name);
+						StrCat(list, sizeof(list), buffer);
+					}
 				}
 
 				realSCPList = list;
