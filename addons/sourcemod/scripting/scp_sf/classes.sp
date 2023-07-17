@@ -455,6 +455,23 @@ void Classes_PlayerSpawn(int client)
 			TF2_AddCondition(client, TFCond_NoHealingDamageBuff, 1.0);
 			TF2_AddCondition(client, TFCond_DodgeChance, 3.0);
 			TF2Attrib_SetByDefIndex(client, 49, 1.0);
+
+			if (StrContains(class.Name, "scp") == 0)
+			{
+				if (!StrEqual(class.Name, "scp0492"))
+					SCPList.PushString(class.Name);
+
+				char list[PLATFORM_MAX_PATH];
+				for (i = 0; i < SCPList.Length; i++)
+				{
+					char name[16];
+					SCPList.GetString(i, name, sizeof(name));
+					
+					FormatEx(list, sizeof(list), "%s | %s", list, name);
+				}
+
+				realSCPList = list;
+			}
 		}
 	}
 }

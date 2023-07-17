@@ -90,6 +90,9 @@ bool SourceComms = false;		// SourceComms++
 bool BaseComm = false;		// BaseComm
 #endif
 
+ArrayList SCPList;
+char realSCPList[PLATFORM_MAX_PATH];
+
 Handle HudPlayer;
 Handle HudClass;
 Handle HudGame;
@@ -339,6 +342,8 @@ public void OnPluginStart()
 	{
 		LogError("[Gamedata] Could not find scp_sf.txt");
 	}
+
+	SCPList = new ArrayList();
 
 	for(int i=1; i<=MaxClients; i++)
 	{
@@ -2466,7 +2471,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 			{
 				// kill counter + how many dbois/scientists left
 				SetHudTextParamsEx(-1.0, 0.1, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
-				ShowSyncHudText(client, HudClass, "%t", "kill_counter", Client[client].Kills, VIPsAlive, MTFsAlive, ChaosAlive);			
+				ShowSyncHudText(client, HudClass, "%s\n%s\n%t", "[SCP]", realSCPList, "kill_counter", Client[client].Kills, VIPsAlive, MTFsAlive, ChaosAlive);
 			}
 		}
 
