@@ -371,6 +371,18 @@ public void OnPlayerManagerThink(int entity)
 		
 		SetEntDataArray(entity, scoreOffset, scoreLevels, MaxClients+1);
 	}
+
+#if !defined _SENDPROXYMANAGER_INC_
+	for(int client = 1; client <= MaxClients; client++)
+	{
+		if (IsValidClient(client))
+		{
+			SetEntProp(entity, Prop_Send, "m_bAlive", true, .element = client);
+			SetEntProp(entity, Prop_Send, "m_iTeam", 3, .element = client);
+			SetEntProp(entity, Prop_Send, "m_iPlayerClass", view_as<int>(TFClass_Unknown), .element = client);
+		}
+	}
+#endif
 }
 
 // prevent exploits if attacker dies and kills someone afterwards (e.g. grenade)

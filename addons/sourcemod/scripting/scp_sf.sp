@@ -1459,9 +1459,7 @@ public Action OnSayCommand(int client, const char[] command, int args)
 
 	if (Enabled)
 	{
-		#if SOURCEMOD_V_MAJOR==1 && SOURCEMOD_V_MINOR>10
 		Client[client].IdleAt = GetGameTime()+2.5;
-		#endif
 	}
 
 	for(int target=1; target<=MaxClients; target++)
