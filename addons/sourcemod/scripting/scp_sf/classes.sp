@@ -456,30 +456,21 @@ void Classes_PlayerSpawn(int client)
 			TF2_AddCondition(client, TFCond_DodgeChance, 3.0);
 			TF2Attrib_SetByDefIndex(client, 49, 1.0);
 
-			if (StrContains(class.Name, "scp") == 0)
+			if (IsSCP(client))
 			{
 				if (!StrEqual(class.Name, "scp0492"))
-					SCPList.PushString(class.Name);
-
-				char list[PLATFORM_MAX_PATH];
-				for (i = 0; i < SCPList.Length; i++)
 				{
-					char name[16];
-					SCPList.GetString(i, name, sizeof(name));
-					
-					if (i == 0)
+					if (StrEqual(realSCPList, ""))
 					{
-						list = name;
+						FormatEx(realSCPList, sizeof(realSCPList), "%s", class.Name);
 					}
 					else
 					{
 						char buffer[19];
-						FormatEx(buffer, sizeof(buffer), " | %s", name);
-						StrCat(list, sizeof(list), buffer);
+						FormatEx(buffer, sizeof(buffer), " | %s", class.Name);
+						StrCat(realSCPList, sizeof(realSCPList), buffer);
 					}
 				}
-
-				realSCPList = list;
 			}
 		}
 	}
