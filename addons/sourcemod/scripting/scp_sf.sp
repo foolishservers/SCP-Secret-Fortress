@@ -90,7 +90,6 @@ bool SourceComms = false;		// SourceComms++
 bool BaseComm = false;		// BaseComm
 #endif
 
-ArrayList SCPList;
 char realSCPList[PLATFORM_MAX_PATH];
 
 Handle HudPlayer;
@@ -342,8 +341,6 @@ public void OnPluginStart()
 	{
 		LogError("[Gamedata] Could not find scp_sf.txt");
 	}
-
-	SCPList = new ArrayList();
 
 	for(int i=1; i<=MaxClients; i++)
 	{
@@ -602,7 +599,8 @@ public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 	NoMusicRound = false;
 	EndRoundIn = 0.0;
 	NextHintAt = FAR_FUTURE;
-
+	strcopy(realSCPList, sizeof(realSCPList), "");
+	
 	for(int client=1; client<=MaxClients; client++)
 	{
 		if(!IsValidClient(client))
