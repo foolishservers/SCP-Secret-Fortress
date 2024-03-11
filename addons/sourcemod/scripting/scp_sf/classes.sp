@@ -846,20 +846,9 @@ float Classes_OnTheme(int client, char path[PLATFORM_MAX_PATH])
 void Classes_OnWeaponSwitch(int client, int entity)
 {
 	ClassEnum class;
-	if(!Classes_GetByIndex(Client[client].Class, class)) return;
+	if(!Classes_GetByIndex(Client[client].Class, class) || class.OnWeaponSwitch==INVALID_FUNCTION)
+		return;
 
-	if(!StrEqual(class.Name, "scp173", false))
-	{
-		if(entity>MaxClients && GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex")==ITEM_INDEX_MICROHID)
-		{
-			charge[client] = 0.0;
-			SetEntPropFloat(client, Prop_Send, "m_flRageMeter", 99.0);
-			TF2Attrib_SetByDefIndex(entity, 821, 1.0);
-		}
-	}
-
-	if(class.OnWeaponSwitch==INVALID_FUNCTION) return;
-	
 	Call_StartFunction(null, class.OnWeaponSwitch);
 	Call_PushCell(client);
 	Call_PushCell(entity);
@@ -929,60 +918,6 @@ public void Classes_MoveToSpec(int client, Event event)
 		Client[client].Class = index;
 		Classes_AssignClassPost(client, ClassSpawn_Death);
 	}
-
-	ClassEnum attackerClass;
-	int attacker = GetClientOfUserId(event.GetInt("attacker"));
-	int damage = event.GetInt("damagebits");
-	if(attacker!=client && IsValidClient(attacker) && Classes_GetByIndex(Client[attacker].Class, attackerClass))
-	{
-		int weapon = event.GetInt("weaponid");
-
-		if(weapon>MaxClients && HasEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") && GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex")==ITEM_INDEX_SCP18)
-			PrintHintText(client, "%T", "killedby018", client);
-
-		if(StrEqual(attackerClass.Name, "scp049"))
-		{
-			PrintHintText(client, "%T", "killedby049", client);
-		}
-		else if(StrEqual(attackerClass.Name, "scp076"))
-		{
-			PrintHintText(client, "%T", "killedby076", client);
-		}
-		else if(StrEqual(attackerClass.Name, "scp096"))
-		{
-			PrintHintText(client, "%T", "killedby096", client);
-		}
-		else if(StrEqual(attackerClass.Name, "scp173"))
-		{
-			PrintHintText(client, "%T", "killedby173", client);
-		}
-		else if(StrEqual(attackerClass.Name, "scp939"))
-		{
-			PrintHintText(client, "%T", "killedby939", client);
-		}
-	}
-	else if(attacker==client && IsValidClient(attacker) && Classes_GetByIndex(Client[attacker].Class, attackerClass))
-	{
-		if(damage & DMG_BLAST)
-		{
-			PrintHintText(client, "%T", "killedbyfrag", client);
-		}
-	}
-	else
-	{
-		if(damage & DMG_SHOCK)
-		{
-			PrintHintText(client, "%T", "killedbytesla", client);
-		}
-		else if(damage & DMG_BLAST)
-		{
-			PrintHintText(client, "%T", "killedbyalpha", client);
-		}
-		else if(damage & DMG_POISON)
-		{
-			PrintHintText(client, "%T", "killedbydecon", client);
-		}
-	}
 }
 
 public bool Classes_DeathScp(int client, Event event)
@@ -1025,15 +960,6 @@ public bool Classes_DeathScp(int client, Event event)
 		else
 		{
 			CPrintToChatAll("%s%t", PREFIX, "scp_killed", clientClass.Color, clientClass.Display, attackerClass.Color, attackerClass.Display);
-		}
-		
-		switch(attackerClass.Group)
-		{
-			case 1:
-				Gamemode_AddValue("dpkill");
-
-			case 2:
-				Gamemode_AddValue("spkill");
 		}
 
 		if(attackerClass.Group==2 || assisterClass.Group==2)
@@ -1148,9 +1074,7 @@ public void Classes_KillChaos(int client, int victim)
 public void Classes_KillSci(int client, int victim)
 {
 	if(Classes_GetByName("dboi") == Client[victim].Class)
-	{
 		GiveAchievement(Achievement_KillDClass, client);
-	}
 }
 
 public void Classes_KillMtf(int client, int victim)
@@ -1161,16 +1085,6 @@ public void Classes_KillMtf(int client, int victim)
 		if(Classes_GetByIndex(Client[victim].Class, class) && class.Group==1 && Classes_GetByIndex(Client[client].Class, class))
 			Gamemode_GiveTicket(class.Group, 1);
 	}
-}
-
-public void Classes_KillSnake(int client, int victim)
-{
-    if ((Classes_GetByName("sci") != Client[victim].Class) && !GetRandomInt(0, 3))
-    {
-        ClassEnum class;
-        if(Classes_GetByIndex(Client[victim].Class, class) && class.Group==2 && Classes_GetByIndex(Client[client].Class, class))
-            Gamemode_GiveTicket(class.Group, 3);
-    }
 }
 
 public Action Classes_TakeDamageHuman(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
@@ -1278,7 +1192,7 @@ public void Classes_CondDBoi(int client, TFCond cond)
 			if(Client[client].Disarmer)
 			{
 				Gamemode_AddValue("dcapture");
-				index = Classes_GetByName("mtf1", class);
+				index = Classes_GetByName("mtfs", class);
 
 				// reward the disarmer with 15% karma
 				Classes_ApplyKarmaBonus(Client[client].Disarmer, 15.0, false);
@@ -1296,10 +1210,7 @@ public void Classes_CondDBoi(int client, TFCond cond)
 					GiveAchievement(Achievement_EscapeSpeed, client);
 
 				if(Items_GetItemsOfType(client, 5) > 1)
-				{
 					GiveAchievement(Achievement_FindSCP, client);
-					Gamemode_GiveTicket(1, 1);
-				}
 			}
 			
 			// find nearby players and give them a bonus for escorting
@@ -1386,38 +1297,6 @@ public void Classes_CondSci(int client, TFCond cond)
 	}
 }
 
-public void Classes_CondGuard(int client, TFCond cond)
-{
-	if(cond == TFCond_TeleportedGlow)
-	{
-		float engineTime = GetGameTime();
-		if(Client[client].IgnoreTeleFor < engineTime)
-		{
-			int index;
-			ClassEnum class;
-			if(Client[client].Disarmer)
-			{
-				index = Classes_GetByName("chaosd", class);
-			}
-			else
-			{
-				index = Classes_GetByName("mtfs", class);
-			}
-
-			Items_DropAllItems(client);
-			Forward_OnEscape(client, Client[client].Disarmer);
-
-			if(Classes_AssignClass(client, ClassSpawn_Escape, index))
-			{
-				Client[client].Class = index;
-				TF2_RespawnPlayer(client);
-				Classes_AssignClassPost(client, ClassSpawn_Escape);
-				CreateTimer(0.3, CheckAlivePlayers, _, TIMER_FLAG_NO_MAPCHANGE);
-			}
-		}
-	}
-}
-
 public bool Classes_GlowHuman(int client, int victim)
 {
 	return Client[client].Disarmer==victim;
@@ -1425,7 +1304,7 @@ public bool Classes_GlowHuman(int client, int victim)
 
 public bool Classes_SeeHuman(int client, int victim)
 {
-	return (victim<1 || victim>MaxClients || (IsFriendly(Client[client].Class, Client[victim].Class) || (!TF2_IsPlayerInCondition(victim, TFCond_Stealthed) && !TF2_IsPlayerInCondition(victim, TFCond_StealthedUserBuffFade) && !TF2_IsPlayerInCondition(victim, TFCond_Cloaked))));
+	return (victim<1 || victim>MaxClients || (IsFriendly(Client[client].Class, Client[victim].Class) || (!TF2_IsPlayerInCondition(victim, TFCond_Stealthed) && !TF2_IsPlayerInCondition(victim, TFCond_StealthedUserBuffFade))));
 }
 
 public bool Classes_PickupStandard(int client, int entity)
@@ -1538,11 +1417,8 @@ public bool Classes_PickupStandard(int client, int entity)
 					switch(class.Group)
 					{
 						case 0:
-						{
-							//if(Classes_GetByName("scp035") != Client[client].Class) AcceptEntityInput(entity, "FireUser1", client, client);
-							//else AcceptEntityInput(entity, "FireUser2", client, client);
 							AcceptEntityInput(entity, "FireUser1", client, client);
-						}
+
 						case 1:
 							AcceptEntityInput(entity, "FireUser2", client, client);
 
@@ -1598,10 +1474,8 @@ public bool Classes_PickupScp(int client, int entity)
 					switch(class.Group)
 					{
 						case 0:
-						{
-							if(Classes_GetByName("scp035") != Client[client].Class) AcceptEntityInput(entity, "FireUser1", client, client);
-							else AcceptEntityInput(entity, "FireUser2", client, client);
-						}
+							AcceptEntityInput(entity, "FireUser1", client, client);
+
 						case 1:
 							AcceptEntityInput(entity, "FireUser2", client, client);
 
@@ -1895,18 +1769,4 @@ public void Classes_SetKarma(int client, float karma)
 	char value[64];
 	FloatToString(karma, value, sizeof(value));
 	SetClientCookie(client, CookieKarma, value);
-}
-
-public Action Classes_OnAnimationWeapon(int client, PlayerAnimEvent_t &anim, int &data)
-{
-	if(anim==PLAYERANIMEVENT_ATTACK_PRIMARY)
-	{
-		ViewModel_SetAnimation(client, "fire");
-	}
-	else if(anim==PLAYERANIMEVENT_RELOAD)
-	{
-		ViewModel_SetAnimation(client, "reload");
-	}
-	
-	return Plugin_Continue;
 }

@@ -6,18 +6,15 @@ static const char SoundPassive[] = "freak_fortress_2/scp096/bgm.mp3";
 static const char SoundEnrage[] = "freak_fortress_2/scp096/fullrage.mp3";
 static const char SoundDeath[] = "freak_fortress_2/scp096/096_death.mp3";
 
-static const int HealthMax = 2000;	// Max standard health
-static const int HealthExtra = 1000;	// Max regenerable health
-
-static const int HealthMaxSZF = 800;	// Max standard health in SZF
-static const int HealthExtraSZF = 585;	// Max regenerable health in SZF
+static const int HealthMax = 1500;	// Max standard health
+static const int HealthExtra = 750;	// Max regenerable health
 
 static const float SpeedRage = 2.1;
 
 static const float RageWarmup = 6.0;	// Rage warmup time
 static const float RageDuration = 12.0;	// Rage initial duration
 static const float RageExtra = 3.0;	// Rage duration per target
-static const float RageWinddown = 8.0;	// After rage stun
+static const float RageWinddown = 6.0;	// After rage stun
 static const float RageCooldown = 15.0;	// After rage cooldown
 
 static int Triggered[MAXPLAYERS + 1];
@@ -48,7 +45,7 @@ public void SCP096_OnMaxHealth(int client, int &health)
 	{
 		SetEntityHealth(client, health);
 	}
-	else if(current < Client[client].Extra1 - HealthExtra)
+	else if(current < Client[client].Extra1-HealthExtra)
 	{
 		Client[client].Extra1 = current+HealthExtra;
 	}
@@ -81,17 +78,6 @@ public void SCP096_OnDeath(int client, Event event)
 	char model[PLATFORM_MAX_PATH];
 	GetEntPropString(client, Prop_Data, "m_ModelName", model, sizeof(model));	
 	Classes_PlayDeathAnimation(client, model, "death_scp_096", SoundDeath, 0.0);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp096terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public Action SCP096_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
@@ -158,15 +144,15 @@ public void SCP096_OnButton(int client, int button)
 			if(Client[client].Extra3 < engineTime)
 			{
 				float duration = (Client[client].Disarmer*RageExtra)+RageDuration;
-				if(duration > 20)
-					duration = 20.0;
+				if(duration > 30)
+					duration = 30.0;
 
 				Client[client].Extra3 = engineTime+duration;
 				Client[client].Extra2 = 2;
 				TF2_AddCondition(client, TFCond_CritCola, 99.9);
 
 				TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
-				int weapon = SpawnWeapon(client, "tf_weapon_sword", 310, 100, 13, "2 ; 11 ; 137 ; 111 ; 6 ; 0.95 ; 28 ; 3 ; 252 ; 0 ; 326 ; 2 ; 412 ; 0.6 ; 4328 ; 1", false);
+				int weapon = SpawnWeapon(client, "tf_weapon_sword", 310, 100, 13, "2 ; 11 ; 6 ; 0.95 ; 28 ; 3 ; 252 ; 0 ; 326 ; 2 ; 412 ; 0.6 ; 4328 ; 1", false);
 				if(weapon > MaxClients)
 				{
 					ApplyStrangeRank(weapon, 16);
@@ -362,7 +348,6 @@ static void TriggerShyGuy(int client, int target, bool full)
 		case 1:
 		{
 			Client[client].Disarmer++;
-			
 			if(!full)
 				Config_DoReaction(target, "trigger096");
 		}
@@ -389,7 +374,7 @@ static void TriggerShyGuy(int client, int target, bool full)
 
 static void GiveMelee(int client)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bottle", 1123, 1, 13, "62 ; 0.5 ; 1 ; 0 ; 252 ; 0.6 ; 412 ; 0.5", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bottle", 1123, 1, 13, "1 ; 0 ; 252 ; 0.6 ; 412 ; 0.5", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 15);
@@ -398,39 +383,5 @@ static void GiveMelee(int client)
 		SetEntityRenderColor(weapon, 255, 255, 255, 0);
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-	}
-}
-
-// SZF only
-
-public bool SZF096_Create(int client)
-{
-	Classes_VipSpawn(client);
-
-	Client[client].Pos[0] = 0.0;
-	Client[client].Extra1 = HealthMaxSZF;
-	Client[client].Extra2 = 0;
-
-	for(int i; i<MAXTF2PLAYERS; i++)
-	{
-		Triggered[i] = 0;
-	}
-
-	GiveMelee(client);
-	return false;
-}
-
-public void SZF096_OnMaxHealth(int client, int &health)
-{
-	health = Client[client].Extra1 + HealthExtraSZF;
-
-	int current = GetClientHealth(client);
-	if(current > health)
-	{
-		SetEntityHealth(client, health);
-	}
-	else if(current < Client[client].Extra1 - HealthExtraSZF)
-	{
-		Client[client].Extra1 = current+HealthExtraSZF;
 	}
 }

@@ -4,7 +4,6 @@
 static const int HealthKill = 25;
 static const char SoundDeath[] = "freak_fortress_2/scp035/death1.wav";
 
-
 public bool SCP035_Create(int client)
 {
 	Classes_VipSpawn(client);
@@ -12,6 +11,7 @@ public bool SCP035_Create(int client)
 	Client[client].Extra2 = 0;
 	
 	//TF2Attrib_SetByDefIndex(client, 490, -3.0);
+
 	return false;
 }
 
@@ -27,17 +27,6 @@ public void SCP035_OnDeath(int client, Event event)
 	char model[PLATFORM_MAX_PATH];
 	GetEntPropString(client, Prop_Data, "m_ModelName", model, sizeof(model));	
 	Classes_PlayDeathAnimation(client, model, "primary_death_burning", SoundDeath, 0.0);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp035terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public Action SCP035_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)

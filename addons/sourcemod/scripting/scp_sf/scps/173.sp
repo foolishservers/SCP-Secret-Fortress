@@ -8,12 +8,9 @@ static const char SnapSound[] = "freak_fortress_2/scp173/scp173_kill2.mp3";
 static const char DeathSound[] = "freak_fortress_2/scp173/173_death.wav";
 static const char MoveSound[] = "physics/concrete/concrete_scrape_smooth_loop1.wav";
 
-static const int HealthMax = 4500;	// Max standard health
-static const int HealthExtra = 2500;	// Max regenerable health
-static const int HealthKill = 300;	// Health gain on stunned kill
-
-static const int HealthMaxSZF = 2000;	// Max standard health in SZF
-static const int HealthExtraSZF = 1500;	// Max regenerable health in SZF
+static const int HealthMax = 2000;	// Max standard health
+static const int HealthExtra = 1500;	// Max regenerable health
+static const int HealthKill = 150;	// Health gain on stunned kill
 
 static const float DistanceMax = 1250.0;	// Teleport distance while in speed
 static const float DistanceMin = 750.0;	// Teleport distance
@@ -52,7 +49,7 @@ public bool SCP173_Create(int client)
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 	}
 
-	weapon = SpawnWeapon(client, "tf_weapon_fists", 593, 90, 13, "137 ; 3.0 ; 6 ; 0.4 ; 15 ; 0 ; 138 ; 11 ; 236 ; 1 ; 252 ; 0 ; 275 ; 1 ; 362 ; 1 ; 412 ; 0.8 ; 698 ; 1", false);
+	weapon = SpawnWeapon(client, "tf_weapon_fists", 593, 90, 13, "6 ; 0.4 ; 15 ; 0 ; 138 ; 11 ; 236 ; 1 ; 252 ; 0 ; 275 ; 1 ; 362 ; 1 ; 412 ; 0.8 ; 698 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 17);
@@ -108,33 +105,6 @@ public void SCP173_OnDeath(int client, Event event)
 	Classes_DeathScp(client, event);
 
 	Classes_PlayDeathAnimation(client, DeathModel, "death", DeathSound, 0.0);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp173terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
-}
-
-public void SCP173_2_OnDeath(int client, Event event)
-{
-	Classes_DeathScp(client, event);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp173terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public Action SCP173_OnSound(int client, char sample[PLATFORM_MAX_PATH], int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
@@ -223,7 +193,7 @@ public void SCP173_OnButton(int client, int button)
 			players += 1.0;
 		}
 
-		if(players || IsSCP173Stuck(client))
+		if(players)
 		{
 			GetEntPropVector(client, Prop_Data, "m_vecVelocity", pos1);
 			pos1[0] = 0.0;
@@ -252,7 +222,6 @@ public void SCP173_OnButton(int client, int button)
 
 			BlinkExpire[client] = engineTime + 3.0;
 			BlinkCharge[client] += 5.6;
-			
 			if(BlinkCharge[client] > 100.0)
 				BlinkCharge[client] = 100.0;
 		}
@@ -403,7 +372,9 @@ public void SCP173_OnButton(int client, int button)
 
 					ModelRef[client] = EntIndexToEntRef(entity);
 				}
-
+				
+				ang1[0] = 0.0;
+				ang1[2] = 0.0;
 				TeleportEntity(entity, pos2, ang1, NULL_VECTOR);
 				return;
 			}
@@ -441,7 +412,7 @@ public Action SCP173_PuddleTimer(Handle timer, DataPack pack)
 				static float pos2[3];
 				GetClientAbsOrigin(target, pos2);
 				if(GetVectorDistance(pos1, pos2, true) < 2300.0)
-					TF2_StunPlayer(target, 5.0, 0.7, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
+					TF2_StunPlayer(target, 3.0, 0.7, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
 			}
 		}
 
@@ -458,194 +429,69 @@ public Action SCP173_PuddleTimer(Handle timer, DataPack pack)
 	return Plugin_Stop;
 }
 
-// From ff2_dynamic_defaults by sarysa
-public bool DPT_TracePlayersAndBuildings(int entity, int contentsMask, any data)
+bool DPT_TryTeleport(int clientIdx, float maxDistance, const float startPos[3], const float eyeAngles[3], float testPos[3])
 {
-	if(entity>0 && entity<=MaxClients)
-		return false;
-
-	return IsValidEntity(entity);
-}
-
-static bool DPT_TryTeleport(int clientIdx, float maxDistance, const float startPos[3], const float eyeAngles[3], float testPos[3])
-{
-	float sizeMultiplier = GetEntPropFloat(clientIdx, Prop_Send, "m_flModelScale");
-	static float endPos[3];
-	TR_TraceRayFilter(startPos, eyeAngles, MASK_PLAYERSOLID, RayType_Infinite, DPT_TracePlayersAndBuildings);
-	TR_GetEndPosition(endPos);
+	TR_TraceRayFilter(startPos, eyeAngles, MASK_PLAYERSOLID, RayType_Infinite, Trace_DontHitEntity, clientIdx);
+	TR_GetEndPosition(testPos);
 	
-	// don't even try if the distance is less than 82
-	float distance = GetVectorDistance(startPos, endPos);
-	if (distance < 82.0)
-		return false;
-		
+	float distance = GetVectorDistance(startPos, testPos);
 	if (distance > maxDistance)
-		constrainDistance(startPos, endPos, distance, maxDistance);
-	else // shave just a tiny bit off the end position so our point isn't directly on top of a wall
-		constrainDistance(startPos, endPos, distance, distance - 1.0);
-	
-	// now for the tests. I go 1 extra on the standard mins/maxs on purpose.
-	bool found = false;
-	for (int x = 0; x < 3; x++)
 	{
-		if (found)
-			break;
-	
-		float xOffset;
-		if (x == 0)
-			xOffset = 0.0;
-		else if (x == 1)
-			xOffset = 12.5 * sizeMultiplier;
-		else
-			xOffset = 25.0 * sizeMultiplier;
-		
-		if (endPos[0] < startPos[0])
-			testPos[0] = endPos[0] + xOffset;
-		else if (endPos[0] > startPos[0])
-			testPos[0] = endPos[0] - xOffset;
-		else if (xOffset != 0.0)
-			break; // super rare but not impossible, no sense wasting on unnecessary tests
-	
-		for (int y = 0; y < 3; y++)
+		constrainDistance(startPos, testPos, distance, maxDistance);
+	}
+	else
+	{
+		int entity = TR_GetEntityIndex();
+		if (0 < entity <= MaxClients && !IsFriendly(Client[clientIdx].Class, Client[entity].Class))
 		{
-			if (found)
-				break;
-
-			float yOffset;
-			if (y == 0)
-				yOffset = 0.0;
-			else if (y == 1)
-				yOffset = 12.5 * sizeMultiplier;
-			else
-				yOffset = 25.0 * sizeMultiplier;
-
-			if (endPos[1] < startPos[1])
-				testPos[1] = endPos[1] + yOffset;
-			else if (endPos[1] > startPos[1])
-				testPos[1] = endPos[1] - yOffset;
-			else if (yOffset != 0.0)
-				break; // super rare but not impossible, no sense wasting on unnecessary tests
-		
-			for (int z = 0; z < 3; z++)
-			{
-				if (found)
-					break;
-
-				float zOffset;
-				if (z == 0)
-					zOffset = 0.0;
-				else if (z == 1)
-					zOffset = 41.5 * sizeMultiplier;
-				else
-					zOffset = 83.0 * sizeMultiplier;
-
-				if (endPos[2] < startPos[2])
-					testPos[2] = endPos[2] + zOffset;
-				else if (endPos[2] > startPos[2])
-					testPos[2] = endPos[2] - zOffset;
-				else if (zOffset != 0.0)
-					break; // super rare but not impossible, no sense wasting on unnecessary tests
-
-				// before we test this position, ensure it has line of sight from the point our player looked from
-				// this ensures the player can't teleport through walls
-				static float tmpPos[3];
-				TR_TraceRayFilter(endPos, testPos, MASK_BLOCKLOS, RayType_EndPoint, Trace_WorldAndBrushes);
-				TR_GetEndPosition(tmpPos);
-				if (testPos[0] != tmpPos[0] || testPos[1] != tmpPos[1] || testPos[2] != tmpPos[2])
-					continue;
-				
-				// now we do our very expensive test. thankfully there's only 27 of these calls, worst case scenario.
-				found = IsSpotSafe(clientIdx, testPos, sizeMultiplier);
-			}
+			// Try lock into enemy
+			GetClientAbsOrigin(entity, testPos);
+			if (GetSafePosition(clientIdx, testPos, testPos))
+				return true;
 		}
 	}
 	
-	if (!found)
-		return false;
+	float eyeVel[3];
+	AnglesToVelocity(eyeAngles, eyeVel);
 	
-	return true;
-}
-
-// SZF only
-
-public bool SZF173_Create(int client)
-{
-	Classes_VipSpawn(client);
-
-	Health[client] = HealthMaxSZF;
-	BlinkExpire[client] = 0.0;
-	BlinkCharge[client] = 0.0;
-	Frozen[client] = false;
-
-	SetEntProp(client, Prop_Send, "m_bForcedSkin", true);
-	SetEntProp(client, Prop_Send, "m_nForcedSkin", (client % 11));	// Skin 0 to 10
-	SetEntProp(client, Prop_Send, "m_iPlayerSkinOverride", true);
-
-	int weapon = SpawnWeapon(client, "tf_weapon_flamethrower", ITEM_INDEX_MICROHID, 90, 13, "", 1, true);
-	if(weapon > MaxClients)
+	// shave just a tiny bit off the end position so our point isn't directly on top of a wall
+	SubtractVectors(testPos, eyeVel, testPos);
+	
+	// don't even try if the distance is less than 82
+	while (GetVectorDistance(startPos, testPos) >= 82.0)
 	{
-		ApplyStrangeRank(weapon, 17);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
-		SetEntPropFloat(client, Prop_Send, "m_flRageMeter", 50.0);
+		if (GetSafePosition(clientIdx, testPos, testPos))
+			return true;
+		
+		// Go back by 1hu and try again
+		SubtractVectors(testPos, eyeVel, testPos);
 	}
-
-	weapon = SpawnWeapon(client, "tf_weapon_jar_gas", 1180, 90, 13, "874 ; 0.5 ; 2059 ; 9000", 1, true);
-	if(weapon > MaxClients)
-	{
-		ApplyStrangeRank(weapon, 17);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
-	}
-
-	weapon = SpawnWeapon(client, "tf_weapon_fists", 593, 90, 13, "6 ; 0.4 ; 15 ; 0 ; 138 ; 11 ; 236 ; 1 ; 252 ; 0 ; 275 ; 1 ; 362 ; 1 ; 698 ; 1", false);
-	if(weapon > MaxClients)
-	{
-		ApplyStrangeRank(weapon, 17);
-		SetEntityRenderMode(weapon, RENDER_TRANSCOLOR);
-		SetEntityRenderColor(weapon, 255, 255, 255, 0);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
-		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-		// no crouching
-		TF2Attrib_SetByDefIndex(weapon, 820, 1.0);		
-	}
-
-	CreateTimer(15.0, Timer_UpdateClientHud, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
+	
 	return false;
 }
 
-public void SZF173_OnMaxHealth(int client, int &health)
+bool GetSafePosition(int client, const float testPos[3], float result[3])
 {
-	health = Health[client] + HealthExtraSZF;
-
-	int current = GetClientHealth(client);
-	if(current > health)
-	{
-		SetEntityHealth(client, health);
-	}
-	else if(current < Health[client]-HealthExtraSZF)
-	{
-		Health[client] = current+HealthExtraSZF;
-	}
-}
-
-bool IsSCP173Stuck(int client)
-{
-	static float min[3], max[3], pos[3];
-	GetEntPropVector(client, Prop_Send, "m_vecMins", min);
-	GetEntPropVector(client, Prop_Send, "m_vecMaxs", max);
-	GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
+	float mins[3], maxs[3];
+	GetEntPropVector(client, Prop_Send, "m_vecMins", mins);
+	GetEntPropVector(client, Prop_Send, "m_vecMaxs", maxs);
 	
-	TR_TraceHullFilter(pos, pos, min, max, MASK_SOLID, Trace_DontHitPlayerAndDropWeapon, client);
-	return (TR_DidHit());
-}
-
-public bool Trace_DontHitPlayerAndDropWeapon(int client, int mask, any data)
-{
-	if(IsValidClient(data)) return false;
+	// Check if spot is safe
+	result = testPos;
+	TR_TraceHullFilter(testPos, testPos, mins, maxs, MASK_PLAYERSOLID, Trace_DontHitPlayers);
+	if (!TR_DidHit())
+		return true;
 	
-	char buffer[64];
-	GetEntityClassname(data, buffer, sizeof(buffer));
+	// Might be hitting a celing, get the highest point
+	float height = maxs[2] - mins[2];
+	result[2] += height;
+	TR_TraceRayFilter(testPos, result, MASK_PLAYERSOLID, RayType_EndPoint, Trace_DontHitPlayers);
+	TR_GetEndPosition(result);
+	result[2] -= height;
 	
-	if(StrEqual(buffer, "tf_dropped_weapon")) return false;
+	TR_TraceHullFilter(result, result, mins, maxs, MASK_PLAYERSOLID, Trace_DontHitPlayers);
+	if (!TR_DidHit())
+		return true;
 	
-	return true;
+	return false;
 }

@@ -2,11 +2,7 @@ name: Package
 
 on:
   push:
-    branches:
-        - resilient
-  pull_request:
-    branches: 
-        - master
+    branches: master
 
 jobs:
   build:

@@ -1,12 +1,8 @@
 name: Compile
 
 on:
-  push:
-    branches:
-        - resilient
   pull_request:
-    branches: 
-        - master
+    branches: master
 
 jobs:
   build:

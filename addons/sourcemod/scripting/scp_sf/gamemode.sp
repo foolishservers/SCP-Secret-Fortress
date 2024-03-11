@@ -44,7 +44,7 @@ enum
 static int TeamColors[][] =
 {
 	{ 255, 200, 200, 255 },
-	{ 0, 100, 0, 255 }, //{ 255, 165, 0, 255 },
+	{ 255, 165, 0, 255 },
 	{ 0, 0, 139, 255 },
 	{ 139, 0, 0, 255 }
 };
@@ -75,8 +75,6 @@ static SoundEnum MusicAlone;
 static SoundEnum MusicFloors[10];
 
 int VIPsAlive;
-int MTFsAlive;
-int ChaosAlive;
 bool DebugPreventRoundWin;
 
 ArrayList Gamemode_Setup(KeyValues main, KeyValues map)
@@ -1095,27 +1093,14 @@ public bool Gamecode_CountVIPs()
 	bool salive;
 	
 	VIPsAlive = 0;
-	ChaosAlive = 0;
-	MTFsAlive = 0;
-	
 	for(int i=1; i<=MaxClients; i++)
 	{
 		if(!IsValidClient(i) || IsSpec(i) || !Classes_GetByIndex(Client[i].Class, class))
 			continue;
 
-		if(class.Vip)		// Class-D and Scientists
-		{
+		if(class.Vip)	// Class-D and Scientists
 			VIPsAlive++;
-		}
-		else if(class.Group == 1) // Chaos
-		{
-			ChaosAlive++;
-		}
-		else if(class.Group > 1) // Guards and MTF Squads
-		{
-			MTFsAlive++;
-		}
-		
+
 		if(!class.Group)	// SCPs
 			salive = true;
 	}
@@ -1128,6 +1113,7 @@ public bool Gamemode_ConditionVip(TFTeam &team)
 	bool salive = Gamecode_CountVIPs();
 	if (VIPsAlive > 0)
 		return false;
+
 	int descape, dcapture, dtotal, sescape, scapture, stotal, pkill, ptotal;
 	GameInfo.GetValue("descape", descape);
 	GameInfo.GetValue("dcapture", dcapture);
@@ -1137,6 +1123,7 @@ public bool Gamemode_ConditionVip(TFTeam &team)
 	GameInfo.GetValue("stotal", stotal);
 	GameInfo.GetValue("pkill", pkill);
 	GameInfo.GetValue("ptotal", ptotal);
+
 	int group;
 	if(sescape > descape)	// More Scientists than Class-D
 	{
@@ -1163,9 +1150,12 @@ public bool Gamemode_ConditionVip(TFTeam &team)
 		team = TFTeam_Unassigned;
 		group = 0;
 	}
+
 	EndRoundRelay(group);
+
 	int minutes, seconds;
 	TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);	
+
 	char buffer[16];
 	FormatEx(buffer, sizeof(buffer), "team_%d", group);
 	SetHudTextParamsEx(-1.0, 0.3, 17.5, TeamColors[group], {255, 255, 255, 255}, 1, 2.0, 1.0, 1.0);
@@ -1173,6 +1163,7 @@ public bool Gamemode_ConditionVip(TFTeam &team)
 	{
 		if(!IsValidClient(client))
 			continue;
+
 		SetGlobalTransTarget(client);
 		ShowSyncHudText(client, HudGame, "%t", "end_screen_vip", buffer, descape, dtotal, dcapture, sescape, stotal, scapture, pkill, ptotal, minutes, seconds);
 	}

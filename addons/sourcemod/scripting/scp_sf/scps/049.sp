@@ -4,7 +4,7 @@
 static const char ModelMedi[] = "models/scp_sf/049/c_arms_scp049_knife_1.mdl";
 static const char ModelMelee[] = "models/scp_sf/049/c_arms_scp049_4.mdl";
 
-static const float SpeedFound = 1.25;
+static const float SpeedFound = 1.18;
 
 enum struct SCP049Enum
 {
@@ -36,16 +36,16 @@ public bool SCP049_Create(int client)
 
 	GiveMelee(client, account);
 
-	int weapon = SpawnWeapon(client, "tf_weapon_medigun", 211, 5, 13, "7 ; 0.95 ; 9 ; 0 ; 18 ; 1 ; 252 ; 0.95 ; 292 ; 2 ; 412 ; 0.8", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_medigun", 211, 5, 13, "7 ; 0.65 ; 9 ; 0 ; 18 ; 1 ; 252 ; 0.95 ; 292 ; 2 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 11);
 		TF2Attrib_SetByDefIndex(weapon, 454, view_as<float>(1));
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
-
-	Client[client].Extra1 = 0;
 	
+	Client[client].Extra1 = 0;
+
 	Revive[client].Index = 0;
 	Revive[client].GoneAt = GetGameTime()+20.0;
 	Revive[client].MoveAt = FAR_FUTURE;
@@ -54,15 +54,13 @@ public bool SCP049_Create(int client)
 
 public bool SCP0492_Create(int client)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "137 ; 1.5 ; 2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0.5 ; 264 ; 0.6", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0.5", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 4);
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 	}
-	
-	SetEntProp(weapon, Prop_Send, "m_nRenderFX", 6);
 
 	ClassEnum class;
 	Classes_GetByIndex(Index0492, class);
@@ -359,21 +357,10 @@ public void SCP049_OnButton(int client, int button)
 public void SCP049_OnDeath(int client, Event event)
 {
 	Classes_DeathScp(client, event);
-
+	
 	char model[PLATFORM_MAX_PATH];
 	GetEntPropString(client, Prop_Data, "m_ModelName", model, sizeof(model));	
 	Classes_PlayDeathAnimation(client, model, "death_scp_049", "", 0.0);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp049terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public void SCP049_OnKill(int client, int victim)
