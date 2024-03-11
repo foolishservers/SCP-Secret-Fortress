@@ -1,10 +1,10 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static const float Speeds[6] = {240.0, 245.0, 250.0, 255.0, 260.0, 275.0};
-static const int MaxHeads = 6;
-static const int HealthKill = 150;
-static const int HealthRage = 175;
+static const float Speeds[] = {240.0, 246.0, 252.0, 258.0, 264.0, 276.0};
+static const int MaxHeads = 5;
+static const int HealthKill = 15;
+static const int HealthRage = 250;
 
 public bool SCP076_Create(int client)
 {
@@ -12,7 +12,7 @@ public bool SCP076_Create(int client)
 
 	Client[client].Extra2 = 0;
 
-	int weapon = SpawnWeapon(client, "tf_weapon_sword", 195, 1, 13, "206 ; 2.5 ; 736 ; 5 ; 2 ; 1.5 ; 5 ; 1.15 ; 28 ; 0.5 ; 219 ; 1 ; 252 ; 0.65 ; 412 ; 0.8", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_sword", 195, 1, 13, "2 ; 1.5 ; 28 ; 0.5 ; 219 ; 1 ; 252 ; 0.8 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 11);
@@ -20,18 +20,6 @@ public bool SCP076_Create(int client)
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 		CreateTimer(15.0, Timer_UpdateClientHud, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
-	
-	weapon = GiveWearable(client, 131, "tf_wearable_demoshield");
-	
-	SetEntProp(weapon, Prop_Send, "m_nRenderFX", 6);
-	
-	if(weapon > MaxClients)
-	{
-		TF2Attrib_SetByDefIndex(weapon, 61, 1.5);
-		TF2Attrib_SetByDefIndex(weapon, 65, 1.3);
-		TF2Attrib_SetByDefIndex(weapon, 246, 1.5);
-	}
-	
 	return false;
 }
 
@@ -50,13 +38,13 @@ public void SCP076_OnKill(int client, int victim)
 	if(Client[client].Extra2 == MaxHeads)
 	{
 		TF2_AddCondition(client, TFCond_CritCola);
-		TF2_StunPlayer(client, 10.0, 0.8, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
+		TF2_StunPlayer(client, 2.0, 0.5, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
 		ClientCommand(client, "playgamesound items/powerup_pickup_knockback.wav");
 
 		TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 		SetEntityHealth(client, GetClientHealth(client)+HealthRage);
 
-		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "54 ; 1.1 ; 206 ; 2.5 ; 2 ; 11 ; 137 ; 2 ; 5 ; 1.75 ; 252 ; 0 ; 326 ; 1.67 ; 778 ; 0.25", 2, true);
+		int weapon = SpawnWeapon(client, "tf_weapon_sword", 266, 90, 13, "2 ; 11 ; 5 ; 1.15 ; 252 ; 0 ; 326 ; 1.67 ; 412 ; 0.8", 2, true);
 		if(weapon > MaxClients)
 		{
 			ApplyStrangeRank(weapon, 18);
@@ -79,22 +67,10 @@ public void SCP076_OnKill(int client, int victim)
 public void SCP076_OnDeath(int client, Event event)
 {
 	Classes_DeathScp(client, event);
-		
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp0762terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
-	
 	CreateTimer(5.0, Timer_DissolveRagdoll, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public bool SCP076_DoorWalk(int client, int entity)
+public void SCP076_DoorTouch(int client, int entity)
 {
 	if(Client[client].Extra2 >= MaxHeads)
 	{
@@ -106,19 +82,4 @@ public bool SCP076_DoorWalk(int client, int entity)
 				AcceptEntityInput(entity, "FireUser1", client, client);
 		}
 	}
-	return true;
-}
-
-public int SCP076_OnKeycard(int client, AccessEnum access)
-{
-	if(access == Access_Checkpoint)
-		return 1;
-
-	if(Client[client].Extra2 < MaxHeads)
-		return 0;
-
-	if(access==Access_Main || access==Access_Armory)
-		return 3;
-
-	return 1;
 }

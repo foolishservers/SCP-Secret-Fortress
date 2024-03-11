@@ -60,6 +60,7 @@ public Plugin myinfo =
 
 enum AccessEnum
 {
+	Access_Unknown = -1,
 	Access_Main = 0,
 	Access_Armory,
 	Access_Exit,
@@ -111,6 +112,7 @@ ConVar CvarKarmaRatio;
 ConVar CvarKarmaMin;
 ConVar CvarKarmaMax;
 ConVar CvarAllowCosmetics;
+ConVar CvarDroppedWeaponCount;
 float NextHintAt = FAR_FUTURE;
 float RoundStartAt;
 float EndRoundIn;
@@ -124,8 +126,8 @@ enum struct ClientEnum
 	int QueueIndex;
 
 	bool IsVip;
-	bool CanTalkTo[MAXTF2PLAYERS];
-	bool ThinkIsDead[MAXTF2PLAYERS];
+	bool CanTalkTo[MAXPLAYERS + 1];
+	bool ThinkIsDead[MAXPLAYERS + 1];
 
 	TFClassType PrefClass;
 	TFClassType CurrentClass;
@@ -164,7 +166,7 @@ enum struct ClientEnum
 	float NextPickupReactTime;
 	float LastDisarmedTime;
 	float LastWeaponTime;
-	float KarmaPoints[MAXTF2PLAYERS];
+	float KarmaPoints[MAXPLAYERS + 1];
 
 	// Sprinting
 	bool Sprinting;
@@ -184,7 +186,7 @@ enum struct ClientEnum
 	}
 }
 
-ClientEnum Client[MAXTF2PLAYERS];
+ClientEnum Client[MAXPLAYERS + 1];
 
 // Micro H.I.D. Charging gage
 float charge[MAXTF2PLAYERS];
@@ -658,16 +660,26 @@ public Action Timer_AccessDeniedReaction(Handle timer, int client)
 	return Plugin_Stop;
 }
 
+AccessEnum GetRelayAccess(int relay)
+{
+	char name[32];
+	GetEntPropString(relay, Prop_Data, "m_iName", name, sizeof(name));
+	if (!StrContains(name, "scp_access", false))
+		return view_as<AccessEnum>(StringToInt(name[11]));
+	else
+		return Access_Unknown;
+}
+
 public Action OnRelayTrigger(const char[] output, int entity, int client, float delay)
 {
 	char name[32];
 	GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
-
-	if(!StrContains(name, "scp_access", false))
+	AccessEnum access = GetRelayAccess(entity);
+	
+	if(access != Access_Unknown)
 	{
 		if(IsValidClient(client))
 		{
-			int access = StringToInt(name[11]);
 			int value;
 			if(!Classes_OnKeycard(client, access, value))
 			{
@@ -1231,7 +1243,7 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	Client[client].WeaponClass = TFClass_Unknown;
 	
 	float KarmaRatio = CvarKarmaRatio.FloatValue;
-	for (int i = 1; i < MAXTF2PLAYERS; i++)
+	for (int i = 1; i <= MaxClients; i++)
 		Client[i].KarmaPoints[client] = KarmaRatio;
 
 	SetEntProp(client, Prop_Send, "m_bForcedSkin", false);
@@ -1750,7 +1762,7 @@ public Action Command_ForceClass(int client, int args)
 		}
 	}
 
-	int targets[MAXPLAYERS], matches;
+	int targets[MAXPLAYERS + 1], matches;
 	bool targetNounIsMultiLanguage;
 
 	GetCmdArg(1, pattern, sizeof(pattern));
@@ -1825,7 +1837,7 @@ public Action Command_ForceItem(int client, int args)
 	static char pattern[PLATFORM_MAX_PATH];
 	GetCmdArg(1, pattern, sizeof(pattern));
 
-	int targets[MAXPLAYERS], matches;
+	int targets[MAXPLAYERS + 1], matches;
 	bool targetNounIsMultiLanguage;
 	if((matches=ProcessTargetString(pattern, client, targets, sizeof(targets), 0, targetName, sizeof(targetName), targetNounIsMultiLanguage)) < 1)
 	{
@@ -1881,7 +1893,7 @@ public Action Command_ForceAmmo(int client, int args)
 	static char pattern[PLATFORM_MAX_PATH];
 	GetCmdArg(1, pattern, sizeof(pattern));
 
-	int targets[MAXPLAYERS], matches;
+	int targets[MAXPLAYERS + 1], matches;
 	bool targetNounIsMultiLanguage;
 	if((matches=ProcessTargetString(pattern, client, targets, sizeof(targets), 0, targetName, sizeof(targetName), targetNounIsMultiLanguage)) < 1)
 	{
@@ -1928,7 +1940,7 @@ public Action Command_ForceKarma(int client, int args)
 	static char pattern[PLATFORM_MAX_PATH];
 	GetCmdArg(1, pattern, sizeof(pattern));
 
-	int targets[MAXPLAYERS], matches;
+	int targets[MAXPLAYERS + 1], matches;
 	bool targetNounIsMultiLanguage;
 	if((matches=ProcessTargetString(pattern, client, targets, sizeof(targets), 0, targetName, sizeof(targetName), targetNounIsMultiLanguage)) < 1)
 	{
@@ -2036,7 +2048,7 @@ public Action TF2Items_OnGiveNamedItem(int client, char[] classname, int index, 
 			delete regions;
 
 			// Remove any wearable that has a conflicting equip_region
-			for (int wbl = 0; wbl < TF2Util_GetPlayerWearableCount(client); wbl++)
+			for (int wbl = TF2Util_GetPlayerWearableCount(client) - 1; wbl >= 0; wbl--)
 			{
 				int wearable = TF2Util_GetPlayerWearable(client, wbl);
 				if (wearable == -1)
@@ -2105,8 +2117,8 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 
 	if(client!=attacker && IsValidClient(attacker))
 	{
-		static int spree[MAXTF2PLAYERS];
-		static float spreeFor[MAXTF2PLAYERS];
+		static int spree[MAXPLAYERS + 1];
+		static float spreeFor[MAXPLAYERS + 1];
 		if(spreeFor[attacker] < engineTime)
 		{
 			spree[attacker] = 1;
@@ -2234,7 +2246,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 	}
 
 	// Item-Specific Buttons
-	static int holding[MAXTF2PLAYERS];
+	static int holding[MAXPLAYERS + 1];
 	bool wasHolding = view_as<bool>(holding[client]);
 	bool changed = Items_OnRunCmd(client, buttons, holding[client]);
 
@@ -2309,7 +2321,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 	Classes_OnButton(client, wasHolding ? 0 : holding[client]);
 
 	// HUD related things
-	static float specialTick[MAXTF2PLAYERS];
+	static float specialTick[MAXPLAYERS + 1];
 	if(specialTick[client] < engineTime)
 	{
 		bool showHud = (Client[client].HudIn<engineTime && !SZF_Enabled() && !(GetClientButtons(client) & IN_SCORE));
@@ -2413,7 +2425,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 						int active = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 						if(active>MaxClients && IsValidEntity(active) && GetEntityClassname(active, buffer, sizeof(buffer)))
 						{
-							static float time[MAXTF2PLAYERS];
+							static float time[MAXPLAYERS + 1];
 							if(holding[client] == IN_RELOAD)
 							{
 								if(time[client] == FAR_FUTURE)
@@ -2631,7 +2643,7 @@ public void UpdateListenOverrides(float engineTime)
 	bool[] spec = new bool[MaxClients];
 	bool[] admin = new bool[MaxClients];
 	float[] radio = new float[MaxClients];
-	static float pos[MAXTF2PLAYERS][3];
+	static float pos[MAXPLAYERS + 1][3];
 	for(int i=1; i<=MaxClients; i++)
 	{
 		if(!IsValidClient(i, false))
@@ -2955,7 +2967,7 @@ void PlayFriendlyDeathReaction(int client, int attacker)
 	float pos[3];
 	GetClientEyePosition(client, pos);
 	
-	int targetclients[MAXPLAYERS];
+	int targetclients[MAXPLAYERS + 1];
 	int targetcount = 0;
 
 	float Time = GetGameTime();
@@ -3035,217 +3047,145 @@ void PlayFriendlyDeathReaction(int client, int attacker)
 	}
 }
 
-// thanks to dysphie for the I/O offsets
 public void FixUpDoors()
 {
 	// workaround for horrible door logic
 	// there is no direct way to tell apart what is a "checkpoint" and normal door in the scp maps
 	// this is needed for frag grenade/scp18/096 door destruction logic
-	// however, the maps have a whacky manual setup for 096, which we will abuse to find what is a "checkpoint" door
+	// however, maps use scp_access relays for checks, which we will abuse to find what is a "checkpoint" door
 	
-	// - iterate all triggers and see if they use the 096 rage filter entity
-	// - if so, check the outputs
-	// -- if it has a OnTrigger Kill output, then its a normal door
-	// -- if it has a OnTrigger Open output, then its a checkpoint door
-	// -- if it has a OnTrigger FireUser1 output, then its a door that needs special logic executed (914)
-	// - iterate all doors with the built list of doors and flag them accordingly
-
 	#define DOOR_NAME_LENGTH 32
 	
-	int entity = MaxClients+1;
-	char name[64], target[DOOR_NAME_LENGTH], targetinput[32], temp[DOOR_NAME_LENGTH];
+	int entity = INVALID_ENT_REFERENCE;
+	char name[64];
 		
 	ArrayList doorlist_normal = new ArrayList(DOOR_NAME_LENGTH);
-	ArrayList doorlist_checkpoint = new ArrayList(DOOR_NAME_LENGTH);	
-	ArrayList doorlist_trigger = new ArrayList(DOOR_NAME_LENGTH);
-	ArrayList relaylist_trigger = new ArrayList(DOOR_NAME_LENGTH);
-	ArrayList relayentlist_trigger = new ArrayList();
-
-	while ((entity = FindEntityByClassname(entity, "trigger_*")) > MaxClients)
+	ArrayList doorlist_gate = new ArrayList(DOOR_NAME_LENGTH);	
+	
+	// Kill all of legacy 096rage, don't need it anymore
+	while ((entity = FindEntityByClassname(entity, "trigger_*")) != INVALID_ENT_REFERENCE)
 	{
 		GetEntPropString(entity, Prop_Data, "m_iFilterName", name, sizeof(name));
 		if (StrContains(name, "096rage") != -1)
-		{
-			// this trigger belongs to a door, now check the outputs
-			// get the offsets to the OnTrigger outputs
-			int offset = FindDataMapInfo(entity, "m_OnTrigger");
-			if (offset == -1)
-				continue;
-			
-			Address output = GetEntityAddress(entity) + view_as<Address>(offset);
-			Address actionlist = view_as<Address>(LoadFromAddress(output + view_as<Address>(0x14), NumberType_Int32));
-			
-			// note: there can be multiple different doors being killed/opened in the outputs
-			while (actionlist)
-			{
-				// these are the only 2 parts of the output we care about
-				Address iTarget = view_as<Address>(LoadFromAddress(actionlist, NumberType_Int32));
-				StringtToCharArray(iTarget, target, sizeof(target));		
-				
-				// ignore !self outputs
-				if (target[0] != '!')
-				{	
-					Address iTargetInput = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x4), NumberType_Int32));
-					StringtToCharArray(iTargetInput, targetinput, sizeof(targetinput));				
-					
-					if (StrEqual(targetinput, "Kill", true))
-					{
-						// we are killing a door, which implies its a normal door
-						doorlist_normal.PushString(target);
-					}
-					else if (StrEqual(targetinput, "Open", true))
-					{
-						// we are simply opening the door, which implies its a checkpoint door
-						// becareful, this output is also used for areaportals, so we gotta ensure thats not the case
-						if (StrContains(target, "areaportal") == -1)
-						{
-							doorlist_checkpoint.PushString(target);
-						}
-					}
-					// TODO: I'm not sure about this, it needs more testing across different maps
-					// for now just ignore special doors
-					//else if (StrEqual(targetinput, "FireUser1", true))
-					//{
-					//	// this is a special door that needs specific logic to run (914)
-					//	if (StrContains(target, "scp_access") != -1)
-					//	{
-					//		relaylist_trigger.PushString(target);
-					//	}
-					//}			
-				}
-
-				// go to the next output
-				actionlist = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x18), NumberType_Int32));						
-			}		
-			
-			// get rid of the trigger, since we will handle it's logic now
-			AcceptEntityInput(entity, "Kill");
-		}
-	}		
-
-	// deal with any relays first
-	if (relaylist_trigger.Length)
+			RemoveEntity(entity);
+	}
+	
+	// Find all buttons as normal door
+	while ((entity = FindEntityByClassname(entity, "func_button")) != INVALID_ENT_REFERENCE)
 	{
-		entity = -1;
-		while ((entity = FindEntityByClassname(entity, "logic_relay")) != -1)
+		FindEntityInputs(entity, "m_OnPressed", "Toggle", DOOR_ID_NORMAL);
+	}
+	
+	// Check relays with access
+	while ((entity = FindEntityByClassname(entity, "logic_relay")) != INVALID_ENT_REFERENCE)
+	{
+		AccessEnum access = GetRelayAccess(entity);
+		if (access == Access_Unknown)
+			continue;
+		
+		if (access == Access_Main || access == Access_Checkpoint || access == Access_Exit)
 		{
-			GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
-							
-			int offset = FindDataMapInfo(entity, "m_OnTrigger");
-			if (offset == -1)
-				continue;
-					
-			for (int i = relaylist_trigger.Length - 1; i >= 0; i--)
-			{
-				relaylist_trigger.GetString(i, temp, sizeof(temp));
-				if (StrEqual(temp, name, false))
-				{
-					// go through it's outputs and find the "Toggle" one, that is the door
-					Address output = GetEntityAddress(entity) + view_as<Address>(offset);
-					Address actionlist = view_as<Address>(LoadFromAddress(output + view_as<Address>(0x14), NumberType_Int32));
-					
-					while (actionlist)	
-					{
-						Address iTargetInput = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x4), NumberType_Int32));
-						StringtToCharArray(iTargetInput, targetinput, sizeof(targetinput));
-						
-						if (StrEqual(targetinput, "Toggle", true))
-						{						
-							// this is the door!
-							Address iTarget = view_as<Address>(LoadFromAddress(actionlist, NumberType_Int32));
-							StringtToCharArray(iTarget, target, sizeof(target));					
-							
-							doorlist_trigger.PushString(target);
-							// store off our relay's entref, we will store that in the door later
-							relayentlist_trigger.Push(EntIndexToEntRef(entity));
-				
-							break;
-						}
-												
-						// go to the next output
-						actionlist = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x18), NumberType_Int32));						
-					}		
-								
-					relaylist_trigger.Erase(i);
-				}
-			}
-			
-			// Nothing left to do?
-			if (!relaylist_trigger.Length)
-				break;
+			FindEntityInputs(entity, "m_OnUser1", "Toggle", DOOR_ID_GATE, entity);
+			FindEntityInputs(entity, "m_OnUser2", "Toggle", DOOR_ID_GATE, entity);
+			FindEntityInputs(entity, "m_OnUser3", "Toggle", DOOR_ID_GATE, entity);
+			FindEntityInputs(entity, "m_OnUser1", "Open", DOOR_ID_GATE, entity);
+			FindEntityInputs(entity, "m_OnUser2", "Open", DOOR_ID_GATE, entity);
+			FindEntityInputs(entity, "m_OnUser3", "Open", DOOR_ID_GATE, entity);
+		}
+		else
+		{
+			FindEntityInputs(entity, "m_OnUser1", "Toggle", DOOR_ID_NORMAL);
+			FindEntityInputs(entity, "m_OnUser2", "Toggle", DOOR_ID_NORMAL);
+			FindEntityInputs(entity, "m_OnUser3", "Toggle", DOOR_ID_NORMAL);
+			FindEntityInputs(entity, "m_OnUser1", "Open", DOOR_ID_NORMAL);
+			FindEntityInputs(entity, "m_OnUser2", "Open", DOOR_ID_NORMAL);
+			FindEntityInputs(entity, "m_OnUser3", "Open", DOOR_ID_NORMAL);
 		}
 	}
 	
 	// no doors found? bail
-	if (!doorlist_normal.Length && !doorlist_checkpoint.Length && !doorlist_trigger.Length)
+	if (!doorlist_normal.Length && !doorlist_gate.Length)
 	{
 		delete doorlist_normal;
-		delete doorlist_checkpoint;	
-		delete doorlist_trigger;
-		delete relaylist_trigger;
-		delete relayentlist_trigger;
+		delete doorlist_gate;
 		return;
 	}
 	
-	// go through all doors, compare the name against the list, then flag it accordingly
-	entity = MaxClients+1;
-	while ((entity = FindEntityByClassname(entity, "func_door")) > MaxClients)
-	{
-		GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
-		
-		// go backwards the list since we can remove elements, we don't need to test a name again if we found that door already
-		// go through normal doors first, they are the most likely ones to be found first
-		for (int i = 0; i < doorlist_normal.Length; i++)
-		{
-			doorlist_normal.GetString(i, temp, sizeof(temp));
-			if (StrEqual(temp, name, false))
-			{
-				SetEntProp(entity, Prop_Data, DOOR_ID_PROP, DOOR_ID_NORMAL);
-			}
-		}
-		
-		// checkpoint doors...
-		for (int i = 0; i < doorlist_checkpoint.Length; i++)
-		{
-			doorlist_checkpoint.GetString(i, temp, sizeof(temp));
-			if (StrEqual(temp, name, false))
-			{
-				SetEntProp(entity, Prop_Data, DOOR_ID_PROP, DOOR_ID_CHECKPOINT);
-			}
-		}			
-
-		// special trigger doors
-		for (int i = 0; i < doorlist_trigger.Length; i++)
-		{
-			doorlist_trigger.GetString(i, temp, sizeof(temp));
-			if (StrEqual(temp, name, false))
-			{
-				SetEntProp(entity, Prop_Data, DOOR_ID_PROP, DOOR_ID_TRIGGER);
-				// store the relay so we can trigger it later
-				SetEntProp(entity, Prop_Send, DOOR_ENTREF_PROP, relayentlist_trigger.Get(i));
-			}
-		}			
-	}
-			
 	delete doorlist_normal;
-	delete doorlist_checkpoint;	
-	delete doorlist_trigger;
-	delete relaylist_trigger;
-	delete relayentlist_trigger;
+	delete doorlist_gate;
+}
+
+// thanks to dysphie for the I/O offsets
+void FindEntityInputs(int entity, const char[] prop, const char[] input, int doorid, int relay = INVALID_ENT_REFERENCE)
+{
+	// get the offsets to the outputs
+	int offset = FindDataMapInfo(entity, prop);
+	if (offset == -1)
+		return;
+	
+	char classname[64], name[64];
+	GetEntityClassname(entity, classname, sizeof(classname));
+	GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
+	
+	Address output = GetEntityAddress(entity) + view_as<Address>(offset);
+	Address actionlist = view_as<Address>(LoadFromAddress(output + view_as<Address>(0x14), NumberType_Int32));
+	
+	// note: there can be multiple different doors being killed/opened in the outputs
+	while (actionlist)
+	{
+		// these are the only 2 parts of the output we care about
+		Address iTarget = view_as<Address>(LoadFromAddress(actionlist, NumberType_Int32));
+		
+		Address iTargetInput = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x4), NumberType_Int32));
+		
+		// for the next output
+		actionlist = view_as<Address>(LoadFromAddress(actionlist + view_as<Address>(0x18), NumberType_Int32));	
+		
+		char target[DOOR_NAME_LENGTH], targetinput[32];
+		StringtToCharArray(iTarget, target, sizeof(target));
+		
+		// ignore !self outputs
+		if (target[0] == '!')
+			continue;
+		
+		StringtToCharArray(iTargetInput, targetinput, sizeof(targetinput));
+		if (!StrEqual(targetinput, input, false))
+			continue;
+		
+		SetDoorsId("func_door", target, doorid, relay);
+		SetDoorsId("func_movelinear", target, doorid, relay);
+	}
+}
+
+void SetDoorsId(const char[] classname, const char[] target, int doorid, int relay)
+{
+	// go through all doors, compare the name against the list, then flag it accordingly
+	int entity = INVALID_ENT_REFERENCE;
+	while ((entity = FindEntityByClassname(entity, classname)) != INVALID_ENT_REFERENCE)
+	{
+		char name[64];
+		GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
+		if (!StrEqual(target, name, false))
+			continue;
+		
+		SetEntProp(entity, Prop_Data, DOOR_ID_PROP, doorid);
+		if (relay != INVALID_ENT_REFERENCE)
+			SetEntProp(entity, Prop_Data, DOOR_ENTREF_PROP, relay);
+		
+		FindEntityInputs(entity, "m_OnOpen", "Open", doorid, relay);	// Look up any connected doors
+	}
+}
+
+int GetDoorId(int door)
+{
+	return GetEntProp(door, Prop_Data, DOOR_ID_PROP);
 }
 
 // attempt to destroy a given door, if it can't be destroyed then it will be opened/triggered instead
 // returns false if the door couldn't be destroyed nor opened
 public bool DestroyOrOpenDoor(int door)
 {
-	int doorState = GetEntProp(door, Prop_Data, "m_toggle_state");	
-	int doorID = GetEntProp(door, Prop_Data, DOOR_ID_PROP);
-	
-	// only attempt to destroy fully closed doorss
-	if (doorState != 1)
-		return false;		
-
-	switch (doorID)
+	switch (GetDoorId(door))
 	{
 		case DOOR_ID_NORMAL:
 		{
@@ -3253,18 +3193,34 @@ public bool DestroyOrOpenDoor(int door)
 			AcceptEntityInput(door, "Kill");
 			return true;
 		}
-		case DOOR_ID_CHECKPOINT:
+		case DOOR_ID_GATE:
 		{
-			EmitSoundToAll("physics/metal/metal_grate_impact_hard1.wav", door, SNDCHAN_AUTO, SNDLEVEL_TRAIN);
-			AcceptEntityInput(door, "Open");
-			return true;
-		}
-		case DOOR_ID_TRIGGER:
-		{
-			EmitSoundToAll("physics/metal/metal_grate_impact_hard3.wav", door, SNDCHAN_AUTO, SNDLEVEL_TRAIN);			
-			int doorRelay = EntRefToEntIndex(GetEntProp(door, Prop_Send, DOOR_ENTREF_PROP));
-			AcceptEntityInput(doorRelay, "FireUser1");
-			return true;
+			// only attempt to open fully closed doors
+			
+			char classname[64];
+			GetEntityClassname(door, classname, sizeof(classname));
+			if (StrEqual(classname, "func_movelinear"))
+			{
+				if (GetEntProp(door, Prop_Data, "m_movementType") != 0)
+					return false;
+			}
+			else
+			{
+				if (GetEntProp(door, Prop_Data, "m_toggle_state") != 1)
+					return false;
+			}
+			
+			// Call a relay that opens all of the door
+			int relay = GetEntProp(door, Prop_Data, DOOR_ENTREF_PROP);
+			
+			if (IsValidEntity(relay))
+			{
+				EmitSoundToAll("physics/metal/metal_grate_impact_hard1.wav", door, SNDCHAN_AUTO, SNDLEVEL_TRAIN);
+				
+				AcceptEntityInput(relay, "FireUser1");
+				AcceptEntityInput(relay, "FireUser2");
+				return true;
+			}
 		}
 	}
 	
@@ -3331,24 +3287,6 @@ public Action OnStomp(int attacker, int victim)
 
 	OnGetMaxHealth(victim, health);
 	return health<300 ? Plugin_Handled : Plugin_Continue;
-}
-
-public Action CH_ShouldCollide(int client, int entity, bool &result)
-{
-	//if(result)
-	{
-		if(client>0 && client<=MaxClients)
-		{
-			static char buffer[16];
-			GetEntityClassname(entity, buffer, sizeof(buffer));
-			if(!StrContains(buffer, "func_door") || StrEqual(buffer, "func_movelinear") || !StrContains(buffer, "func_brush"))
-			{
-				result = Classes_OnDoorWalk(client, entity);
-				return Plugin_Handled;
-			}
-		}
-	}
-	return Plugin_Continue;
 }
 
 #if defined _SENDPROXYMANAGER_INC_

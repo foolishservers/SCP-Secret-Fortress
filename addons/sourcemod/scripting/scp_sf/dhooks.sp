@@ -5,12 +5,11 @@ static DynamicDetour AllowedToHealTarget;
 static DynamicHook RoundRespawn;
 static DynamicHook ShouldCollide;
 static DynamicHook ForceRespawn;
-static DynamicHook WeaponGetCustomDamageType;
 static DynamicHook ModifyOrAppendCriteria;
-static int ShouldCollidePreHook[MAXTF2PLAYERS];
-static int ForceRespawnPreHook[MAXTF2PLAYERS];
-static int ForceRespawnPostHook[MAXTF2PLAYERS];
-static int ModifyOrAppendCriteriaPostHook[MAXTF2PLAYERS];
+static int ShouldCollidePreHook[MAXPLAYERS + 1];
+static int ForceRespawnPreHook[MAXPLAYERS + 1];
+static int ForceRespawnPostHook[MAXPLAYERS + 1];
+static int ModifyOrAppendCriteriaPostHook[MAXPLAYERS + 1];
 static int CalculateSpeedClient;
 
 int StudioHdrOffset;
@@ -29,7 +28,6 @@ void DHook_Setup(GameData gamedata)
 	DHook_CreateDetour(gamedata, "CTFPlayer::Taunt", DHook_TauntPre, DHook_TauntPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::TeamFortress_CalculateMaxSpeed", DHook_CalculateMaxSpeedPre, DHook_CalculateMaxSpeedPost);
 	DHook_CreateDetour(gamedata, "PassServerEntityFilter", _, Detour_PassServerEntityFilterPost);
-	DHook_CreateDetour(gamedata, "CTFPlayer::GiveAmmo", Detour_GiveAmmoPre, Detour_GiveAmmoPost);
 	
 	// TODO: DHook_CreateDetour version of this
 	AllowedToHealTarget = new DynamicDetour(Address_Null, CallConv_THISCALL, ReturnType_Bool, ThisPointer_CBaseEntity);
@@ -70,10 +68,6 @@ void DHook_Setup(GameData gamedata)
 	StudioHdrOffset = GameConfGetOffset(gamedata, "CBaseAnimating::m_pStudioHdr");
 	if (StudioHdrOffset == -1)
 		LogError("[Gamedata] Failed to get offset for CBaseAnimating::m_pStudioHdr");
-
-	WeaponGetCustomDamageType = DynamicHook.FromConf(gamedata, "CTFWeaponBase::GetCustomDamageType");
-	if (!WeaponGetCustomDamageType)
-		LogError("[Gamedata] Could not find CTFWeaponBase::GetCustomDamageType");
 }
 
 static void DHook_CreateDetour(GameData gamedata, const char[] name, DHookCallback preCallback = INVALID_FUNCTION, DHookCallback postCallback = INVALID_FUNCTION)
@@ -122,13 +116,6 @@ void DHook_UnhookClient(int client)
 	DynamicHook.RemoveHook(ModifyOrAppendCriteriaPostHook[client]);
 }
 
-void DHook_HookWeapon(int weapon)
-{
-	if(!IsValidEdict(weapon)) return;
-	
-	WeaponGetCustomDamageType.HookEntity(Hook_Pre, weapon, DHook_WeaponGetCustomDamageTypePre);
-}
-
 void DHook_MapStart()
 {
 	if(RoundRespawn)
@@ -166,7 +153,7 @@ public MRESReturn DHook_ShouldCollidePre(int client, DHookReturn ret, DHookParam
 		ret.Value = false;
 		return MRES_Supercede;
 	}
-	
+
 	return MRES_Ignored;
 }
 
@@ -317,9 +304,6 @@ public MRESReturn DHook_CalculateMaxSpeedPost(int clientwhen, DHookReturn ret)
 	float speed = 300.0;
 	if(Client[client].InvisFor != FAR_FUTURE)
 	{
-		if(TF2_IsPlayerInCondition(client, TFCond_Charging))
-			return MRES_Ignored;
-	
 		if(TF2_IsPlayerInCondition(client, TFCond_Dazed))
 			return MRES_Ignored;
 
@@ -530,79 +514,6 @@ public MRESReturn DHook_TriggerInputEnablePost(int entity, DHookParam param)
 	return MRES_Ignored;
 }
 
-public MRESReturn DHook_WeaponGetCustomDamageTypePre(int weapon, Handle hReturn, Handle hParams)
-{
-	int ownerEntity = GetEntPropEnt(weapon, Prop_Data, "m_hOwnerEntity");
-	if (IsValidClient(ownerEntity) && IsValidEntity(weapon) && ownerEntity)
-	{
-		int customDamageType = DHookGetReturn(hReturn);
-		if (customDamageType != -1)
-		{
-			MRESReturn hookResult = GetWeaponCustomDamageType(weapon, ownerEntity, customDamageType);
-			if (hookResult != MRES_Ignored)
-			{
-				DHookSetReturn(hReturn, customDamageType);
-				return hookResult;
-			}
-		}
-		else return MRES_Ignored;
-	}
-	else
-	{
-		return MRES_Ignored;
-	}
-	
-	return MRES_Ignored;
-}
-
-MRESReturn GetWeaponCustomDamageType(int weapon, int client, int &customDamageType)
-{
-	if (IsValidClient(client) && IsValidEntity(weapon) && IsValidEdict(weapon) && IsValidEntity(client))
-	{
-		static const char fixWeaponPenetrationClasses[][] = 
-		{
-			"tf_weapon_sniperrifle",
-			"tf_weapon_sniperrifle_decap",
-			"tf_weapon_sniperrifle_classic"
-		};
-
-		char sWeaponName[256];
-		GetEntityClassname(weapon, sWeaponName, sizeof(sWeaponName));
-
-		/*
-		 * Fixes the sniper rifle not damaging teammates.
-		 * 
-		 * WHY? For every other hitscan weapon in the game, simply enforcing lag compensation in CTFPlayer::WantsLagCompensationOnEntity()
-		 * works. However, when it comes to weapons that penetrate teammates, the bullet trace will not iterate through teammates. This is
-		 * the case with all sniper rifles, and is the reason why damage is never normally dealt to teammates despite having friendly fire 
-		 * on and lag compensation.
-		 *
-		 * In this case, the type of penetration is determined by CTFWeaponBase::GetCustomDamageType(). For Snipers, default value is 
-		 * TF_DMG_CUSTOM_PENETRATE_MY_TEAM (11) (piss rifle is TF_DMG_CUSTOM_PENETRATE_NONBURNING_TEAMMATE (14)). This value specifies 
-		 * penetration of the bullet through teammates without damaging them. The damage type is switched to 0, and for the Machina at 
-		 * full charge, TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS (12).
-		 *
-		 */
-		for (int i = 0; i < sizeof(fixWeaponPenetrationClasses); i++)
-		{
-			if (strcmp(sWeaponName, fixWeaponPenetrationClasses[i], false) == 0)
-			{
-				customDamageType = 12; // TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS
-				int itemDefIndex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
-
-				if ((itemDefIndex == 526 || itemDefIndex == 30665) && GetEntPropFloat(weapon, Prop_Send, "m_flChargedDamage") >= 150.0 )  // The Machina, Shooting Star
-					customDamageType = 12; // TF_DMG_CUSTOM_PENETRATE_ALL_PLAYERS
-				else
-					customDamageType = 0; // no penetration behavior.
-
-				return MRES_Supercede;
-			}
-		}
-	}
-	
-	return MRES_Ignored;
-}
-
 public MRESReturn DHook_ModifyOrAppendCriteriaPost(int player, DHookParam params)
 {
 	if (!IsClientInGame(player) || !IsSCP(player) || !TF2_IsPlayerInCondition(player, TFCond_Disguised))
@@ -622,7 +533,7 @@ public MRESReturn DHook_ModifyOrAppendCriteriaPost(int player, DHookParam params
 
 public MRESReturn Detour_PassServerEntityFilterPost(DHookReturn ret, DHookParam param)
 {
-	if (!ret)
+	if (!ret || param.IsNull(1) || param.IsNull(2))
 	{
 		return MRES_Ignored;
 	}
@@ -648,116 +559,13 @@ public MRESReturn Detour_PassServerEntityFilterPost(DHookReturn ret, DHookParam 
 	char classname[64];
 	GetEntityClassname(entity, classname, sizeof(classname));
 	
-	if (strncmp(classname, "func_door", sizeof(classname)) != 0 && strncmp(classname, "obj_dispenser", sizeof(classname)) != 0)
+	if (strncmp(classname, "func_door", sizeof(classname)) != 0 && strncmp(classname, "func_movelinear", sizeof(classname)) != 0)
 	{
 		return MRES_Ignored;
 	}
 	
 	int client = touch_is_player ? touch_ent : pass_ent;
 	
-	ClassEnum clientClass;
-	Classes_GetByIndex(Client[client].Class, clientClass);
-	if(StrEqual(clientClass.Name, "scp106"))
-	{
-		ret.Value = false;
-		return MRES_Supercede;
-	}
-	
-	return MRES_Ignored;
-}
-
-public MRESReturn Detour_GiveAmmoPre(int client, DHookReturn ret, DHookParam param)
-{
-	int entity = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-	if(entity>MaxClients && IsValidEntity(entity) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
-	{
-		WeaponEnum weapon;
-		
-		int index = Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon);
-		if (!index)
-			return MRES_Ignored;
-
-		if (weapon.Type != ITEM_TYPE_WEAPON)
-			return MRES_Ignored;
-		
-		int type = weapon.Bullet;
-		if (type != 10 && type != 11)
-		{
-			param.Set(2, type);
-		}
-
-		return MRES_ChangedHandled;
-	}
-
-	return MRES_Ignored;
-}
-
-public MRESReturn Detour_GiveAmmoPost(int client, DHookReturn ret, DHookParam param)
-{
-	int entity = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
-	if(entity>MaxClients && IsValidEntity(entity) && HasEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"))
-	{
-		WeaponEnum weapon;
-		
-		int index = Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon);
-		if (!index)
-			return MRES_Ignored;
-
-		if (weapon.Type != ITEM_TYPE_WEAPON)
-			return MRES_Ignored;
-		
-		int ammo = DHookGetReturn(ret);
-		
-		int type = weapon.Bullet;
-		switch (type)
-		{
-			case 7:	// 5mm.
-			{
-				int finalammo = GetAmmo(client, 7) + ammo;
-				int max = Classes_GetMaxAmmo(client, 7);
-				Items_Ammo(client, 7, max);
-				if (finalammo > max)
-				{
-					finalammo = max;
-					SetAmmo(client, finalammo, 7);
-				}
-				else
-				{
-					SetAmmo(client, finalammo, 7);
-				}
-			}
-			case 10:	// 44 mag.
-			{
-				int finalammo = GetAmmo(client, 10) + ammo;
-				int max = Classes_GetMaxAmmo(client, 10);
-				Items_Ammo(client, 10, max);
-				if (finalammo > max)
-				{
-					finalammo = max;
-					SetAmmo(client, finalammo, 10);
-				}
-				else
-				{
-					SetAmmo(client, finalammo, 10);
-				}
-			}
-			case 11:	// 12 ga.
-			{
-				int finalammo = GetAmmo(client, 11) + ammo;
-				int max = Classes_GetMaxAmmo(client, 11);
-				Items_Ammo(client, 11, max);
-				if (finalammo > max)
-				{
-					finalammo = max;
-					SetAmmo(client, finalammo, 11);
-				}
-				else
-				{
-					SetAmmo(client, finalammo, 11);
-				}
-			}
-		}
-	}
-
-	return MRES_Ignored;
+	ret.Value = !Classes_OnDoorWalk(client, entity);
+	return MRES_Supercede;
 }

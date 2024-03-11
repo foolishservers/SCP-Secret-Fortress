@@ -62,7 +62,7 @@ static ArrayList Weapons;
 // the action func can detect if it was called while cancelled using Items_IsDelayedActionCancelled
 
 // TODO: shouldn't this be in the class struct?
-static Handle Item_DelayedAction[MAXTF2PLAYERS] = {INVALID_HANDLE, ...};
+static Handle Item_DelayedAction[MAXPLAYERS + 1] = {INVALID_HANDLE, ...};
 
 void Items_Setup(KeyValues main, KeyValues map)
 {
@@ -213,7 +213,7 @@ void Items_RoundStart()
 	}
 }
 
-public bool Items_GetWeaponByIndex(int index, WeaponEnum weapon)
+bool Items_GetWeaponByIndex(int index, WeaponEnum weapon)
 {
 	int length = Weapons.Length;
 	for(int i; i<length; i++)
@@ -911,6 +911,33 @@ bool Items_DropItem(int client, int helditem, const float origin[3], const float
 
 			TeleportEntity(entity, origin, NULL_VECTOR, vel);
 			result = true;
+			
+			// Add dropped weapon to list, ordered by time created
+			static ArrayList droppedweapons;
+			if (!droppedweapons)
+				droppedweapons = new ArrayList();
+			
+			droppedweapons.Push(EntIndexToEntRef(entity));
+			int length = droppedweapons.Length;
+			for (int i = length - 1; i >= 0; i--)
+			{
+				// Clean up any ents that were already removed
+				if (!IsValidEntity(droppedweapons.Get(i)))
+					droppedweapons.Erase(i);
+			}
+			
+			int maxcount = CvarDroppedWeaponCount.IntValue;
+			if (maxcount != -1)
+			{
+				// If there are too many dropped weapon, remove some ordered by time created
+				length = droppedweapons.Length;
+				while (length > maxcount)
+				{
+					RemoveEntity(droppedweapons.Get(0));
+					droppedweapons.Erase(0);
+					length--;
+				}
+			}
 		}
 	}
 
@@ -1147,10 +1174,10 @@ bool Items_IsHoldingWeapon(int client)
 	{
 		WeaponEnum weapon;
 		
-		int index = Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon);
-		if(!index)
+		int index = GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex");
+		if(!Items_GetWeaponByIndex(index, weapon))
 			return true;
-			
+		
 		if ((weapon.Type == ITEM_TYPE_WEAPON) || (weapon.Type == ITEM_TYPE_GRENADE))
 			return true;	
 
@@ -1483,7 +1510,7 @@ public bool Items_ArmorDrop(int client, int weapon, bool &swap)
 
 public Action Items_DisarmerHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapo, float damageForce[3], float damagePosition[3], int damagecustom)
 {
-	if(!IsSCP(victim) && !IsFriendly(Client[victim].Class, Client[client].Class))
+	if(!IsSCP(client) && !IsSCP(victim) && !IsFriendly(Client[victim].Class, Client[client].Class))
 	{
 		bool cancel;
 		if(!Client[victim].Disarmer)
@@ -1544,55 +1571,6 @@ public Action Items_HeadshotHit(int client, int victim, int &inflictor, float &d
 	return Plugin_Changed;
 }
 
-public Action Items_5mmHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{
-	if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_HEAD && (!IsSCP(victim) || Client[victim].Class==Classes_GetByName("scp0492")))
-	{
-		damagetype |= DMG_CRIT;
-		return Plugin_Changed;
-	}
-	else if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_LEFTLEG || GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_RIGHTLEG)
-	{
-		TF2_StunPlayer(victim, 0.4, 0.25, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
-		return Plugin_Changed;
-	}
-	
-	return Plugin_Continue;
-}
-
-public Action Items_7mmHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{
-	if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_HEAD && (!IsSCP(victim) || Client[victim].Class==Classes_GetByName("scp0492")))
-	{
-		damagetype |= DMG_CRIT;
-		return Plugin_Changed;
-	}
-	else if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_LEFTLEG || GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_RIGHTLEG)
-	{
-		TF2_StunPlayer(victim, 0.4, 0.5, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
-		return Plugin_Changed;
-	}
-	
-	return Plugin_Continue;
-}
-
-public Action Items_44magHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
-{
-	if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_HEAD && (!IsSCP(victim) || Client[victim].Class==Classes_GetByName("scp0492")))
-	{
-		damagetype |= DMG_CRIT;
-		TF2_StunPlayer(victim, 5.0, 0.5, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
-		return Plugin_Changed;
-	}
-	else if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_LEFTLEG || GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_RIGHTLEG)
-	{
-		TF2_StunPlayer(victim, 0.4, 0.5, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
-		return Plugin_Changed;
-	}
-	
-	return Plugin_Continue;
-}
-
 public Action Items_LogicerHit(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	bool changed;
@@ -1607,11 +1585,6 @@ public Action Items_LogicerHit(int client, int victim, int &inflictor, float &da
 	   GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_HEAD)
 	{
 		damagetype |= DMG_CRIT;
-		changed = true;
-	}
-	else if(GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_LEFTLEG || GetEntProp(victim, Prop_Data, "m_LastHitGroup") == HITGROUP_RIGHTLEG)
-	{
-		TF2_StunPlayer(victim, 0.2, 0.5, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
 		changed = true;
 	}
 
@@ -1664,6 +1637,7 @@ public bool Items_MicroButton(int client, int weapon, int &buttons, int &holding
 {
 	int type = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType");
 	int ammo = GetAmmo(client, type);
+	static float charge[MAXPLAYERS + 1];
 	if(ammo<2 || !(buttons & IN_ATTACK))
 	{
 		if (charge[client])
@@ -1675,7 +1649,7 @@ public bool Items_MicroButton(int client, int weapon, int &buttons, int &holding
 		return false;
 	}
 
-	//buttons &= ~IN_JUMP|IN_SPEED;
+	buttons &= ~IN_JUMP|IN_SPEED;
 
 	if(charge[client])
 	{
@@ -1683,7 +1657,6 @@ public bool Items_MicroButton(int client, int weapon, int &buttons, int &holding
 		if(charge[client] == FAR_FUTURE)
 		{
 			SetEntPropFloat(client, Prop_Send, "m_flRageMeter", 0.0);
-			StopSound(client, SNDCHAN_AUTO, MicroChargeSound);
 		}
 		else if(charge[client] < engineTime)
 		{
@@ -1693,9 +1666,9 @@ public bool Items_MicroButton(int client, int weapon, int &buttons, int &holding
 		else
 		{
 			TF2Attrib_SetByDefIndex(weapon, 821, 1.0);
-			SetEntPropFloat(client, Prop_Send, "m_flRageMeter", (charge[client]-engineTime)*21.945);
+			SetEntPropFloat(client, Prop_Send, "m_flRageMeter", (charge[client]-engineTime)*16.5);
 
-			static float time[MAXTF2PLAYERS];
+			static float time[MAXPLAYERS + 1];
 			if(time[client] < engineTime)
 			{
 				time[client] = engineTime+0.45;
@@ -1706,7 +1679,7 @@ public bool Items_MicroButton(int client, int weapon, int &buttons, int &holding
 	}
 	else
 	{
-		charge[client] = GetGameTime()+4.0;
+		charge[client] = GetGameTime()+6.0;
 		EmitSoundToAll2(MicroChargeSound, client, SNDCHAN_AUTO, SNDLEVEL_CAR, _, _, 67);
 	}
 	return true;
@@ -1770,7 +1743,6 @@ public bool Items_FragButton(int client, int weapon, int &buttons, int &holding)
 				SetEntityModel(entity, "models/scp_fixed/frag/w_frag.mdl");
 
 				DispatchSpawn(entity);
-				AcceptEntityInput(entity, "DisableDamageForces");
 				TeleportEntity(entity, pos, ang, vel);
 
 				CreateTimer(5.0, Items_FragTimer, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
@@ -1980,7 +1952,7 @@ public Action Items_HealthKitAction(Handle timer, int client)
 			// revert to idle animation
 			ViewModel_SetAnimation(client, "idle");
 			// allow movement again
-			//TF2_RemoveCondition(client, TFCond_Dazed);
+			TF2_RemoveCondition(client, TFCond_Dazed);
 		}
 	}
 
@@ -2000,7 +1972,7 @@ public bool Items_HealthKitButton(int client, int weapon, int &buttons, int &hol
 			Items_StartDelayedAction(client, 2.5, Items_HealthKitAction, client);
 			ViewModel_SetAnimation(client, "use");
 			// don't allow movement
-			//TF2_StunPlayer(client, 2.5, 1.0, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
+			TF2_StunPlayer(client, 2.5, 1.0, TF_STUNFLAG_SLOWDOWN|TF_STUNFLAG_NOSOUNDOREFFECT);
 		}
 		else 
 		{
@@ -2114,20 +2086,20 @@ public bool Items_207Button(int client, int weapon, int &buttons, int &holding)
 	return false;
 }
 
-static float SCP268Delay[MAXTF2PLAYERS];
+static float SCP268Delay[MAXPLAYERS + 1];
 
 public Action Items_268Action(Handle timer, int client)
 {
 	int weapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
 	if (IsValidEntity(weapon))
-	{	
+	{
 		if (!Items_IsDelayedActionCancelled(client))
 		{
+			RemoveAndSwitchItem(client, weapon);
+			
 			SCP268Delay[client] = GetGameTime() + 90.0;
 			TF2_AddCondition(client, TFCond_Stealthed, 15.0);
 			ClientCommand(client, "playgamesound misc/halloween/spell_stealth.wav");
-			
-			Items_CancelDelayedAction(client);
 		}
 		else 
 		{
@@ -2168,7 +2140,7 @@ public bool Items_268Button(int client, int weapon, int &buttons, int &holding)
 
 public bool Items_RadioRadio(int client, int entity, float &multi)
 {
-	static float time[MAXTF2PLAYERS];
+	static float time[MAXPLAYERS + 1];
 	bool remove, off;
 	float engineTime = GetGameTime();
 	switch(GetEntProp(entity, Prop_Data, "m_iClip1"))
@@ -2226,13 +2198,8 @@ public bool Items_RadioRadio(int client, int entity, float &multi)
 
 public void Items_LightAmmo(int client, int type, int &ammo)
 {
-    switch(type)
-    {
-        case 2:    // 9mm
-        {
-            ammo *= 2;
-        }
-    }
+	if(ammo == 2)	// 9mm
+		ammo *= 2;
 }
 
 public void Items_LightItem(int client, int type, int &amount)
@@ -2278,15 +2245,7 @@ public void Items_CombatItem(int client, int type, int &amount)
 
 public void Items_CombatSprint(int client, float &drain)
 {
-	ClassEnum class;
-	if(Classes_GetByIndex(Client[client].Class, class) && class.Vip)
-	{
-		drain *= 1.2;
-	}
-	else
-	{
-		drain *= 1.1;
-	}
+	drain *= 1.1;
 }
 
 public void Items_HeavyAmmo(int client, int type, int &ammo)
@@ -2323,7 +2282,7 @@ public void Items_HeavyItem(int client, int type, int &amount)
 			amount++;
 
 		case 7:	// Grenades
-			amount += 2;
+			amount++;
 	}
 }
 
@@ -2334,41 +2293,7 @@ public void Items_HeavySpeed(int client, float &speed)
 
 public void Items_HeavySprint(int client, float &drain)
 {
-	ClassEnum class;
-	if(Classes_GetByIndex(Client[client].Class, class) && class.Vip)
-	{
-		drain *= 1.3;
-	}
-	else
-	{
-		drain *= 1.15;
-	}
-}
-
-public void Items_MecaItem(int client, int type, int &amount)
-{
-	switch(type)
-	{
-		case 1:	// Weapons
-			amount += 5;
-	}
-}
-public void Items_MecaSpeed(int client, float &speed)
-{
-	speed *= 0.8;
-}
-
-public void Items_MecaSprint(int client, float &drain)
-{
-	ClassEnum class;
-	if(Classes_GetByIndex(Client[client].Class, class) && class.Vip)
-	{
-		drain *= 1.5;
-	}
-	else
-	{
-		drain *= 1.25;
-	}
+	drain *= 1.2;
 }
 
 public int Items_KeycardJan(int client, AccessEnum access)
@@ -2572,10 +2497,10 @@ public void Items_ClearDelayedActions()
 
 public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &holding)
 {
-	static int previousTarget[MAXTF2PLAYERS];
-	static float DisarmerCharge[MAXTF2PLAYERS];
+	static int previousTarget[MAXPLAYERS + 1];
+	static float DisarmerCharge[MAXPLAYERS + 1];
 
-	if(!(buttons & IN_ATTACK2))
+	if(!(buttons & IN_ATTACK2) || IsSCP(client))
 	{
 		previousTarget[client] = -1;
 		DisarmerCharge[client] = 0.0;
@@ -2621,7 +2546,7 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 	}
 	
 	float engineTime = GetGameTime();
-	static float delay[MAXTF2PLAYERS];
+	static float delay[MAXPLAYERS + 1];
 
 	bool isTargetTeammate = IsFriendly(Client[target].Class, Client[client].Class);
 	bool canDisarm = Client[target].Disarmer == 0 && !isTargetTeammate;
@@ -2634,15 +2559,18 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 		delay[client] = engineTime + 0.1;
 		DisarmerCharge[client] += 10.0;
 		
+		ClassEnum class;
+		Classes_GetByIndex(Client[target].Class, class);
+		
 		SetHudTextParamsEx(-1.0, 0.6, 0.35, Client[client].Colors, Client[client].Colors, 0, 1.0, 0.01, 0.5);
 		if(canDisarm)
 		{
-			ShowSyncHudText(client, HudPlayer, "%t", "disarming_other", target, DisarmerCharge[client]);
+			ShowSyncHudText(client, HudPlayer, "%t", "disarming_other", class.Display, DisarmerCharge[client]);
 			ShowSyncHudText(target, HudPlayer, "%t", "disarming_me", client, DisarmerCharge[client]);
 		}
 		else if (canUndisarm)
 		{
-			ShowSyncHudText(client, HudPlayer, "%t", "arming_other", target, DisarmerCharge[client]);
+			ShowSyncHudText(client, HudPlayer, "%t", "arming_other", class.Display, DisarmerCharge[client]);
 			ShowSyncHudText(target, HudPlayer, "%t", "arming_me", client, DisarmerCharge[client]);
 		}
 	
@@ -2670,8 +2598,7 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 				}
 				Items_SetEmptyWeapon(target);
 				
-				ClassEnum class;
-				if(Classes_GetByIndex(Client[target].Class, class) && class.Group==2 && !class.Vip)
+				if(class.Group==2 && !class.Vip)
 					GiveAchievement(Achievement_DisarmMTF, client);
 				
 				// all weapons are gone, so reset the time		

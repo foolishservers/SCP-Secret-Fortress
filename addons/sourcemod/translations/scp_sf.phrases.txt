@@ -256,54 +256,6 @@
 	{
 		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll either kill you or capture you."
 	}
-	"class_dboi1"
-	{
-		"en"		"Class-D Personnel"
-	}
-	"desc_dboi1"
-	{
-		"en"		"Escape from the facility.\nCooperate with the Chaos Insurgency.\nAvoid other teams."
-	}
-	"train_dboi1"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll either kill you or capture you."
-	}
-	"class_dboi2"
-	{
-		"en"		"Class-D Personnel"
-	}
-	"desc_dboi2"
-	{
-		"en"		"Escape from the facility.\nCooperate with the Chaos Insurgency.\nAvoid other teams."
-	}
-	"train_dboi2"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll either kill you or capture you."
-	}
-	"class_dboi3"
-	{
-		"en"		"Class-D Personnel"
-	}
-	"desc_dboi3"
-	{
-		"en"		"Escape from the facility.\nCooperate with the Chaos Insurgency.\nAvoid other teams."
-	}
-	"train_dboi3"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll either kill you or capture you."
-	}
-	"class_dboi4"
-	{
-		"en"		"Class-D Personnel"
-	}
-	"desc_dboi4"
-	{
-		"en"		"Escape from the facility.\nCooperate with the Chaos Insurgency.\nAvoid other teams."
-	}
-	"train_dboi4"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll either kill you or capture you."
-	}
 	"class_chaos"
 	{
 		"en"		"Chaos Insurgency Agent"
@@ -322,7 +274,7 @@
 	}
 	"desc_chaos1"
 	{
-		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects.\nCommunicate with each other through the radio."
+		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects."
 	}
 	"train_chaos1"
 	{
@@ -330,7 +282,7 @@
 	}
 	"class_chaosd"
 	{
-		"en"		"Chaos Insurgency Conscript"
+		"en"		"Chaos Insurgency Riflemann"
 	}
 	"desc_chaosd"
 	{
@@ -346,7 +298,7 @@
 	}
 	"desc_chaos2"
 	{
-		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects.\nArmed with high-explosion grenades and shotguns."
+		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects."
 	}
 	"train_chaos2"
 	{
@@ -358,21 +310,9 @@
 	}
 	"desc_chaos3"
 	{
-		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects.\nArmed with adrenaline and Logicer."
+		"en"		"Help Class-D Personnel escape.\nNeutralize other subjects."
 	}
 	"train_chaos3"
-	{
-		"en"		"You need to free Class-D Personnel from the facility.\nKill other teams to help Class-D Personnel escape.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
-	}
-	"class_chaos5"
-	{
-		"en"		"Chaos Insurgency Recon"
-	}
-	"desc_chaos5"
-	{
-		"en"		"Help Class-D Personnel escape.\nAvoid other teams."
-	}
-	"train_chaos5"
 	{
 		"en"		"You need to free Class-D Personnel from the facility.\nKill other teams to help Class-D Personnel escape.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
@@ -385,42 +325,6 @@
 		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid other teams."
 	}
 	"train_sci"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll kill you."
-	}
-	"class_sci1"
-	{
-		"en"		"Scientist"
-	}
-	"desc_sci1"
-	{
-		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid other teams."
-	}
-	"train_sci1"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll kill you."
-	}
-	"class_sci2"
-	{
-		"en"		"Scientist"
-	}
-	"desc_sci2"
-	{
-		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid other teams."
-	}
-	"train_sci2"
-	{
-		"en"		"You need to escape the facility.\nPress ATTACK, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll kill you."
-	}
-	"class_sci3"
-	{
-		"en"		"Scientist"
-	}
-	"desc_sci3"
-	{
-		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid other teams."
-	}
-	"train_sci3"
 	{
 		"en"		"You need to escape the facility.\nPress ATTACK, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for other teams as they'll kill you."
 	}
@@ -450,7 +354,7 @@
 	}
 	"class_mtf2"
 	{
-		"en"		"Nine-Tailed Fox Lieutenant"
+		"en"		"Nine-Tailed Fox Sergeant"
 	}
 	"desc_mtf2"
 	{
@@ -627,18 +531,6 @@
 	"train_scp9392"
 	{
 		"en"		"You can only see targets making noise.\nYou can trick players by talking to them.\nYou'll get faster with less health you have.\nPress ATTACK2, ATTACK3, USE or use VOICEMENU to interact with buttons."
-	}
-	"class_scp966"
-	{
-		"en"		"SCP-966"
-	}
-	"desc_scp966"
-	{
-		"en"		"Kill everyone.\nPrevent escape.\nCooperate with other SCPs.\nATTACK2 to Cloak."
-	}
-	"train_scp966"
-	{
-		"en"		"Press ATTACK2 to cloak.\nAvoid head-to-head fights.\nPress ATTACK2, ATTACK3, USE or use VOICEMENU to interact with buttons."
 	}
 	"class_scp3008"
 	{
@@ -846,14 +738,6 @@
 	"info_201"
 	{
 		"en"		"When your tired being asked ''Do you need help?''."
-	}
-	"weapon_851"
-	{
-		"en"		"AWP"
-	}
-	"info_851"
-	{
-		"en"		"Skill."
 	}
 	"weapon_423"
 	{
@@ -1135,32 +1019,25 @@
 	{
 		"en"		"High damage resistance, extra reserve ammo, with some speed loss"
 	}
-	"weapon_30022"
-	{
-		"en"		"Flashlight™"
-	}
-	"info_30022"
-	{
-		"en"		"Use MOUSE1 or MOUSE2 to toggle the light"
-	}
-	
+
+
 	// Team Phrases
 
 	"team_0"
 	{
-		"en"		"STALEMATE"
+		"en"		"Stalemate"
 	}
 	"team_1"
 	{
-		"en"		"INSERGENCY WINS"//"Class-D Won"
+		"en"		"Class-D Won"
 	}
 	"team_2"
 	{
-		"en"		"FOUNDATION WINS"
+		"en"		"MTF Won"
 	}
 	"team_3"
 	{
-		"en"		"SCP WIN"
+		"en"		"SCPs Won"
 	}
 
 	// SCP-914 Phrases
@@ -1267,15 +1144,7 @@
 	}
 	"mtf_spawn"	// Chat
 	{
-		"en"		"{mediumblue}Mobile Task Force Unit, Epsilon-11{default} BRAVO-15 has entered the facility."
-	}
-	"mtf_spawn_2"	// Chat
-	{
-		"en"		"{mediumblue}Mobile Task Force Unit, Epsilon-11{default} Charlie-9 has entered the facility."
-	}
-	"snake_spawn"	// Chat
-	{
-		"en"		"{red}Serpent's Hand{default} has entered the facility."
+		"en"		"{mediumblue}Mobile Task Force Unit, Epsilon-11{default} has entered the facility."
 	}
 	"mtf_spawn_scp"	// Chat
 	{
@@ -1333,11 +1202,11 @@
 	{
 		"en"		"%%+attack3%% Press and hold to use sprint"
 	}
-    "kill_counter"    // HUD
-    {
-        "#format"    "{1:d},{2:d},{3:d},{4:d}"
-        "en"        "Kills: {1}\n[Humans left]\nVIP : {2} / MTF's : {3} / Chaos : {4}"
-    }    	
+	"kill_counter"	// HUD
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"Kills: {1}\nHumans left: {2}"
+	}		
 	"end_screen"	// HUD
 	{
 		"#format"	"{1:t},{2:d},{3:d},{4:d},{5:d},{6:d},{7:d},{8:d},{9:d}"
@@ -1420,66 +1289,26 @@
 	{
 		"en"		"ASSIGNMENT: TERMINATED\nSUBJECT: MTF OPERATIVE E11\nREASON: DEMONSTRATION OF EXCEEDINGLY POOR JUDGMENT"
 	}
-	"disarming_other"	// HUD
-	{
-		"#format"	"{1:N},{2:.0f}"
-		"en"		"Disarming {1}... {2}%"
-	}
-	"disarming_me"	// HUD
-	{
-		"#format"	"{1:N},{2:.0f}"
-		"en"		"{1} is disarming you... {2}%"
-    }
-    "arming_other"	// HUD
+    "disarming_other"    // HUD
     {
-        "#format"	"{1:N},{2:.0f}"
-        "en"		"Uncuffing {1}... {2}%"
+        "#format"    "{1:t},{2:.0f}"
+        "en"        "Disarming {1}... {2}%"
     }
-	"arming_me"		// HUD
-	{
-		"#format"	"{1:N},{2:.0f}"
-		"en"		"{1} is uncuffing you... {2}%"
-	}
-	"killedby018"	//
-	{
-		"en"		"SCP-018 bounces for 30 seconds with instantaneous damage."
-	}
-	"killedby049"	//
-	{
-		"en"		"SCP-049 get speed boost when he detected patient."
-	}
-	"killedby076"	//
-	{
-		"en"		"SCP-076-2 has charge ability."
-	}
-	"killedby096"	//
-	{
-		"en"		"Don't look SCP-096's face."
-	}
-	"killedby173"	//
-	{
-		"en"		"SCP-173 can only move while nobody is looking."
-	}
-	"killedby939"	//
-	{
-		"en"		"Crouching helps you stay silent towards SCP-939."
-	}
-	"killedbyfrag"	//
-	{
-		"en"		"Frag grenade's explosion radius is big."
-	}
-	"killedbytesla"	//
-	{
-		"en"		"Need to develop patience."
-	}
-	"killedbyalpha"	//
-	{
-		"en"		"You must escape before the alpha warhead explodes.."
-	}
-	"killedbydecon"	//
-	{
-		"en"		"Listen decontamination process warning carefully."
-	}
+	"disarming_me"    // HUD
+    {
+        "#format"    "{1:N},{2:.0f}"
+        "en"        "{1} is disarming you... {2}%"
+    }
+    "arming_other" // HUD
+    {
+        "#format"    "{1:t},{2:.0f}"
+        "en"        "Uncuffing {1}... {2}%"
+    }
+	"arming_me" // HUD
+    {
+        "#format"    "{1:N},{2:.0f}"
+        "en"        "{1} is uncuffing you... {2}%"
+    }
 
 	// Ikea
 

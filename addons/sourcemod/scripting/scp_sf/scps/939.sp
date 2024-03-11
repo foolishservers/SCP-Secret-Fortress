@@ -1,18 +1,13 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static const int HealthMax = 3300;	// Max standard health
-static const int HealthExtra = 1100;	// Max regenerable health
+static const int HealthMax = 1800;	// Max standard health
+static const int HealthExtra = 600;	// Max regenerable health
 
-static const int HealthMaxSZF = 1000;	// Max standard health in SZF
-static const int HealthExtraSZF = 650;	// Max regenerable health in SZF
+static const float SpeedExtra = 70.0;	// Extra speed while low health
+static const float GlowRange = 800.0;	// Max outline range
 
-static const float SpeedExtra = 50.0;	// Extra speed while low health
-static const float GlowRange = 1200.0;	// Max outline range
-
-static const float SpeedExtraSZF = 75.0;	// Extra speed while low health in SZF
-
-static int Health[MAXTF2PLAYERS];
+static int Health[MAXPLAYERS + 1];
 
 public bool SCP939_Create(int client)
 {
@@ -22,7 +17,7 @@ public bool SCP939_Create(int client)
 	
 	int account = GetSteamAccountID(client, false);
 
-	int weapon = SpawnWeapon(client, "tf_weapon_knife", 461, 70, 13, "2 ; 1.625 ; 15 ; 0 ; 252 ; 0.3 ; 412 ; 0.8 ; 651 ; 0.6 ; 4328 ; 1", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 461, 70, 13, "2 ; 1.625 ; 15 ; 0 ; 252 ; 0.3 ; 412 ; 0.8 ; 4328 ; 1", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 10);
@@ -71,7 +66,7 @@ public void SCP939_OnMaxHealth(int client, int &health)
 
 public void SCP939_OnSpeed(int client, float &speed)
 {
-	speed += (1.0-(Health[client]/HealthMax))*SpeedExtra;
+	speed += (1.0-(Pow(float(Health[client])/float(HealthMax), 2.0)))*SpeedExtra;
 }
 
 public Action SCP939_OnDealDamage(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
@@ -94,22 +89,6 @@ public Action SCP939_OnDealDamage(int client, int victim, int &inflictor, float 
 	damagetype &= ~DMG_CRIT;
 	Client[victim].HudIn = GetGameTime()+13.0;
 	return Plugin_Changed;
-}
-
-public void SCP939_OnDeath(int client, Event event)
-{
-	Classes_DeathScp(client, event);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp939terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public Action SCP939_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
@@ -140,52 +119,4 @@ public bool SCP939_OnGlowPlayer(int client, int victim)
 			return true;
 	}
 	return false;
-}
-
-// SZF only
-
-public bool SZF939_Create(int client)
-{
-	Classes_VipSpawn(client);
-
-	Health[client] = HealthMaxSZF;
-	
-	int account = GetSteamAccountID(client, false);
-
-	int weapon = SpawnWeapon(client, "tf_weapon_knife", 461, 70, 13, "2 ; 1.625 ; 15 ; 0 ; 252 ; 0.3 ; 4328 ; 1", false);
-	if(weapon > MaxClients)
-	{
-		ApplyStrangeRank(weapon, 10);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
-		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-	}
-
-	weapon = SpawnWeapon(client, "tf_weapon_pda_spy", 27, 70, 13, "", false);
-	if(weapon > MaxClients)
-	{
-		TF2Attrib_SetByDefIndex(weapon, 214, view_as<float>(GetRandomInt(250, 374))); // Sharp
-		TF2Attrib_SetByDefIndex(weapon, 292, view_as<float>(64));
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
-	}
-	return false;
-}
-
-public void SZF939_OnMaxHealth(int client, int &health)
-{
-	health = Health[client] + HealthExtraSZF;
-
-	int current = GetClientHealth(client);
-	if(current > health)
-	{
-		SetEntityHealth(client, health);
-	}
-	else if(current < Health[client]-HealthExtraSZF)
-	{
-		Health[client] = current+HealthExtraSZF;
-	}
-}
-
-public void SZF939_OnSpeed(int client, float &speed)
-{
-	speed += (1.0-(Health[client]/HealthMaxSZF))*SpeedExtraSZF;
 }

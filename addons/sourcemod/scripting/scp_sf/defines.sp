@@ -2,7 +2,6 @@
 #pragma newdecls required
 
 #define FAR_FUTURE	100000000.0
-#define MAXTF2PLAYERS	36
 #define MAXENTITIES	2048
 
 #define MAXANGLEPITCH	45.0
@@ -30,10 +29,9 @@
 
 // intentionally big to avoid conflicts
 #define DOOR_ID_NORMAL 1147483644
-#define DOOR_ID_CHECKPOINT 1147483645
-#define DOOR_ID_TRIGGER 1147483646
+#define DOOR_ID_GATE 1147483645
 
 #define DOOR_ID_PROP "m_iHammerID"
-#define DOOR_ENTREF_PROP "m_lifeState"
+#define DOOR_ENTREF_PROP "m_iMaxHealth"
 
 float TRIPLE_D[3] = { 0.0, 0.0, 0.0 };

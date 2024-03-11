@@ -14,7 +14,6 @@ void SDKHook_HookClient(int client)
 	SDKHook(client, SDKHook_OnTakeDamageAlivePost, OnTakeDamageAlivePost);	
 	SDKHook(client, SDKHook_SetTransmit, OnTransmit);
 	SDKHook(client, SDKHook_WeaponSwitchPost, OnWeaponSwitch);
-	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
 	SDKHook(client, SDKHook_PostThink, OnPostThink);
 	SDKHook(client, SDKHook_PostThinkPost, OnPostThinkPost);
 }
@@ -63,13 +62,17 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_Spawn, OnPipeSpawned);
 	}
-	else if(StrEqual(classname, "func_door"))
+	else if(StrContains(classname, "func_door") == 0 || StrEqual(classname, "func_movelinear"))
 	{
-		SDKHook(entity, SDKHook_Spawn, OnDoorSpawned);
+		SDKHook(entity, SDKHook_StartTouch, OnDoorTouch);
 	}
-	else if(StrEqual(classname, "obj_dispenser"))
+	else if (StrEqual(classname, "func_button"))
 	{
-		SDKHook(entity, SDKHook_SpawnPost, OnDispenserSpawnPost);
+		RequestFrame(UpdateDoorsFromButton, EntIndexToEntRef(entity));
+	}
+	else if (StrEqual(classname, "logic_relay"))
+	{
+		RequestFrame(UpdateDoorsFromRelay, entity);
 	}
 }
 
@@ -89,8 +92,7 @@ public Action OnSmallHealthPickup(int entity, int client)
 {
 	if(!Enabled || !IsValidClient(client))
 		return Plugin_Continue;
-	
-	
+
 	if(IsCanPickup(client) && !Client[client].Disarmer && Items_CanGiveItem(client, 3))
 	{
 		Items_CreateWeapon(client, 30013, false, true, true);
@@ -138,7 +140,7 @@ public Action OnSmallAmmoPickup(int entity, int client)
 {
 	if(!Enabled || !IsValidClient(client))
 		return Plugin_Continue;
-	
+
 	if(IsCanPickup(client) && !Client[client].Disarmer)
 	{
 		int ammo = GetAmmo(client, 2);
@@ -162,7 +164,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 {
 	if(!Enabled || !IsValidClient(client))
 		return Plugin_Continue;
-	
+
 	if(IsCanPickup(client) && !Client[client].Disarmer)
 	{
 		bool found;
@@ -241,7 +243,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 {
 	if(!Enabled || !IsValidClient(client))
 		return Plugin_Continue;
-	
+
 	if(IsCanPickup(client) && !Client[client].Disarmer)
 	{
 		bool found;
@@ -328,27 +330,15 @@ public Action OnPipeTouch(int entity, int client)
 	return IsValidClient(client) ? Plugin_Handled : Plugin_Continue;
 }
 
-public Action OnDoorSpawned(int entity)
-{
-	SDKHook(entity, SDKHook_StartTouch, OnDoorTouch);
-	return Plugin_Continue;
-}
-
 public Action OnDoorTouch(int entity, int client)
 {
 	if (IsValidClient(client))
 	{
 		// ignore the result, this is only called so scps like 096 can destroy doors when touching them
-		Classes_OnDoorWalk(client, entity);
+		Classes_OnDoorTouch(client, entity);	
 	}
 	
 	return Plugin_Continue;
-}
-
-public void OnDispenserSpawnPost(int entity)
-{
-	SetVariantInt(1);
-	AcceptEntityInput(entity, "SetSolidToPlayer");
 }
 
 public void OnPlayerManagerThink(int entity) 
@@ -680,7 +670,7 @@ public Action OnGetMaxHealth(int client, int &health)
 }
 
 public void OnWeaponSwitch(int client, int entity)
-{	
+{
 	Classes_OnWeaponSwitch(client, entity);
 	RequestFrame(OnWeaponSwitchFrame, GetClientUserId(client));
 }
@@ -713,13 +703,6 @@ static void OnWeaponSwitchFrame(int userid)
 		
 		//ViewChange_Switch(client);
 	}
-}
-
-public void OnWeaponEquipPost(int client, int weapon)
-{
-	if (!IsValidClient(client) || !IsClientInGame(client) || !IsValidEdict(weapon)) return;
-	
-	DHook_HookWeapon(weapon);
 }
 
 static const float ViewHeights[] =

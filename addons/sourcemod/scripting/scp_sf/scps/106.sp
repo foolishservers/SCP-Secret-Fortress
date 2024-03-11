@@ -4,7 +4,7 @@
 static const char ModelMelee[] = "models/scp_sf/106/scp106_hands_1.mdl";
 static const float TeleFreeze = 8.0;	// Teleport freeze duration
 static const float TeleStun = 5.0;		// Teleport stun duration
-static const float TeleDelay = 4.0;		// Teleport delay
+static const float TeleDelay = 4.0;	// Teleport delay
 
 public bool SCP106_Create(int client)
 {
@@ -14,20 +14,13 @@ public bool SCP106_Create(int client)
 	Client[client].Pos[1] = 0.0;
 	Client[client].Pos[2] = 0.0;
 	Client[client].Extra2 = 0;
-	int account = GetSteamAccountID(client, false);
-	
-	int weapon = SpawnWeapon(client, "tf_weapon_shovel", 649, 60, 13, "1 ; 0.769231 ; 28 ; 0 ; 66 ; 0.1 ; 252 ; 0 ; 412 ; 0.8 ; 64 ; 0.5", false);
+
+	int weapon = SpawnWeapon(client, "tf_weapon_shovel", 649, 60, 13, "1 ; 0.769231 ; 28 ; 0 ; 66 ; 0.1 ; 252 ; 0.4 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 12);
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
+		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
-	}
-
-	weapon = SpawnWeapon(client, "tf_weapon_builder", 735, 60, 13, "427 ; 10 ; 428 ; 5.0 ; 425 ; 3.0 ; 433 ; 1", false);
-	if(weapon > MaxClients)
-	{
-		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
 
 	ViewModel_Create(client, ModelMelee);
@@ -59,17 +52,6 @@ public void SCP106_OnDeath(int client, Event event)
 	char model[PLATFORM_MAX_PATH];
 	GetEntPropString(client, Prop_Data, "m_ModelName", model, sizeof(model));	
 	Classes_PlayDeathAnimation(client, model, "death_scp_106", "", 3.0);
-	
-	for(int i=1; i<=MaxClients; i++)
-	{
-		if(!IsValidClient(i))
-			continue;
-
-		for(int j=0; j<2; j++)
-		{
-			EmitSoundToClient(i, "scp_sf/terminate/scp106terminated.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-		}
-	}
 }
 
 public void SCP106_OnKill(int client, int victim)
@@ -252,14 +234,15 @@ public Action SCP106_TakeDamage(int client, int attacker, int &inflictor, float 
 {
 	if(Client[client].ChargeIn < GetGameTime())
 		return Plugin_Continue;
-		
+
 	damagetype |= DMG_PREVENT_PHYSICS_FORCE;
 	return Plugin_Changed;
 }
 
-public bool SCP106_DoorWalk(int client, int entity)
+public bool SCP106_DoorWalk(int client, int door)
 {
-	return false;
+	// Allow pass through any doors thats not elevators
+	return IsDoorNormal(door) || IsDoorGate(door);
 }
 
 static void ShowAnnotation(int client)

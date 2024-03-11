@@ -20,7 +20,7 @@ static const float RageExtra = 3.0;	// Rage duration per target
 static const float RageWinddown = 8.0;	// After rage stun
 static const float RageCooldown = 15.0;	// After rage cooldown
 
-static int Triggered[MAXTF2PLAYERS];
+static int Triggered[MAXPLAYERS + 1];
 
 public bool SCP096_Create(int client)
 {
@@ -30,7 +30,7 @@ public bool SCP096_Create(int client)
 	Client[client].Extra1 = HealthMax;
 	Client[client].Extra2 = 0;
 
-	for(int i; i<MAXTF2PLAYERS; i++)
+	for(int i; i<MAXPLAYERS; i++)
 	{
 		Triggered[i] = 0;
 	}
@@ -142,33 +142,10 @@ public bool SCP096_OnGlowPlayer(int client, int victim)
 	return (Client[client].Extra2 && Triggered[victim]>1);
 }
 
-public int SCP096_OnKeycard(int client, AccessEnum access)
-{
-	if(access == Access_Checkpoint)
-		return 1;
-
-	if(Client[client].Extra2 < 2)
-		return 0;
-
-	if(access==Access_Main || access==Access_Armory)
-		return 3;
-
-	return 1;
-}
-
-public bool SCP096_DoorWalk(int client, int entity)
+public void SCP096_DoorTouch(int client, int door)
 {
 	if(Client[client].Extra2 == 2)
-	{
-		if (!DestroyOrOpenDoor(entity))
-		{
-			static char buffer[16];
-			GetEntPropString(entity, Prop_Data, "m_iName", buffer, sizeof(buffer));
-			if(!StrContains(buffer, "scp", false))
-				AcceptEntityInput(entity, "FireUser1", client, client);
-		}
-	}
-	return true;
+		DestroyOrOpenDoor(door);
 }
 
 public void SCP096_OnButton(int client, int button)
@@ -233,7 +210,7 @@ public void SCP096_OnButton(int client, int button)
 
 				if(!another096)
 				{
-					for(int i; i<MAXTF2PLAYERS; i++)
+					for(int i; i<MAXPLAYERS; i++)
 					{
 						Triggered[i] = 0;
 					}
@@ -241,7 +218,7 @@ public void SCP096_OnButton(int client, int button)
 			}
 			else
 			{
-				static float hudIn[MAXTF2PLAYERS];
+				static float hudIn[MAXPLAYERS + 1];
 				if(hudIn[client]<engineTime && !(GetClientButtons(client) & IN_SCORE))
 				{
 					hudIn[client] = engineTime+0.25;
