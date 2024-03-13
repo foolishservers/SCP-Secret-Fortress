@@ -1242,15 +1242,15 @@
 	"auto_alpha_warhead_warning"	// Chat
 	{
 		"#format"	"{1:d},{2:d}"
-		"en"		"{Gray}Auto Alpha Warhead{default}, {green}{1} minutes and {2} seconds {red}before operation..."
+		"en"		"{Gray}Alpha-Warhead {red}automated detonation sequence will be terminated in{green}{1} minutes and {2} seconds."
 	}
 	"auto_alpha_warhead_active_1"	// Chat
 	{
-		"en"		"{Gray}Auto Alpha Warhead{default}, {red}Starts operation..!"
+		"en"		"{Gray}Alpha-Warhead{default}, {red}detonation detonation engaged!"
 	}
 	"auto_alpha_warhead_active_2"	// Chat
 	{
-		"en"		"{default}Everything is coming to the end..."
+		"en"		"{Gray}Alpha-Warhead{default} is being detonated..."
 	}
 	"light_decontamination"	// Chat
 	{

@@ -1383,10 +1383,10 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	int sEscapeScore = vescape * 3;
 	int pKillScore = pkill * 4;
 	
-	int vKillScore = vkill * 2;
+	int vKillScore = vkill * 3;
 	
 	int vTotalscore = sEscapeScore + pKillScore;
-	int sTotalScore = vKillScore + mkill;
+	int sTotalScore = vKillScore /*+ mkill*/;
 	
 	if(!salive) // no SCPs and chaos alive
 	{

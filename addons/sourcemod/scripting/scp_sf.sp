@@ -741,16 +741,11 @@ public Action Timer_Auto_Alpha_Warhead_4(Handle timer, int client)
 
 public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer, int client)
 {
-	int ent = -1;
-	char name[32];
-	
-	while ((ent = FindEntityByClassname(ent, "logic_relay")) != INVALID_ENT_REFERENCE)
+	for(int i=1; i<=MaxClients; i++)
 	{
-        GetEntPropString(ent, Prop_Data, "m_iName", name, sizeof(name)); // Get targetname
-		
-        if(StrEqual(name, "scp_nuke", false)) // targetname match
-        {
-			AcceptEntityInput(ent, "Trigger");
+		if(IsValidClient(i) && !IsSpec(i))
+		{
+			SDKHooks_TakeDamage(i, 0, 0, 99999.0, DMG_BLAST);
 		}
 	}
 	
@@ -1047,14 +1042,6 @@ public Action OnRelayTrigger(const char[] output, int entity, int client, float 
 	{
 		if(Enabled)
 		{
-			for(int i=1; i<=MaxClients; i++)
-			{
-				if(IsValidClient(i) && !IsSpec(i))
-				{
-					SDKHooks_TakeDamage(i, 0, 0, 99999.0, DMG_BLAST);
-				}
-			}
-			
 			GiveAchievement(Achievement_SurviveWarhead, 0);
 		}
 	}
