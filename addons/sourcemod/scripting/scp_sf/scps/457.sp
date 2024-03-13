@@ -46,6 +46,20 @@ public void SCP457_OnDeath(int client, Event event)
 
 public void SCP457_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	int health = GetClientHealth(client);
 	int newHealth = health+HealthKill;
 	if(newHealth >= HealthSplit)

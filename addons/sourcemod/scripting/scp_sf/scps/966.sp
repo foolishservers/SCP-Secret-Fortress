@@ -26,6 +26,23 @@ public bool SCP966_Create(int client)
 	return false;
 }
 
+public void SCP939_OnKill(int client, int victim)
+{
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+}
+
 public void SCP966_OnDeath(int client, Event event)
 {
 	Classes_DeathScp(client, event);

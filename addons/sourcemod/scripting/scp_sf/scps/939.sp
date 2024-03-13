@@ -64,6 +64,23 @@ public void SCP939_OnMaxHealth(int client, int &health)
 	}
 }
 
+public void SCP939_OnKill(int client, int victim)
+{
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+}
+
 public void SCP939_OnSpeed(int client, float &speed)
 {
 	speed += (1.0-(Pow(float(Health[client])/float(HealthMax), 2.0)))*SpeedExtra;

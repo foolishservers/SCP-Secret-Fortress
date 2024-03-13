@@ -1071,6 +1071,24 @@ public void Classes_KillChaos(int client, int victim)
 	}
 }
 
+public void Classes_KillChaos_2(int client, int victim)
+{
+	ClassEnum class;
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+			Gamemode_GiveTicket(class.Group, 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+			Gamemode_GiveTicket(class.Group, 1);
+		}
+	}
+}
+
 public void Classes_KillSci(int client, int victim)
 {
 	if(Classes_GetByName("dboi") == Client[victim].Class)
@@ -1084,6 +1102,15 @@ public void Classes_KillMtf(int client, int victim)
 		ClassEnum class;
 		if(Classes_GetByIndex(Client[victim].Class, class) && class.Group==1 && Classes_GetByIndex(Client[client].Class, class))
 			Gamemode_GiveTicket(class.Group, 1);
+	}
+}
+
+public void Classes_KillHuman(int client, int victim)
+{
+	ClassEnum class;
+	if(Classes_GetByIndex(Client[victim].Class, class) && !class.Group && !class.Human)
+	{
+		Gamemode_GiveTicket(class.Group, 5);
 	}
 }
 

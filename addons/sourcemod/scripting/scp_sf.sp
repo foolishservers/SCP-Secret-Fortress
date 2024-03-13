@@ -95,6 +95,8 @@ Handle HudPlayer;
 Handle HudClass;
 Handle HudGame;
 
+Handle AutoAlphaWarheadTimer;
+
 Cookie CookieTraining;
 Cookie CookieColor;
 Cookie CookieDClass;
@@ -316,6 +318,8 @@ public void OnPluginStart()
 
 	HookEntityOutput("logic_relay", "OnTrigger", OnRelayTrigger);
 	AddTempEntHook("Player Decal", OnPlayerSpray);
+	
+	HookEntityOutput("team_round_timer", "OnFinished", OnTimerFinished);
 
 	LoadTranslations("core.phrases");
 	LoadTranslations("common.phrases");
@@ -569,6 +573,8 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 		}
 	}
 
+	EndAutoAlphaWarhead();
+
 	Doors_Clear();
 	Items_RoundStart();
 	// see comments in szf.sp for why this is here
@@ -638,6 +644,8 @@ public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 	UpdateListenOverrides(FAR_FUTURE);
 	Gamemode_RoundEnd();
 	SZF_RoundEnd();
+	
+	EndAutoAlphaWarhead();
 
 	#if defined _included_smjm08
 	SJM08_Clean();
@@ -647,6 +655,117 @@ public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 public Action OnWinPanel(Event event, const char[] name, bool dontBroadcast)
 {
 	return Plugin_Handled;
+}
+
+public void OnTimerFinished(const char[] output, int entity, int client, float delay)
+{
+	if(Enabled)
+	{
+		char name[64];
+		GetEntPropString(entity, Prop_Data, "m_iName", name, sizeof(name));
+		
+		if(StrEqual(name, "auto_alpha_warhead", false))
+		{
+			NoMusicRound = true;
+
+			CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_1");
+
+			ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_1.mp3");
+	
+			AutoAlphaWarheadTimer = CreateTimer(16.0, Timer_Auto_Alpha_Warhead_2);
+		}
+		else
+		{
+			RemoveEntity(entity);
+			
+			int eRoundTimer = CreateEntityByName("team_round_timer");
+			if(eRoundTimer != -1)
+			{
+				DispatchKeyValue(eRoundTimer, "targetname", "auto_alpha_warhead");
+				DispatchKeyValue(eRoundTimer, "timer_length", "200");
+				DispatchKeyValue(eRoundTimer, "show_in_hud", "1");
+				DispatchKeyValue(eRoundTimer, "reset_time", "1");
+				DispatchKeyValue(eRoundTimer, "auto_countdown", "0");
+				DispatchSpawn(eRoundTimer);
+		
+				AcceptEntityInput(eRoundTimer, "Enable");
+		
+				CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_warning", 3, 20);
+				//AutoAlphaWarheadTimer = CreateTimer(200.0, Timer_Auto_Alpha_Warhead_1);
+			}
+		}
+	}
+}
+
+public Action Timer_Auto_Alpha_Warhead_1(Handle timer)
+{
+	NoMusicRound = true;
+
+	CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_1");
+
+	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_1.mp3");
+	
+	AutoAlphaWarheadTimer = CreateTimer(16.0, Timer_Auto_Alpha_Warhead_2);
+	
+	return Plugin_Continue;
+}
+
+public Action Timer_Auto_Alpha_Warhead_2(Handle timer, int client)
+{
+	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_2.mp3");
+	
+	AutoAlphaWarheadTimer = CreateTimer(18.0, Timer_Auto_Alpha_Warhead_3);
+	
+	return Plugin_Continue;
+}
+
+public Action Timer_Auto_Alpha_Warhead_3(Handle timer, int client)
+{	
+	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_3.mp3");
+	
+	AutoAlphaWarheadTimer = CreateTimer(10.0, Timer_Auto_Alpha_Warhead_4);
+	
+	return Plugin_Continue;
+}
+
+public Action Timer_Auto_Alpha_Warhead_4(Handle timer, int client)
+{
+	CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_2");
+
+	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_4.mp3");
+	
+	AutoAlphaWarheadTimer = CreateTimer(55.0, Timer_Explode_Auto_Alpha_Warhead);
+	
+	return Plugin_Continue;
+}
+
+public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer, int client)
+{
+	int ent = -1;
+	char name[32];
+	
+	while ((ent = FindEntityByClassname(ent, "logic_relay")) != INVALID_ENT_REFERENCE)
+	{
+        GetEntPropString(ent, Prop_Data, "m_iName", name, sizeof(name)); // Get targetname
+		
+        if(StrEqual(name, "scp_nuke", false)) // targetname match
+        {
+			AcceptEntityInput(ent, "Trigger");
+		}
+	}
+	
+	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_5.mp3");
+	
+	return Plugin_Continue;
+}
+
+public void EndAutoAlphaWarhead()
+{
+	if(AutoAlphaWarheadTimer)
+	{
+		KillTimer(AutoAlphaWarheadTimer);
+		AutoAlphaWarheadTimer = null;
+	}
 }
 
 public Action Timer_AccessDeniedReaction(Handle timer, int client)
@@ -696,7 +815,7 @@ public Action OnRelayTrigger(const char[] output, int entity, int client, float 
 					}
 				}				
 			}
-						
+			
 			switch(value)
 			{
 				case 1:
@@ -927,7 +1046,17 @@ public Action OnRelayTrigger(const char[] output, int entity, int client, float 
 	else if(!StrContains(name, "scp_nuke", false))
 	{
 		if(Enabled)
+		{
+			for(int i=1; i<=MaxClients; i++)
+			{
+				if(IsValidClient(i) && !IsSpec(i))
+				{
+					SDKHooks_TakeDamage(i, 0, 0, 99999.0, DMG_BLAST);
+				}
+			}
+			
 			GiveAchievement(Achievement_SurviveWarhead, 0);
+		}
 	}
 	else if(!StrContains(name, "scp_giveitem_", false))
 	{

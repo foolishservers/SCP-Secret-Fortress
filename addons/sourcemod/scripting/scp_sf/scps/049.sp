@@ -365,11 +365,39 @@ public void SCP049_OnDeath(int client, Event event)
 
 public void SCP049_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	SpawnMarker(victim, client);
 }
 
 public void SCP0492_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	static float pos1[3];
 	GetClientAbsOrigin(client, pos1);
 	for(int target=1; target<=MaxClients; target++)

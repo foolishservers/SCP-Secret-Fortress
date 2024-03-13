@@ -56,6 +56,20 @@ public void SCP106_OnDeath(int client, Event event)
 
 public void SCP106_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	GiveAchievement(Achievement_Death106, victim);
 }
 

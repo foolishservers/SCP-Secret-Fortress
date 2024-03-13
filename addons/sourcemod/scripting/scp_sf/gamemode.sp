@@ -1343,7 +1343,118 @@ public bool Gamemode_ConditionSlNew(TFTeam &team)	// Tweaked version of scp-sl's
 			continue;
 
 		SetGlobalTransTarget(client);
-		ShowSyncHudText(client, HudGame, "%t", "end_screen_vip", buffer, descape, dtotal, dcapture, sescape, stotal, scapture, pkill, ptotal, minutes, seconds);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, descape, dtotal, dcapture, sescape, stotal, scapture, pkill, ptotal, minutes, seconds);
+	}
+	return true;
+}
+
+public bool Gamemode_ConditionIntegrated(TFTeam &team)
+{
+	ClassEnum class;
+	bool salive, balive;
+	for(int i=1; i<=MaxClients; i++)
+	{
+		if(!IsValidClient(i) || IsSpec(i) || !Classes_GetByIndex(Client[i].Class, class))
+			continue;
+
+		if(class.Vip)
+			return false;
+
+		if(!class.Group)	// SCPs and Chaos
+		{
+			salive = true;
+		}
+		else if(class.Group > 1)	// Guards and MTF Squads
+		{
+			balive = true;
+		}
+	}
+	
+	int group;
+	
+	int vescape, vtotal, pkill, ptotal, vkill, mkill;
+	GameInfo.GetValue("sescape", vescape);
+	GameInfo.GetValue("stotal", vtotal);
+	GameInfo.GetValue("pkill", pkill);
+	GameInfo.GetValue("ptotal", ptotal);
+	GameInfo.GetValue("vkill", vkill);
+	GameInfo.GetValue("mkill", mkill);
+	
+	int sEscapeScore = vescape * 3;
+	int pKillScore = pkill * 4;
+	
+	int vKillScore = vkill * 2;
+	
+	int vTotalscore = sEscapeScore + pKillScore;
+	int sTotalScore = vKillScore + mkill;
+	
+	if(!salive) // no SCPs and chaos alive
+	{
+		// humans alive
+		if(vTotalscore > sTotalScore)
+		{
+			team = TFTeam_Red;
+			group = 2;
+		}
+		else if(vTotalscore < sTotalScore)
+		{
+			team = TFTeam_Blue;
+			group = 3;
+		}
+		else
+		{
+			team = TFTeam_Unassigned;
+			group = 0;
+		}
+	}
+	else
+	{
+		Gamecode_CountVIPs();
+	
+		if(!vescape) // SCP alive and none escaped
+		{
+			team = TFTeam_Blue;
+			group = 3;
+		}
+		else if(!balive && VIPsAlive <= 0) // no humans alive
+		{
+			if(vTotalscore > sTotalScore)
+			{
+				team = TFTeam_Red;
+				group = 2;
+			}
+			else if(vTotalscore < sTotalScore)
+			{
+				team = TFTeam_Blue;
+				group = 3;
+			}
+			else
+			{
+				team = TFTeam_Unassigned;
+				group = 0;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	EndRoundRelay(group);
+
+	int minutes, seconds;
+	TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);	
+
+	char buffer[16];
+	FormatEx(buffer, sizeof(buffer), "team_%d", group);
+	SetHudTextParamsEx(-1.0, 0.3, 17.5, TeamColors[group], {255, 255, 255, 255}, 1, 2.0, 1.0, 1.0);
+	for(int client=1; client<=MaxClients; client++)
+	{
+		if(!IsValidClient(client))
+			continue;
+
+		SetGlobalTransTarget(client);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vTotalscore, sTotalScore, minutes, seconds);
 	}
 	return true;
 }

@@ -17,6 +17,20 @@ public bool SCP035_Create(int client)
 
 public void SCP035_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+	
 	SetEntityHealth(client, GetClientHealth(client)+HealthKill);
 }
 

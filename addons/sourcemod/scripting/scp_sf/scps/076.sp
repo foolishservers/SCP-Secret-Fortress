@@ -34,6 +34,20 @@ public void SCP076_OnSpeed(int client, float &speed)
 
 public void SCP076_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	Client[client].Extra2++;
 	if(Client[client].Extra2 == MaxHeads)
 	{

@@ -94,6 +94,20 @@ public void SCP173_OnSpeed(int client, float &speed)
 
 public void SCP173_OnKill(int client, int victim)
 {
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+
 	GiveAchievement(Achievement_Death173, victim);
 	EmitSoundToAll(SnapSound, victim, SNDCHAN_BODY, SNDLEVEL_SCREAMING, _, _, _, client);
 	if(TF2_IsPlayerInCondition(victim, TFCond_Dazed))

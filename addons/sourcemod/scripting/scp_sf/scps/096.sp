@@ -65,6 +65,23 @@ public Action SCP096_OnAnimation(int client, PlayerAnimEvent_t &anim, int &data)
 	return Plugin_Continue;
 }
 
+public void SCP096_OnKill(int client, int victim)
+{
+	ClassEnum class;
+	
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(class.Vip)
+		{
+			Gamemode_AddValue("vkill", 1);
+		}
+		else if(class.Group > 1)
+		{
+			Gamemode_AddValue("mkill", 1);
+		}
+	}
+}
+
 public void SCP096_OnDeath(int client, Event event)
 {
 	Classes_DeathScp(client, event);

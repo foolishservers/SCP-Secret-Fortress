@@ -1216,6 +1216,11 @@
 	{
 		"#format"	"{1:t},{2:d},{3:d},{4:d},{5:d},{6:d},{7:d},{8:d},{9:d},{10:d},{11:d}"
 		"en"		"{1}\n \nClass-D Escaped: {2} / {3} ({4} captured)\nScientists Escaped: {5} / {6} ({7} captured)\nTerminated SCPs: {8} / {9}\n \nThe round took {10} minutes and {11} seconds"
+	}
+	"end_screen_integrated" // HUD
+	{
+		"#format"	"{1:t},{2:d},{3:d},{4:d},{5:d},{6:d},{7:d},{8:d},{9:d},{10:d}"
+		"en"		"{1}\n \nVIP Escaped: {2} / {3}\nKilled MTFs: {4}\nTerminated SCPs: {5} / {6}\nHuman Score : {7}\nSCP Score : {8}\n\n \nThe round took {9} minutes and {10} seconds"
 	}	
 	"end_screen_boss"	// HUD
 	{
@@ -1233,6 +1238,19 @@
 	"alpha_warhead"	// Chat
 	{
 		"en"		"Alpha Warhead"
+	}
+	"auto_alpha_warhead_warning"	// Chat
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"{Gray}Auto Alpha Warhead{default}, {green}{1} minutes and {2} seconds {red}before operation..."
+	}
+	"auto_alpha_warhead_active_1"	// Chat
+	{
+		"en"		"{Gray}Auto Alpha Warhead{default}, {red}Starts operation..!"
+	}
+	"auto_alpha_warhead_active_2"	// Chat
+	{
+		"en"		"{default}Everything is coming to the end..."
 	}
 	"light_decontamination"	// Chat
 	{
