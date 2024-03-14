@@ -1380,8 +1380,8 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	GameInfo.GetValue("vkill", vkill);
 	GameInfo.GetValue("mkill", mkill);
 	
-	int sEscapeScore = vescape * 3;
-	int pKillScore = pkill * 4;
+	int sEscapeScore = vescape * 4;
+	int pKillScore = pkill * 5;
 	
 	int vKillScore = vkill * 3;
 	
