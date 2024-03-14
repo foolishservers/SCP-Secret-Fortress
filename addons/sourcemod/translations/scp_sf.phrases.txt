@@ -250,11 +250,11 @@
 	}
 	"desc_dboi"
 	{
-		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid SCPs and the Chaos."
+		"en"		"Escape the facility.\nCooperate with the MTF.\nAvoid SCPs and the Chaos Insurgency."
 	}
 	"train_dboi"
 	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for SCPs and the Chaos as they'll either kill you."
+		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for SCPs and the Chaos Insurgency as they'll eager to kill you."
 	}
 	"class_chaos"
 	{
@@ -262,11 +262,11 @@
 	}
 	"desc_chaos"
 	{
-		"en"		"Kill everyone.\nPrevent escape.\nNeutralize the MTF.\nCooperate with the SCPs."
+		"en"		"Kill every foundation personnel.\nCease VIPs from reaching the evacuation point.\nCooperate with the SCPs."
 	}
 	"train_chaos"
 	{
-		"en"		"You need to prevent escape from the facility.\nKill the MTF to help SCPs alive.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to cease VIPs from reaching the evacuation point.\nStick with SCPs to keep them alive as long as possible.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_chaos1"
 	{
@@ -274,11 +274,11 @@
 	}
 	"desc_chaos1"
 	{
-		"en"		"Kill everyone.\nPrevent escape.\nNeutralize the MTF.\nCooperate with the SCPs."
+		"en"		"Kill every foundation personnel.\nCease VIPs from reaching the evacuation point.\nCooperate with the SCPs."
 	}
 	"train_chaos1"
 	{
-		"en"		"You need to prevent escape from the facility.\nKill the MTF to help SCPs alive.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to cease VIPs from reaching the evacuation point.\nStick with SCPs to keep them alive as long as possible.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_chaosd"
 	{
@@ -286,11 +286,11 @@
 	}
 	"desc_chaosd"
 	{
-		"en"		"Kill everyone.\nPrevent escape.\nNeutralize the MTF.\nCooperate with the SCPs."
+		"en"		"Kill every foundation personnel.\nCease VIPs from reaching the evacuation point.\nCooperate with the SCPs."
 	}
 	"train_chaosd"
 	{
-		"en"		"You need to prevent escape from the facility.\nKill the MTF to help SCPs alive.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to cease VIPs from reaching the evacuation point.\nStick with SCPs to keep them alive as long as possible.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_chaos2"
 	{
@@ -298,11 +298,11 @@
 	}
 	"desc_chaos2"
 	{
-		"en"		"Kill everyone.\nPrevent escape.\nNeutralize the MTF.\nCooperate with the SCPs."
+		"en"		"Kill every foundation personnel.\nCease VIPs from reaching the evacuation point.\nCooperate with the SCPs."
 	}
 	"train_chaos2"
 	{
-		"en"		"You need to prevent escape from the facility.\nKill the MTF to help SCPs alive.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to cease VIPs from reaching the evacuation point.\nStick with SCPs to keep them alive as long as possible.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_chaos3"
 	{
@@ -310,11 +310,11 @@
 	}
 	"desc_chaos3"
 	{
-		"en"		"Kill everyone.\nPrevent escape.\nNeutralize the MTF.\nCooperate with the SCPs."
+		"en"		"Kill every foundation personnel.\nCease VIPs from reaching the evacuation point.\nCooperate with the SCPs."
 	}
 	"train_chaos3"
 	{
-		"en"		"You need to prevent escape from the facility.\nKill the MTF to help SCPs alive.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to cease VIPs from reaching the evacuation point.\nStick with SCPs to keep them alive as long as possible.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_sci"
 	{
@@ -322,11 +322,11 @@
 	}
 	"desc_sci"
 	{
-		"en"		"Escape from the facility.\nCooperate with the MTF.\nAvoid SCPs and the Chaos."
+		"en"		"Evacuate the facility\nCooperate with the MTF.\nAvoid SCPs and the Chaos Insurgency."
 	}
 	"train_sci"
 	{
-		"en"		"You need to escape the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for SCPs and the Chaos as they'll either kill you."
+		"en"		"You need to evacuate the facility.\nPress ATTACK, ATTACK2, USE, or use VOICEMENU to interact with buttons and items.\nWatch out for SCPs and the Chaos Insurgency as they'll eager to kill you."
 	}
 	"class_guard"
 	{
@@ -334,7 +334,7 @@
 	}
 	"desc_guard"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nCooperate with MTF.\nNeutralize SCPs and the Chaos."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nCooperate with MTF.\nNeutralize SCPs and the Chaos."
 	}
 	"train_guard"
 	{
@@ -346,11 +346,11 @@
 	}
 	"desc_mtf1"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
+		"en"		"Lead Class-D Personnel and Scientists to evacuation point.\nNeutralize SCPs and Chaos insurgency.\nFollow the orders from your commanders."
 	}
 	"train_mtf1"
 	{
-		"en"		"You need to protect Class-D Personnel and Scientists from SCPs and the Chaos.\nStay with your sergeants and captain.\nKeep in touch using the radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nStay close with your squadmates.\nKeep intact and communicate with your team by using radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_mtf2"
 	{
@@ -358,11 +358,11 @@
 	}
 	"desc_mtf2"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
+		"en"		"Lead Class-D Personnel and Scientists to evacuation point.\nNeutralize SCPs and Chaos insurgency.\nFollow the orders from your commanders."
 	}
 	"train_mtf2"
 	{
-		"en"		"You need to protect Class-D Personnel and Scientists from SCPs and the Chaos.\nStay with your sergeants and captain.\nKeep in touch using the radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nStay close with your squadmates.\nKeep intact and communicate with your team by using radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_mtfs"
 	{
@@ -370,11 +370,11 @@
 	}
 	"desc_mtfs"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos.\nFollow the orders of your captain."
+		"en"		"Lead Class-D Personnel and Scientists to evacuation point.\nNeutralize SCPs and Chaos insurgency.\nFollow the orders from your commanders."
 	}
 	"train_mtfs"
 	{
-		"en"		"You need to protect Class-D Personnel and Scientists from SCPs and the Chaos.\nStay with your sergeants and captain.\nKeep in touch using the radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nStay close with your squadmates.\nKeep intact and communicate with your team by using radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_mtf3"
 	{
@@ -382,11 +382,11 @@
 	}
 	"desc_mtf3"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos."
+		"en"		"Lead Class-D Personnel and Scientists to evacuation point.\nNeutralize SCPs and Chaos insurgency.\nGive orders to your squadmates."
 	}
 	"train_mtf3"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nCommand your troops down the facility.\nUse your radio to help order your troops around.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nCommand your troops down the facility.\nKeep intact and communicate with your team by using radio.\nPress ATTACK2, USE or use VOICEMENU to interact with buttons and items."
 	}
 	"class_mtfe"
 	{
@@ -1482,7 +1482,7 @@
 	}
 	"desc_mtf4"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
 	}
 	"train_mtf4"
 	{
@@ -1494,7 +1494,7 @@
 	}
 	"desc_mtf076"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nNeutralize SCPs and the Chaos."
 	}
 	"train_mtf076"
 	{
@@ -1506,7 +1506,7 @@
 	}
 	"desc_mtf105"
 	{
-		"en"		"Help Class-D Personnel and Scientists escape.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
+		"en"		"You need to lead Class-D Personnel and Scientists to evacuation point whilst protecting them from SCPs and Chaos Insurgency.\nNeutralize SCPs and the Chaos.\nFollow the orders of your superiors."
 	}
 	"train_mtf105"
 	{
