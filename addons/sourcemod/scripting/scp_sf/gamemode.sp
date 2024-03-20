@@ -1393,12 +1393,12 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 		// humans alive
 		if(vTotalscore > sTotalScore)
 		{
-			team = TFTeam_Red;
+			team = TFTeam_Blue;
 			group = 2;
 		}
 		else if(vTotalscore < sTotalScore)
 		{
-			team = TFTeam_Blue;
+			team = TFTeam_Red;
 			group = 3;
 		}
 		else
@@ -1413,19 +1413,19 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	
 		if(!vescape) // SCP alive and none escaped
 		{
-			team = TFTeam_Blue;
+			team = TFTeam_Red;
 			group = 3;
 		}
 		else if(!balive && VIPsAlive <= 0) // no humans alive
 		{
 			if(vTotalscore > sTotalScore)
 			{
-				team = TFTeam_Red;
+				team = TFTeam_Blue;
 				group = 2;
 			}
 			else if(vTotalscore < sTotalScore)
 			{
-				team = TFTeam_Blue;
+				team = TFTeam_Red;
 				group = 3;
 			}
 			else
