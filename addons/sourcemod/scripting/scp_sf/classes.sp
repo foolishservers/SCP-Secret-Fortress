@@ -906,6 +906,13 @@ public bool Classes_VipSpawn(int client)
 				Gamemode_AddValue("stotal");
 		}
 	}
+	
+	if(Classes_GetByName("dboi") == Client[client].Class)
+	{
+		SetEntProp(client, Prop_Send, "m_bForcedSkin", 1);
+		SetEntProp(client, Prop_Send, "m_nForcedSkin", 0);
+	}
+	
 	return false;
 }
 
