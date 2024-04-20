@@ -616,7 +616,15 @@ public Action Gamemode_WavePreTimer(Handle timer)
 	{
 		WaveEnum wave;
 		WaveList.GetArray(WaveIndex, wave);
-		TriggerRelays(wave.TriggerPre);
+		if(StrEqual(wave.Trigger, "scp_mtf_chaos_spawn_pre"))
+		{
+			TriggerRelays("scp_chaos_spawn_pre");
+			TriggerRelays("scp_mtf_spawn_pre");
+		}
+		else
+		{
+			TriggerRelays(wave.TriggerPre);
+		}
 	}
 
 	return Plugin_Continue;
@@ -1343,7 +1351,7 @@ public bool Gamemode_ConditionSlNew(TFTeam &team)	// Tweaked version of scp-sl's
 			continue;
 
 		SetGlobalTransTarget(client);
-		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, descape, dtotal, dcapture, sescape, stotal, scapture, pkill, ptotal, minutes, seconds);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_vip", buffer, descape, dtotal, dcapture, sescape, stotal, scapture, pkill, ptotal, minutes, seconds);
 	}
 	return true;
 }
@@ -1380,23 +1388,32 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	GameInfo.GetValue("vkill", vkill);
 	GameInfo.GetValue("mkill", mkill);
 	
+	Gamecode_CountVIPs();
+
 	int sEscapeScore = vescape * 4;
 	int pKillScore = pkill * 5;
 	
 	int vKillScore = vkill * 3;
 	
-	int vTotalscore = sEscapeScore + pKillScore;
-	int sTotalScore = vKillScore /*+ mkill*/;
+	int vipTotalScore = sEscapeScore + pKillScore;
+	int scpTotalScore = vKillScore /*+ mkill*/;
+
+	int vipRemainEscapeScore = VIPsAlive * 4;
+	int vipReaminKillSCPKillScore = (ptotal - pkill) * 5;
+	int scpReaminVIPKillScore = VIPsAlive * 3;
+
+	int vipRemainScore = vipRemainEscapeScore + vipReaminKillSCPKillScore;
+	int scpRemainScore = scpReaminVIPKillScore;
 	
 	if(!salive) // no SCPs and chaos alive
 	{
 		// humans alive
-		if(vTotalscore > sTotalScore)
+		if(vipTotalScore > scpTotalScore)
 		{
 			team = TFTeam_Blue;
 			group = 2;
 		}
-		else if(vTotalscore < sTotalScore)
+		else if(vipTotalScore < scpTotalScore)
 		{
 			team = TFTeam_Red;
 			group = 3;
@@ -1409,8 +1426,6 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	}
 	else
 	{
-		Gamecode_CountVIPs();
-	
 		if(!vescape) // SCP alive and none escaped
 		{
 			team = TFTeam_Red;
@@ -1418,12 +1433,12 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 		}
 		else if(!balive && VIPsAlive <= 0) // no humans alive
 		{
-			if(vTotalscore > sTotalScore)
+			if(vipTotalScore > scpTotalScore)
 			{
 				team = TFTeam_Blue;
 				group = 2;
 			}
-			else if(vTotalscore < sTotalScore)
+			else if(vipTotalScore < scpTotalScore)
 			{
 				team = TFTeam_Red;
 				group = 3;
@@ -1436,7 +1451,28 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 		}
 		else
 		{
-			return false;
+			if(vipRemainScore <= 0 || scpRemainScore <= 0)
+			{
+				if(vipTotalScore > scpTotalScore)
+				{
+					team = TFTeam_Blue;
+					group = 2;
+				}
+				else if(vipTotalScore < scpTotalScore)
+				{
+					team = TFTeam_Red;
+					group = 3;
+				}
+				else
+				{
+					team = TFTeam_Unassigned;
+					group = 0;
+				}
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 
@@ -1454,9 +1490,78 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 			continue;
 
 		SetGlobalTransTarget(client);
-		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vTotalscore, sTotalScore, minutes, seconds);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vipTotalScore, scpTotalScore, minutes, seconds);
 	}
+
 	return true;
+}
+
+public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer)
+{
+	int vescape, vtotal, pkill, ptotal, vkill, mkill;
+	GameInfo.GetValue("sescape", vescape);
+	GameInfo.GetValue("stotal", vtotal);
+	GameInfo.GetValue("pkill", pkill);
+	GameInfo.GetValue("ptotal", ptotal);
+	GameInfo.GetValue("vkill", vkill);
+	GameInfo.GetValue("mkill", mkill);
+	
+	Gamecode_CountVIPs();
+
+	int sEscapeScore = vescape * 4;
+	int pKillScore = pkill * 5;
+	
+	int vKillScore = vkill * 3;
+	
+	int vipTotalScore = sEscapeScore + pKillScore;
+	int scpTotalScore = vKillScore /*+ mkill*/;
+
+	int group;
+	TFTeam team;
+
+	if(vipTotalScore > scpTotalScore)
+	{
+		team = TFTeam_Blue;
+		group = 2;
+	}
+	else if(vipTotalScore < scpTotalScore)
+	{
+		team = TFTeam_Red;
+		group = 3;
+	}
+	else
+	{
+		team = TFTeam_Unassigned;
+		group = 0;
+	}
+
+	EndRoundRelay(group);
+	Enabled = false;
+	EndRound(team);
+
+	int minutes, seconds;
+	TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);	
+
+	char buffer[16];
+	FormatEx(buffer, sizeof(buffer), "team_%d", group);
+	SetHudTextParamsEx(-1.0, 0.3, 17.5, TeamColors[group], {255, 255, 255, 255}, 1, 2.0, 1.0, 1.0);
+	for(int client=1; client<=MaxClients; client++)
+	{
+		if(!IsValidClient(client))
+			continue;
+
+		SetGlobalTransTarget(client);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vipTotalScore, scpTotalScore, minutes, seconds);
+
+		FadeMessage(client, 5000, 5000, 0x0001, 0, 0, 0, 255);
+	}
+	
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_5.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_5.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	
+	AutoAlphaWarheadTimer = INVALID_HANDLE;
+	
+	return Plugin_Continue;
 }
 
 public bool Gamemode_ConditionBoss(TFTeam &team)
@@ -1635,7 +1740,15 @@ public float Gamemode_WaveRespawnTickets(ArrayList &list, ArrayList &players)
 		if (wave.Trigger[0])
 		{
 			// Send a notification to the map that a spawn happened
-			TriggerRelays(wave.Trigger);
+			if(StrEqual(wave.Trigger, "scp_mtf_chaos_spawn"))
+			{
+				TriggerRelays("scp_chaos_spawn");
+				TriggerRelays("scp_mtf_spawn");
+			}
+			else
+			{
+				TriggerRelays(wave.Trigger);
+			}
 		}			
 
 		list = Gamemode_MakeClassList(wave.Classes, length);

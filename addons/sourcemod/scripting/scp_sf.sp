@@ -670,7 +670,8 @@ public void OnTimerFinished(const char[] output, int entity, int client, float d
 
 			CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_1");
 
-			ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_1.mp3");
+			EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_1.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+			EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_1.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
 			AutoAlphaWarheadTimer = CreateTimer(16.0, Timer_Auto_Alpha_Warhead_2);
 		}
@@ -703,7 +704,8 @@ public Action Timer_Auto_Alpha_Warhead_1(Handle timer)
 
 	CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_1");
 
-	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_1.mp3");
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_1.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_1.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
 	AutoAlphaWarheadTimer = CreateTimer(16.0, Timer_Auto_Alpha_Warhead_2);
 	
@@ -712,7 +714,8 @@ public Action Timer_Auto_Alpha_Warhead_1(Handle timer)
 
 public Action Timer_Auto_Alpha_Warhead_2(Handle timer)
 {
-	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_2.mp3");
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_2.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_2.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
 	AutoAlphaWarheadTimer = CreateTimer(18.0, Timer_Auto_Alpha_Warhead_3);
 	
@@ -721,7 +724,8 @@ public Action Timer_Auto_Alpha_Warhead_2(Handle timer)
 
 public Action Timer_Auto_Alpha_Warhead_3(Handle timer)
 {	
-	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_3.mp3");
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_3.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_3.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
 	AutoAlphaWarheadTimer = CreateTimer(10.0, Timer_Auto_Alpha_Warhead_4);
 	
@@ -732,32 +736,10 @@ public Action Timer_Auto_Alpha_Warhead_4(Handle timer)
 {
 	CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_active_2");
 
-	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_4.mp3");
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_4.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
+	EmitSoundToAll("#scp_173_sounds_new/scp_nuke_1_4.mp3", _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
 	AutoAlphaWarheadTimer = CreateTimer(55.0, Timer_Explode_Auto_Alpha_Warhead);
-	
-	return Plugin_Continue;
-}
-
-public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer)
-{
-	for(int client=1; client<=MaxClients; client++)
-	{
-		if(IsValidClient(client) && !IsSpec(client))
-		{
-			int i, entity;
-			while((entity=Items_Iterator(client, i, true)) != -1)
-			{
-				TF2_RemoveItem(client, entity);
-			}
-			
-			SDKHooks_TakeDamage(client, 0, 0, 99999.0, DMG_BLAST);
-		}
-	}
-	
-	ChangeGlobalSong(FAR_FUTURE, "#scp_173_sounds_new/scp_nuke_1_5.mp3");
-	
-	AutoAlphaWarheadTimer = INVALID_HANDLE;
 	
 	return Plugin_Continue;
 }
