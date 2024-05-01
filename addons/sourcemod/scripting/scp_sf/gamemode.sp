@@ -1380,22 +1380,23 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	
 	int group;
 	
-	int vescape, vtotal, pkill, ptotal, vkill, mkill;
+	int vescape, vtotal, pkill, ptotal, vkill, mkill, ckill;
 	GameInfo.GetValue("sescape", vescape);
 	GameInfo.GetValue("stotal", vtotal);
 	GameInfo.GetValue("pkill", pkill);
 	GameInfo.GetValue("ptotal", ptotal);
 	GameInfo.GetValue("vkill", vkill);
 	GameInfo.GetValue("mkill", mkill);
+	GameInfo.GetValue("ckill", ckill);
 	
 	Gamecode_CountVIPs();
 
-	int sEscapeScore = vescape * 4;
+	int sEscapeScore = vescape * 5;
 	int pKillScore = pkill * 5;
 	
 	int vKillScore = vkill * 3;
 	
-	int vipTotalScore = sEscapeScore + pKillScore;
+	int vipTotalScore = sEscapeScore + pKillScore + ckill;
 	int scpTotalScore = vKillScore /*+ mkill*/;
 
 	int vipRemainEscapeScore = VIPsAlive * 4;
@@ -1490,7 +1491,7 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 			continue;
 
 		SetGlobalTransTarget(client);
-		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vipTotalScore, scpTotalScore, minutes, seconds);
+		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, ckill, pkill, ptotal, vipTotalScore, scpTotalScore, minutes, seconds);
 	}
 
 	return true;

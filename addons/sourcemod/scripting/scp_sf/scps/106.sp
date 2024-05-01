@@ -192,20 +192,7 @@ public bool SCP106_OnPickup(int client, int entity)
 			ClassEnum class;
 			if(Classes_GetByIndex(Client[client].Class, class))
 			{
-				switch(class.Group)
-				{
-					case 0:
-						AcceptEntityInput(entity, "FireUser1", client, client);
-
-					case 1:
-						AcceptEntityInput(entity, "FireUser2", client, client);
-
-					case 2:
-						AcceptEntityInput(entity, "FireUser3", client, client);
-
-					default:
-						AcceptEntityInput(entity, "FireUser4", client, client);
-				}
+				AcceptEntityInput(entity, "FireUser1", client, client);
 				return true;
 			}
 		}

@@ -1121,6 +1121,18 @@ public void Classes_KillHuman(int client, int victim)
 	}
 }
 
+public void Classes_KillGuard(int client, int victim)
+{
+	ClassEnum class;
+	if(Classes_GetByIndex(Client[victim].Class, class))
+	{
+		if(!class.Vip && !class.Group)
+		{
+			Gamemode_AddValue("ckill", 1);
+		}
+	}
+}
+
 public Action Classes_TakeDamageHuman(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	if(attacker<1 || attacker>MaxClients)
