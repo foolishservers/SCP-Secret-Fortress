@@ -371,6 +371,29 @@ public void OnPlayerManagerThink(int entity)
 		
 		SetEntDataArray(entity, scoreOffset, scoreLevels, MaxClients+1);
 	}
+
+	for(int client = 1; client <= MaxClients; client++)
+	{
+		if(!IsValidClient(client))
+		{
+			continue;
+		}
+		
+		SetEntProp(entity, Prop_Send, "m_bAlive", true, .element = client);
+
+		SetEntProp(entity, Prop_Send, "m_iPlayerClassWhenKilled", view_as<int>(TFClass_Unknown), .element = client);
+		SetEntProp(entity, Prop_Send, "m_iPlayerClass", view_as<int>(TFClass_Unknown), .element = client);
+
+		if(!(GetClientTeam(client)<2 && !IsPlayerAlive(client)))
+		{
+			SetEntProp(entity, Prop_Send, "m_iTeam", Client[client].IsVip ? view_as<int>(TFTeam_Blue) : view_as<int>(TFTeam_Red), .element = client);
+		}
+
+		if(Client[entity].WeaponClass != TFClass_Unknown)
+		{
+			SetEntProp(entity, Prop_Send, "m_iClass", view_as<int>(Client[entity].WeaponClass), .element = client);
+		}
+	}
 }
 
 // prevent exploits if attacker dies and kills someone afterwards (e.g. grenade)
