@@ -1512,7 +1512,7 @@ public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer)
 	int sEscapeScore = vescape * 4;
 	int pKillScore = pkill * 5;
 	
-	int vKillScore = vkill * 3;
+	int vKillScore = vkill * 2;
 	
 	int vipTotalScore = sEscapeScore + pKillScore;
 	int scpTotalScore = vKillScore /*+ mkill*/;

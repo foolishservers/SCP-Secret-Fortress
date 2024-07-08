@@ -1,7 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static const int HealthMax = 1800;	// Max standard health
+static const int HealthMax = 3000;	// Max standard health
 static const int HealthExtra = 600;	// Max regenerable health
 
 static const float SpeedExtra = 70.0;	// Extra speed while low health
@@ -17,7 +17,7 @@ public bool SCP939_Create(int client)
 	
 	int account = GetSteamAccountID(client, false);
 
-	int weapon = SpawnWeapon(client, "tf_weapon_knife", 461, 70, 13, "2 ; 1.625 ; 15 ; 0 ; 252 ; 0.3 ; 412 ; 0.8"/* 4328 ; 1"*/, false);
+	int weapon = SpawnWeapon(client, "tf_weapon_knife", 461, 70, 13, "2 ; 1.625 ; 15 ; 0 ; 252 ; 0.1 ; 412 ; 0.8"/* 4328 ; 1"*/, false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 10);
@@ -32,6 +32,9 @@ public bool SCP939_Create(int client)
 		TF2Attrib_SetByDefIndex(weapon, 292, view_as<float>(64));
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
+
+	SetEntPropFloat(client, Prop_Send, "m_flModelScale", 0.5);
+
 	return false;
 }
 
