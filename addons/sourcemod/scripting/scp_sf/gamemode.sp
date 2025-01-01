@@ -1394,7 +1394,7 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 	int sEscapeScore = vescape * 5;
 	int pKillScore = pkill * 5;
 	
-	int vKillScore = vkill * 3;
+	int vKillScore = vkill * 2;
 	
 	int vipTotalScore = sEscapeScore + pKillScore + ckill;
 	int scpTotalScore = vKillScore /*+ mkill*/;

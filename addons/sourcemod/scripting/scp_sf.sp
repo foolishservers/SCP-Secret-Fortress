@@ -188,7 +188,9 @@ enum struct ClientEnum
 	}
 }
 
-ClientEnum Client[MAXPLAYERS + 1];
+#define MAXTF2PLAYERS	101
+
+ClientEnum Client[MAXTF2PLAYERS];
 
 #include "scp_sf/stocks.sp"
 #include "scp_sf/achievements.sp"
