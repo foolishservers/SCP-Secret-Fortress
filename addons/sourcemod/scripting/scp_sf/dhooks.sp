@@ -535,7 +535,7 @@ public MRESReturn DHook_ShouldHitEntityPre(Address address, DHookReturn ret, DHo
 	{
 		return MRES_Ignored;
 	}
-
+	
 	char classname[64];
 	GetEntityClassname(entity, classname, sizeof(classname));
 	
