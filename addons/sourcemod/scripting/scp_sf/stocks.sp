@@ -1454,6 +1454,22 @@ bool IsPointTouchingBox(float pos[3], float mins[3], float maxs[3])
 	return true;
 }
 
+int GetEntityFromHandle(any handle)
+{
+	int ent = handle & 0xFFF;
+	if (ent == 0xFFF)
+		ent = -1;
+	return ent;
+}
+
+int GetEntityFromAddress(Address entity)
+{
+	if (entity == Address_Null)
+		return -1;
+
+	return GetEntityFromHandle(LoadFromAddress(entity + view_as<Address>(FindDataMapInfo(0, "m_angRotation") + 12), NumberType_Int32));
+}
+
 int StringtToCharArray(Address stringt, char[] buffer, int maxlen)
 {
 	if (stringt == Address_Null)
@@ -1614,4 +1630,11 @@ stock int CreateExplosion(int attacker = -1, int damage = 0, int radius = -1, fl
 	}
 	
 	return explosion;
+}
+
+stock void StrToLower(char[] buffer)
+{
+	int length = strlen(buffer);
+	for (int i = 0; i < length; i++)
+		buffer[i] = CharToLower(buffer[i]);
 }

@@ -885,7 +885,10 @@ static ArrayList GrabClassList(KeyValues kv)
 	{
 		IntToString(i, buffer, sizeof(buffer));
 		kv.GetString(buffer, buffer, sizeof(buffer));
-		if(!buffer[0])
+
+		if(buffer[0])	// Convert the string to lowercase because keyvalues might uppercase them
+			StrToLower(buffer);
+		else
 			break;
 
 		list.PushString(buffer);
@@ -1148,7 +1151,7 @@ public bool Gamemode_ConditionVip(TFTeam &team)
 		team = TFTeam_Blue;
 		group = 2;
 	}
-	else if(salive && !sescape)	// SCP alive and none escaped
+	else if(salive && !sescape && !scapture)	// SCP alive and none escaped/captured
 	{
 		team = TFTeam_Red;
 		group = 3;
