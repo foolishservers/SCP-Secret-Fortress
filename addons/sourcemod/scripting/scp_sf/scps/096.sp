@@ -391,7 +391,7 @@ static void TriggerShyGuy(int client, int target, bool full)
 
 static void GiveMelee(int client)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bottle", 1123, 1, 13, "1 ; 0 ; 252 ; 0.6 ; 412 ; 0.5", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bottle", 1123, 1, 13, "1 ; 0 ; 252 ; 0 ; 412 ; 0.5", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 15);

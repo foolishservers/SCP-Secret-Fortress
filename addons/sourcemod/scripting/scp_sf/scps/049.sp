@@ -36,7 +36,7 @@ public bool SCP049_Create(int client)
 
 	GiveMelee(client, account);
 
-	int weapon = SpawnWeapon(client, "tf_weapon_medigun", 211, 5, 13, "7 ; 0.65 ; 9 ; 0 ; 18 ; 1 ; 252 ; 0.95 ; 292 ; 2 ; 412 ; 0.8", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_medigun", 211, 5, 13, "7 ; 0.65 ; 9 ; 0 ; 18 ; 1 ; 252 ; 0 ; 292 ; 2 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 11);
@@ -54,7 +54,7 @@ public bool SCP049_Create(int client)
 
 public bool SCP0492_Create(int client)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0.5", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bat", 572, 50, 13, "2 ; 1.25 ; 5 ; 1.3 ; 28 ; 0.5 ; 252 ; 0", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 4);
@@ -321,7 +321,7 @@ public void SCP049_OnButton(int client, int button)
 		{
 			TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 
-			target = SpawnWeapon(client, "tf_weapon_bonesaw", 310, 80, 13, "138 ; 11 ; 252 ; 0.2", false);
+			target = SpawnWeapon(client, "tf_weapon_bonesaw", 310, 80, 13, "138 ; 11 ; 252 ; 0", false);
 			if(target > MaxClients)
 			{
 				ApplyStrangeRank(target, 6);
@@ -568,7 +568,7 @@ static void SpawnMarker(int victim, int client)
 
 static void GiveMelee(int client, int account, bool equip=true)
 {
-	int weapon = SpawnWeapon(client, "tf_weapon_bonesaw", 413, 1, 13, "138 ; 0 ; 252 ; 0.2", false);
+	int weapon = SpawnWeapon(client, "tf_weapon_bonesaw", 413, 1, 13, "138 ; 0 ; 252 ; 0", false);
 	if(weapon > MaxClients)
 	{
 		ApplyStrangeRank(weapon, 6);
