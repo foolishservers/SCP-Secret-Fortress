@@ -2201,7 +2201,7 @@ public Action OnBroadcast(Event event, const char[] name, bool dontBroadcast)
 	return Plugin_Continue;
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons)
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
 {
 	if(!Enabled || !IsPlayerAlive(client))
 		return Plugin_Continue;
@@ -2310,7 +2310,7 @@ public Action OnPlayerRunCmd(int client, int &buttons)
 	}
 
 	// Check if the player moved at all or is speaking
-	if((buttons & IN_ATTACK) || (!(buttons & IN_DUCK) && ((buttons & IN_FORWARD) || (buttons & IN_BACK) || (buttons & IN_MOVELEFT) || (buttons & IN_MOVERIGHT))))
+	if (buttons & IN_ATTACK || !(GetEntityFlags(client) & FL_DUCKING || (vel[0] == 0.0 && vel[1] == 0.0)))	// Ignoring vertical vel[2]
 		Client[client].IdleAt = engineTime+2.5;
 
 	// SCP-specific buttons
@@ -2610,7 +2610,11 @@ public void UpdateListenOverrides(float engineTime)
 					continue;
 				}
 
-				Client[target].CanTalkTo[client] = true;
+				if(Forward_OnUpdateListenOverrides(client, target) != Plugin_Continue)
+				{
+					SetListenOverride(client, target, Listen_No);
+					continue;
+				}
 
 				#if defined _sourcecomms_included
 				if(SourceComms && SourceComms_GetClientMuteType(target)>bNot)
@@ -2670,6 +2674,9 @@ public void UpdateListenOverrides(float engineTime)
 
 			bool muted = (manage && IsClientMuted(client[i], client[a]));
 			bool blocked = muted;
+
+			if(!blocked && Forward_OnUpdateListenOverrides(client[i], client[a]) != Plugin_Continue)
+				blocked = true;
 
 			#if defined _basecomm_included
 			if(!blocked && BaseComm && BaseComm_IsClientMuted(client[a]))
