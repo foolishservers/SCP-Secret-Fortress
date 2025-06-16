@@ -4,7 +4,7 @@
 static const char ModelMedi[] = "models/scp_sf/049/c_arms_scp049_knife_1.mdl";
 static const char ModelMelee[] = "models/scp_sf/049/c_arms_scp049_4.mdl";
 
-static const float SpeedFound = 1.18;
+static const float SpeedFound = 1.2;
 
 enum struct SCP049Enum
 {
@@ -34,8 +34,8 @@ public bool SCP049_Create(int client)
 
 	int account = GetSteamAccountID(client, false);
 
-	GiveMelee(client, account);
-
+	//GiveMelee(client, account);
+	
 	int weapon = SpawnWeapon(client, "tf_weapon_medigun", 211, 5, 13, "7 ; 0.65 ; 9 ; 0 ; 18 ; 1 ; 252 ; 0 ; 292 ; 2 ; 412 ; 0.8", false);
 	if(weapon > MaxClients)
 	{
@@ -43,12 +43,25 @@ public bool SCP049_Create(int client)
 		TF2Attrib_SetByDefIndex(weapon, 454, view_as<float>(1));
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
+
+	weapon = SpawnWeapon(client, "tf_weapon_bonesaw", 310, 80, 13, "138 ; 11 ; 252 ; 0", false);
+	if(weapon > MaxClients)
+	{
+		ApplyStrangeRank(weapon, 6);
+		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
+		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+	}
 	
 	Client[client].Extra1 = 0;
 
 	Revive[client].Index = 0;
 	Revive[client].GoneAt = GetGameTime()+20.0;
 	Revive[client].MoveAt = FAR_FUTURE;
+
+	ViewModel_Destroy(client);
+	ViewModel_Create(client, ModelMelee, .sDefaultAnim = "b_idle");
+	ViewModel_SetAnimation(client, "b_draw");
+
 	return false;
 }
 
@@ -107,18 +120,27 @@ public void SCP049_OnWeaponSwitch(int client, int entity)
 	ViewModel_Destroy(client);
 	if(entity == GetPlayerWeaponSlot(client, TFWeaponSlot_Secondary))
 	{
+		/*
 		if(Revive[client].MoveAt != FAR_FUTURE)
 		{
+			
 			if(Enabled)
 			{
 				TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 				GiveMelee(client, GetSteamAccountID(client, false), false);
 			}
+			
 			Revive[client].MoveAt = FAR_FUTURE;
 			Revive[client].GoneAt = GetGameTime()+3.0;
 		}
+		*/
 
 		ViewModel_Create(client, ModelMedi, .sDefaultAnim = "b_idle");
+		ViewModel_SetAnimation(client, "b_draw");
+	}
+	else if(entity == GetPlayerWeaponSlot(client, TFWeaponSlot_Melee))
+	{
+		ViewModel_Create(client, ModelMelee, .sDefaultAnim = "b_idle");
 		ViewModel_SetAnimation(client, "b_draw");
 	}
 }
@@ -274,8 +296,10 @@ public void SCP049_OnButton(int client, int button)
 		return;
 
 	Revive[client].GoneAt = engineTime+0.67;
+	/*
 	if(GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") != GetPlayerWeaponSlot(client, TFWeaponSlot_Melee))
 		return;
+	*/
 
 	static float pos1[3], ang1[3];
 	GetClientEyePosition(client, pos1);
@@ -318,6 +342,7 @@ public void SCP049_OnButton(int client, int button)
 		// success
 		if(Revive[client].MoveAt == FAR_FUTURE)
 		{
+			/*
 			TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 
 			target = SpawnWeapon(client, "tf_weapon_bonesaw", 310, 80, 13, "138 ; 11 ; 252 ; 0", false);
@@ -327,13 +352,18 @@ public void SCP049_OnButton(int client, int button)
 				SetEntProp(target, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", target);
 			}
+			*/
 			
 			Client[client].Extra1 = 1;
 
 			FakeClientCommandEx(client, "voicemenu 1 6");	// Activate charge
 
+			/*
 			ViewModel_Create(client, ModelMelee, .sDefaultAnim = "b_idle");
 			ViewModel_SetAnimation(client, "b_draw");
+			*/
+
+			TF2_AddCondition(client, TFCond_SpeedBuffAlly, 0.01);
 		}
 
 		Revive[client].MoveAt = engineTime+8.0;
@@ -343,12 +373,16 @@ public void SCP049_OnButton(int client, int button)
 	if(Revive[client].MoveAt < engineTime)
 	{
 		FakeClientCommandEx(client, "voicemenu 2 4");	// Positive
+		/*
 		ViewModel_Destroy(client);
 		TF2_RemoveWeaponSlot(client, TFWeaponSlot_Melee);
 		GiveMelee(client, GetSteamAccountID(client, false));
+		*/
 		Client[client].Extra1 = 0;
 		Revive[client].MoveAt = FAR_FUTURE;
 		Revive[client].GoneAt = engineTime+2.0;
+
+		TF2_AddCondition(client, TFCond_SpeedBuffAlly, 0.01);
 	}
 }
 

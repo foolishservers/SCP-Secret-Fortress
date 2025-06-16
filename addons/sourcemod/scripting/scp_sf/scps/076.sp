@@ -20,6 +20,16 @@ public bool SCP076_Create(int client)
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
 		CreateTimer(15.0, Timer_UpdateClientHud, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
+
+	weapon = GiveWearable(client, 131, "tf_wearable_demoshield");
+	if(weapon > MaxClients)
+	{
+		TF2Attrib_SetByDefIndex(weapon, 60, 1.0);
+		TF2Attrib_SetByDefIndex(weapon, 64, 1.0);
+		//TF2Attrib_SetByDefIndex(weapon, 246, 1.5);
+		SetEntProp(weapon, Prop_Send, "m_nRenderFX", 6);
+	}
+
 	return false;
 }
 

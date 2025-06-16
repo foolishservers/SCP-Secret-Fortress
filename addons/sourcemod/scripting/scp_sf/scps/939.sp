@@ -2,7 +2,7 @@
 #pragma newdecls required
 
 static const int HealthMax = 3000;	// Max standard health
-static const int HealthExtra = 600;	// Max regenerable health
+static const int HealthExtra = 3000;	// Max regenerable health
 
 static const float SpeedExtra = 70.0;	// Extra speed while low health
 static const float GlowRange = 800.0;	// Max outline range
@@ -31,8 +31,6 @@ public bool SCP939_Create(int client)
 		TF2Attrib_SetByDefIndex(weapon, 292, view_as<float>(64));
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
-
-	SetEntPropFloat(client, Prop_Send, "m_flModelScale", 0.5);
 
 	return false;
 }

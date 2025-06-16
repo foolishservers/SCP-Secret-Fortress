@@ -1638,3 +1638,22 @@ stock void StrToLower(char[] buffer)
 	for (int i = 0; i < length; i++)
 		buffer[i] = CharToLower(buffer[i]);
 }
+
+stock int GiveWearable(int client, int index, char[] classname = "tf_wearable")
+{
+    int entity = CreateEntityByName(classname);
+    if(IsValidEntity(entity))
+    {
+        SetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex", index);
+        SetEntProp(entity, Prop_Send, "m_bInitialized", true);
+        SetEntProp(entity, Prop_Send, "m_iEntityQuality", 14);
+        SetEntProp(entity, Prop_Send, "m_iEntityLevel", 8);
+
+        DispatchSpawn(entity);
+
+        SDKCall_EquipWearable(client, entity);
+
+        SetEntProp(entity, Prop_Send, "m_bValidatedAttachedEntity", true);
+    }
+    return entity;
+}
