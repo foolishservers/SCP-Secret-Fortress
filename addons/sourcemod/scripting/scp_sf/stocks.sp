@@ -731,10 +731,11 @@ stock bool TF2_IsWearable(int weapon)
 
 void SetActiveWeapon(int client, int entity)
 {
-	static char buffer[36];
-	GetEntityClassname(entity, buffer, sizeof(buffer));
-	FakeClientCommand(client, "use %s", buffer);
-	SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", entity);
+	TF2Util_SetPlayerActiveWeapon(client, entity);
+	
+	// We want to be able to switch to weapons out of ammo anyway
+	if (GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") != entity)
+		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", entity);
 }
 
 stock void SetSpeed(int client, float speed)
@@ -1656,4 +1657,16 @@ stock int GiveWearable(int client, int index, char[] classname = "tf_wearable")
         SetEntProp(entity, Prop_Send, "m_bValidatedAttachedEntity", true);
     }
     return entity;
+}
+
+void TeleportEntityInterpolated(int entity, const float pos[3] = NULL_VECTOR, const float ang[3] = NULL_VECTOR, const float vel[3] = NULL_VECTOR)
+{
+	if (!IsNullVector(pos))
+		DispatchKeyValueVector(entity, "origin", pos);
+	
+	if (!IsNullVector(ang))
+		DispatchKeyValueVector(entity, "angles", ang);
+	
+	if (!IsNullVector(vel))
+		SetEntPropVector(entity, Prop_Data, "m_vecAbsVelocity", vel);
 }
