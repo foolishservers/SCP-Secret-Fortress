@@ -17,6 +17,7 @@
 #tryinclude <goomba>
 #tryinclude <sourcecomms>
 #tryinclude <basecomm>
+#tryinclude <tf2_pets>
 #define REQUIRE_PLUGIN
 
 void DisplayCredits(int i)
@@ -1275,6 +1276,10 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if(!client || !IsPlayerAlive(client))
 		return;
+
+	#if defined _tf2_pets_included
+ 	TF2Pets_SetPetVisibility(client, true);
+	#endif
 	
 	// this is terrible, we need a count of currently alive vips (for HUD) on round start 
 	// but we can't do it on round start because players aren't fully spawned yet

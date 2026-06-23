@@ -885,7 +885,13 @@ public bool Classes_GhostSpawn(int client)
 	SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", (Client[client].IsVip ? class.ModelAlt : class.ModelIndex), _, 3);
 
 	if(IsFakeClient(client))
+	{
 		TeleportEntity(client, TRIPLE_D, NULL_VECTOR, NULL_VECTOR);
+	}
+
+	#if defined _tf2_pets_included
+ 	TF2Pets_SetPetVisibility(client, false);
+	#endif
 
 	return true;
 }
@@ -1682,6 +1688,10 @@ public bool Classes_GhostVoiceAlt(int client)
 				SetEntProp(client, Prop_Send, "m_bUseClassAnimations", true);
 				SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", model, _, 0);
 				SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", model, _, 3);
+
+				#if defined _tf2_pets_included
+    			TF2Pets_SetPetVisibility(client, false);
+				#endif
 			}
 
 			static float pos[3], ang[3];
@@ -1701,9 +1711,13 @@ public bool Classes_GhostVoiceAlt(int client)
 			Client[client].Extra2 = 0;
 			TF2_RespawnPlayer(client);
 			Client[client].NextSongAt = 0.0;
+			#if defined _tf2_pets_included
+    		TF2Pets_SetPetVisibility(client, true);
+			#endif
 			break;
 		}
 	} while(attempts <= MaxClients);
+
 	return true;
 }
 
