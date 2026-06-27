@@ -32,6 +32,10 @@ public bool SCP939_Create(int client)
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
 
+	#if defined _tf2_pets_included
+ 	TF2Pets_SetHidePets(client, true);
+	#endif
+
 	return false;
 }
 

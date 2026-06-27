@@ -1691,6 +1691,7 @@ public bool Classes_GhostVoiceAlt(int client)
 
 				#if defined _tf2_pets_included
     			TF2Pets_SetPetVisibility(client, false);
+				TF2Pets_SetHidePets(client, false);
 				#endif
 			}
 
@@ -1713,6 +1714,7 @@ public bool Classes_GhostVoiceAlt(int client)
 			Client[client].NextSongAt = 0.0;
 			#if defined _tf2_pets_included
     		TF2Pets_SetPetVisibility(client, true);
+			TF2Pets_SetHidePets(client, false);
 			#endif
 			break;
 		}

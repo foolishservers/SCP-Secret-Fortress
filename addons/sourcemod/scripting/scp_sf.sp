@@ -99,6 +99,9 @@ Cookie CookieTraining;
 Cookie CookieColor;
 Cookie CookieDClass;
 Cookie CookieKarma;
+Cookie CookieQueuePoints;
+Cookie CookieQueueEnabled;
+Cookie CookieQueueBlacklist;
 
 ConVar CvarFriendlyFire;
 ConVar CvarSpeedMulti;
@@ -167,6 +170,10 @@ enum struct ClientEnum
 	float LastWeaponTime;
 	float KarmaPoints[MAXPLAYERS + 1];
 
+	int QueuePoints;
+	bool QueueEnabled;
+	ArrayList Blacklist;
+
 	// Sprinting
 	bool Sprinting;
 	float SprintPower;
@@ -215,6 +222,7 @@ ClientEnum Client[MAXPLAYERS + 1];
 #include "scp_sf/scps/457.sp"
 #include "scp_sf/scps/939.sp"
 //#include "scp_sf/scps/sjm08.sp"
+#include "scp_sf/queue.sp"
 
 #include "scp_sf/maps/crypto_forest.sp"
 #include "scp_sf/maps/frostbite.sp"
@@ -257,6 +265,9 @@ public void OnPluginStart()
 	ConVar_Setup();
 	SDKHook_Setup();
 	Doors_Clear();
+
+	RegConsoleCmd("sm_queue", Command_Queue, "Open SCP Queue Menu");
+	RegConsoleCmd("sm_boss", Command_Queue, "Open SCP Queue Menu");
 
 	HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	HookEvent("teamplay_round_win", OnRoundEnd, EventHookMode_PostNoCopy);
@@ -321,6 +332,9 @@ public void OnPluginStart()
 	CookieColor = new Cookie("scp_cookie_colorblind", "Color blind mode settings", CookieAccess_Protected);
 	CookieDClass = new Cookie("scp_cookie_dboimurder", "Achievement Status", CookieAccess_Protected);
 	CookieKarma = new Cookie("scp_cookie_karma", "Karma level", CookieAccess_Protected);
+	CookieQueuePoints = new Cookie("scp_cookie_queue_points", "Queue points", CookieAccess_Protected);
+	CookieQueueEnabled = new Cookie("scp_cookie_queue_enabled", "Queue enabled", CookieAccess_Protected);
+	CookieQueueBlacklist = new Cookie("scp_cookie_queue_blacklist", "Queue blacklist", CookieAccess_Protected);
 
 	GameData gamedata = LoadGameConfigFile("scp_sf");
 	if(gamedata)
@@ -449,6 +463,9 @@ public void OnPluginEnd()
 public void OnClientPutInServer(int client)
 {
 	Client[client] = Client[0];
+	Client[client].QueueEnabled = true;
+	Client[client].QueuePoints = 0;
+	Client[client].Blacklist = new ArrayList();
 	Classes_ResetKillCounters(client);
 	
 	if(AreClientCookiesCached(client))
@@ -460,7 +477,7 @@ public void OnClientPutInServer(int client)
 
 public void OnClientCookiesCached(int client)
 {
-	static char buffer[16];
+	static char buffer[512];
 	CookieColor.Get(client, buffer, sizeof(buffer));
 	if(buffer[0])
 	{
@@ -469,6 +486,38 @@ public void OnClientCookiesCached(int client)
 		for(int i; i<3; i++)
 		{
 			Client[client].ColorBlind[i] = StringToInt(buffers[i]);
+		}
+	}
+
+	CookieQueuePoints.Get(client, buffer, sizeof(buffer));
+	if(buffer[0])
+	{
+		Client[client].QueuePoints = StringToInt(buffer);
+	}
+
+	CookieQueueEnabled.Get(client, buffer, sizeof(buffer));
+	if(buffer[0])
+	{
+		Client[client].QueueEnabled = (StringToInt(buffer) != 0);
+	}
+	
+	CookieQueueBlacklist.Get(client, buffer, sizeof(buffer));
+	if(buffer[0])
+	{
+		if (Client[client].Blacklist == null)
+			Client[client].Blacklist = new ArrayList();
+		else
+			Client[client].Blacklist.Clear();
+			
+		static char buffers[64][16];
+		int count = ExplodeString(buffer, ",", buffers, sizeof(buffers), sizeof(buffers[]));
+		for(int i; i<count; i++)
+		{
+			int class_idx = Classes_GetByName(buffers[i]);
+			if (class_idx != -1 && Client[client].Blacklist.FindValue(class_idx) == -1)
+			{
+				Client[client].Blacklist.Push(class_idx);
+			}
 		}
 	}
 }
@@ -1624,6 +1673,8 @@ public Action Command_MainMenu(int client, int args)
 		FormatEx(buffer, sizeof(buffer), "%t (/scpcolor)", "menu_colorblind");
 		menu.AddItem("2", buffer);
 
+		menu.AddItem("3", "SCP 큐 및 블랙리스트 관리 (/queue)");
+
 		menu.Display(client, MENU_TIME_FOREVER);
 	}
 	return Plugin_Handled;
@@ -1649,6 +1700,10 @@ public int Handler_MainMenu(Menu menu, MenuAction action, int client, int choice
 				case 1:
 				{
 					Command_ColorBlind(client, -1);
+				}
+				case 2:
+				{
+					ShowQueueMenu(client);
 				}
 			}
 		}
@@ -2047,6 +2102,39 @@ public Action Command_PreventWin(int client, int args)
 
 public void OnClientDisconnect(int client)
 {
+	if(AreClientCookiesCached(client))
+	{
+		char buffer[512];
+		IntToString(Client[client].QueuePoints, buffer, sizeof(buffer));
+		CookieQueuePoints.Set(client, buffer);
+		
+		IntToString(Client[client].QueueEnabled ? 1 : 0, buffer, sizeof(buffer));
+		CookieQueueEnabled.Set(client, buffer);
+		
+		buffer[0] = '\0';
+		if(Client[client].Blacklist != null)
+		{
+			int length = Client[client].Blacklist.Length;
+			for(int i = 0; i < length; i++)
+			{
+				int class_idx = Client[client].Blacklist.Get(i);
+				ClassEnum classInfo;
+				if(Classes_GetByIndex(class_idx, classInfo))
+				{
+					if(i > 0) StrCat(buffer, sizeof(buffer), ",");
+					StrCat(buffer, sizeof(buffer), classInfo.Name);
+				}
+			}
+		}
+		CookieQueueBlacklist.Set(client, buffer);
+	}
+
+	if(Client[client].Blacklist != null)
+	{
+		delete Client[client].Blacklist;
+		Client[client].Blacklist = null;
+	}
+
 	if (Client[client].QueueIndex != -1)
 		Gamemode_UnassignQueueIndex(client);
 

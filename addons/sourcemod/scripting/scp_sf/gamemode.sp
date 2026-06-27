@@ -395,7 +395,63 @@ bool Gamemode_RoundStart()
 		length = client;
 
 	ClassEnum class;
-	for(int i; i<length; i++)
+
+	// SCP Queue System Logic
+	for(int i = 0; i < length; i++)
+	{
+		int class_idx = classes.Get(i);
+		if(Classes_GetByIndex(class_idx, class))
+		{
+			if(class.Group == 0) // SCP Role
+			{
+				int bestPlayerIndex = -1;
+				int highestPoints = -1;
+				bool foundEligible = false;
+				
+				// Search remaining unassigned players in 'players' array
+				for(int j = i; j < length; j++)
+				{
+					int p = players.Get(j);
+					if(Client[p].QueueEnabled && Client[p].Blacklist.FindValue(class_idx) == -1)
+					{
+						if(!foundEligible || Client[p].QueuePoints > highestPoints)
+						{
+							highestPoints = Client[p].QueuePoints;
+							bestPlayerIndex = j;
+							foundEligible = true;
+						}
+					}
+				}
+				
+				if(foundEligible)
+				{
+					int p = players.Get(bestPlayerIndex);
+					Client[p].QueuePoints = 0; // Reset queue points
+					
+					// Swap bestPlayerIndex with i
+					players.Set(bestPlayerIndex, players.Get(i));
+					players.Set(i, p);
+				}
+				else
+				{
+					// No valid queued player (everyone disabled queue or blacklisted)
+					// Pick random player from remaining (i to length-1) without resetting points
+					if(i < length)
+					{
+						int randomPlayerIndex = GetRandomInt(i, length - 1);
+						int p = players.Get(randomPlayerIndex);
+						
+						players.Set(randomPlayerIndex, players.Get(i));
+						players.Set(i, p);
+						
+						PrintToChat(p, "\x04[SCP]\x01 대기열에 조건이 맞는 유저가 없어 무작위로 강제 배정되었습니다. (큐 포인트 미차감)");
+					}
+				}
+			}
+		}
+	}
+	
+	for(int i = 0; i < length; i++)
 	{
 		client = players.Get(i);
 		Client[client].Class = classes.Get(i);
@@ -490,6 +546,9 @@ bool Gamemode_RoundStart()
 		TF2_SetPlayerClass(client, class.Class, _, false);
 		Forward_OnClass(client, ClassSpawn_RoundStart, class.Name);
 	}
+
+	Queue_AddPointsToUnselected();
+
 	delete classes;
 	delete players;
 
@@ -917,6 +976,29 @@ static int PresetToClass(const char[] name, ArrayList current)
 		}
 	}
 	return index;
+}
+
+bool Gamemode_IsClassInPreset(const char[] presetName, const char[] className)
+{
+	if(Presets == null) return false;
+	PresetEnum preset;
+	int length = Presets.Length;
+	for(int i = 0; i < length; i++)
+	{
+		Presets.GetArray(i, preset);
+		if(StrEqual(presetName, preset.Name, false))
+		{
+			char buffer[16];
+			int classLen = preset.Classes.Length;
+			for (int j = 0; j < classLen; j++)
+			{
+				preset.Classes.GetString(j, buffer, sizeof(buffer));
+				if (StrEqual(buffer, className, false)) return true;
+			}
+			return false;
+		}
+	}
+	return false;
 }
 
 static ArrayList DeadPlayersList()
