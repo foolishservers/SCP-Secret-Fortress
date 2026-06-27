@@ -178,6 +178,13 @@ enum struct ClientEnum
 	bool Sprinting;
 	float SprintPower;
 
+	// Sanity (정신력)
+	int Sanity;
+	float LastPos[3];
+	bool SanityGlow;
+	int StationaryTicks;
+	int SanityTick;
+
 	// Music
 	float NextSongAt;
 	int CurrentVolume;
@@ -597,6 +604,8 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 	UpdateListenOverrides(RoundStartAt);
 
 	RequestFrame(DisplayHint, true);
+
+	CreateTimer(1.0, Timer_SanityCheck, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
@@ -1320,6 +1329,82 @@ public Action TF2_OnPlayerTeleport(int client, int teleporter, bool &result)
 	return Plugin_Changed;
 }
 
+public Action Timer_SanityCheck(Handle timer)
+{
+	// Only run if the round is actually active. We can assume if there's no players alive, it will just do nothing.
+	for(int i = 1; i <= MaxClients; i++)
+	{
+		if(IsClientInGame(i) && IsPlayerAlive(i))
+		{
+			ClassEnum classInfo;
+			if(Classes_GetByIndex(Client[i].Class, classInfo) && classInfo.Group > 0)
+			{
+				float currentPos[3];
+				GetClientAbsOrigin(i, currentPos);
+
+				bool alone = true;
+				// Check if alone
+				for(int j = 1; j <= MaxClients; j++)
+				{
+					if(i != j && IsClientInGame(j) && IsPlayerAlive(j))
+					{
+						ClassEnum teammateInfo;
+						if(Classes_GetByIndex(Client[j].Class, teammateInfo) && teammateInfo.Group > 0)
+						{
+							float teammatePos[3];
+							GetClientAbsOrigin(j, teammatePos);
+							if(GetVectorDistance(currentPos, teammatePos) <= 700.0) // Relaxed distance
+							{
+								alone = false;
+								break;
+							}
+						}
+					}
+				}
+
+				if(Client[i].LastPos[0] != 0.0 || Client[i].LastPos[1] != 0.0 || Client[i].LastPos[2] != 0.0)
+				{
+					if(GetVectorDistance(currentPos, Client[i].LastPos) <= 150.0)
+					{
+						Client[i].StationaryTicks++;
+					}
+					else
+					{
+						Client[i].StationaryTicks = 0;
+						Client[i].LastPos = currentPos;
+					}
+				}
+				else
+				{
+					Client[i].LastPos = currentPos;
+				}
+
+				// If alone OR camping for more than 10 seconds
+				if(alone || Client[i].StationaryTicks >= 10)
+				{
+					Client[i].SanityTick++;
+					if(Client[i].SanityTick >= 10) // Drop 1 sanity every 10 seconds
+					{
+						Client[i].Sanity -= 1;
+						if(Client[i].Sanity < -45)
+							Client[i].Sanity = -45;
+						
+						Client[i].SanityTick = 0;
+					}
+				}
+
+				Client[i].SanityGlow = (Client[i].Sanity < 0);
+
+				if(Client[i].Sanity <= -45)
+				{
+					SDKHooks_TakeDamage(i, i, i, 2.0, DMG_CLUB, -1, NULL_VECTOR, NULL_VECTOR);
+				}
+			}
+		}
+	}
+	return Plugin_Continue;
+}
+
 public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
@@ -1334,6 +1419,14 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 	// but we can't do it on round start because players aren't fully spawned yet
 	// so just do it here instead...
 	Gamecode_CountVIPs();
+
+	Client[client].Sanity = 45;
+	Client[client].SanityGlow = false;
+	Client[client].StationaryTicks = 0;
+	Client[client].SanityTick = 0;
+	Client[client].LastPos[0] = 0.0;
+	Client[client].LastPos[1] = 0.0;
+	Client[client].LastPos[2] = 0.0;
 
 	ViewModel_Destroy(client);
 	SZF_DropItem(client, false);
@@ -2610,6 +2703,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 						{
 							Format(buffer, sizeof(buffer), "%s|", buffer);
 						}
+
+						Format(buffer, sizeof(buffer), "%s\n정신력: %d / 45", buffer, Client[client].Sanity);
 
 						SetHudTextParamsEx(0.14, 0.93, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
 						ShowSyncHudText(client, HudGame, "%t", "sprint", buffer);

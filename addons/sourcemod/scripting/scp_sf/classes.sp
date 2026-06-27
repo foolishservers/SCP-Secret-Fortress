@@ -1352,7 +1352,7 @@ public void Classes_CondSci(int client, TFCond cond)
 
 public bool Classes_GlowHuman(int client, int victim)
 {
-	return Client[client].Disarmer==victim;
+	return Client[client].Disarmer==victim || Client[victim].SanityGlow;
 }
 
 public bool Classes_SeeHuman(int client, int victim)
