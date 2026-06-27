@@ -2530,7 +2530,8 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 	
 	float distance = GetVectorDistance(targetPos, clientPos);
 	
-	if(distance > 150.0)
+	// Require target to be within 150 units to start, but allow them to move up to 300 units while capturing
+	if(distance > 300.0 || (distance > 150.0 && DisarmerCharge[client] == 0.0))
 	{
 		previousTarget[client] = -1;
 		DisarmerCharge[client] = 0.0;

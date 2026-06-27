@@ -171,6 +171,8 @@ enum struct ClientEnum
 	float KarmaPoints[MAXPLAYERS + 1];
 
 	int QueuePoints;
+	int RolePlayPoints;
+	float DamageDealtToSCP;
 	bool QueueEnabled;
 	ArrayList Blacklist;
 
@@ -472,6 +474,8 @@ public void OnClientPutInServer(int client)
 	Client[client] = Client[0];
 	Client[client].QueueEnabled = true;
 	Client[client].QueuePoints = 0;
+	Client[client].RolePlayPoints = 0;
+	Client[client].DamageDealtToSCP = 0.0;
 	Client[client].Blacklist = new ArrayList();
 	Classes_ResetKillCounters(client);
 	
@@ -594,7 +598,11 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsValidClient(client))
+		{
 			Classes_ResetKillCounters(client);
+			Client[client].RolePlayPoints = 0;
+			Client[client].DamageDealtToSCP = 0.0;
+		}
 	}
 
 	NoAchieve = false;
@@ -2716,14 +2724,18 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			if(class.Human && showHud)
 			{
 				SetHudTextParamsEx(-1.0, 0.08, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
-				ShowSyncHudText(client, HudClass, "%t", class.Display);
+				char roleBuffer[256];
+				Format(roleBuffer, sizeof(roleBuffer), "%T\n라운드 점수: %d", class.Display, client, Client[client].RolePlayPoints);
+				ShowSyncHudText(client, HudClass, "%s", roleBuffer);
 			}
 			
 			if (IsSCP(client) && !IsSpec(client) && showHud)
 			{
-				// kill counter + how many dbois/scientists left
+				// kill counter + how many humans left
 				SetHudTextParamsEx(-1.0, 0.1, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
-				ShowSyncHudText(client, HudClass, "%t", "kill_counter", Client[client].Kills, VIPsAlive);			
+				char roleBuffer[256];
+				Format(roleBuffer, sizeof(roleBuffer), "%T\n라운드 점수: %d", "kill_counter", client, Client[client].Kills, HumansAlive, Client[client].RolePlayPoints);
+				ShowSyncHudText(client, HudClass, "%s", roleBuffer);
 			}
 		}
 
@@ -3145,16 +3157,8 @@ bool DisarmCheck(int client)
 
 	if(IsValidClient(Client[client].Disarmer) && IsPlayerAlive(Client[client].Disarmer))
 	{
-		static float pos1[3], pos2[3];
-		GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos1);
-		GetEntPropVector(Client[client].Disarmer, Prop_Send, "m_vecOrigin", pos2);
-
-		// 800 units
-		if(GetVectorDistance(pos1, pos2, true) < 640000.0)
-		{
-			Client[client].LastDisarmedTime = GetGameTime();
-			return true;
-		}
+		Client[client].LastDisarmedTime = GetGameTime();
+		return true;
 	}
 
 	TF2_RemoveCondition(client, TFCond_PasstimePenaltyDebuff);
@@ -3168,6 +3172,9 @@ bool IsFriendly(int index1, int index2)
 	if(Classes_GetByIndex(index1, class1) && class1.Group!=-1
 	&& Classes_GetByIndex(index2, class2) && class2.Group!=-1)
 	{
+		if(class1.Vip && class2.Vip)
+			return true;
+			
 		if(class1.Group<0 || class1.Group!=class2.Group)
 			return false;
 	}

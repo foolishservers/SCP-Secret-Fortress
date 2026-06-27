@@ -147,7 +147,7 @@ public Action OnSmallAmmoPickup(int entity, int client)
 		Items_Ammo(client, 2, max);
 		if(ammo < max)
 		{
-			ammo += 30;
+			ammo += 90;
 			if(ammo > max)
 				ammo = max;
 
@@ -171,7 +171,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 		Items_Ammo(client, 2, max);
 		if(ammo < max)
 		{
-			ammo += 90;
+			ammo += 270;
 			if(ammo > max)
 				ammo = max;
 
@@ -184,7 +184,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 		Items_Ammo(client, 6, max);
 		if(ammo < max)
 		{
-			ammo += 80;
+			ammo += 240;
 			if(ammo > max)
 				ammo = max;
 
@@ -197,7 +197,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 		Items_Ammo(client, 7, max);
 		if(ammo < max)
 		{
-			ammo += 80;
+			ammo += 240;
 			if(ammo > max)
 				ammo = max;
 
@@ -210,7 +210,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 		Items_Ammo(client, 10, max);
 		if(ammo < max)
 		{
-			ammo += 30;
+			ammo += 90;
 			if(ammo > max)
 				ammo = max;
 
@@ -223,7 +223,7 @@ public Action OnMediumAmmoPickup(int entity, int client)
 		Items_Ammo(client, 11, max);
 		if(ammo < max)
 		{
-			ammo += 40;
+			ammo += 120;
 			if(ammo > max)
 				ammo = max;
 
@@ -250,7 +250,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 		Items_Ammo(client, 2, max);
 		if(ammo < max)
 		{
-			ammo += 170;
+			ammo += 510;
 			if(ammo > max)
 				ammo = max;
 
@@ -263,7 +263,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 		Items_Ammo(client, 6, max);
 		if(ammo < max)
 		{
-			ammo += 160;
+			ammo += 480;
 			if(ammo > max)
 				ammo = max;
 
@@ -276,7 +276,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 		Items_Ammo(client, 7, max);
 		if(ammo < max)
 		{
-			ammo += 160;
+			ammo += 480;
 			if(ammo > max)
 				ammo = max;
 
@@ -289,7 +289,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 		Items_Ammo(client, 10, max);
 		if(ammo < max)
 		{
-			ammo += 50;
+			ammo += 150;
 			if(ammo > max)
 				ammo = max;
 
@@ -302,7 +302,7 @@ public Action OnFullAmmoPickup(int entity, int client)
 		Items_Ammo(client, 11, max);
 		if(ammo < max)
 		{
-			ammo += 60;
+			ammo += 180;
 			if(ammo > max)
 				ammo = max;
 
@@ -450,7 +450,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 		
 		if(IsFriendly(Client[victim].Class, DamageSavedClass))
 		{
-			if(!CvarFriendlyFire.BoolValue && !IsFakeClient(victim))
+			if(!CvarFriendlyFire.BoolValue)
 				return Plugin_Handled;
 			
 			// friendlyfire is pointless in SZF

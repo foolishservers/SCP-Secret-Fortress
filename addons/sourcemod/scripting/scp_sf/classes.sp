@@ -652,7 +652,23 @@ void Classes_OnCondRemoved(int client, TFCond cond)
 Action Classes_OnDealDamage(int client, int victim, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	Action result = Plugin_Continue;
-	ClassEnum class;
+	ClassEnum class, victimClass;
+	
+	// SCP Damage point logic
+	if (IsValidClient(victim) && victim != client)
+	{
+		if (Classes_GetByIndex(Client[victim].Class, victimClass) && victimClass.Group == 0 && !victimClass.Human)
+		{
+			Client[client].DamageDealtToSCP += damage;
+			if (Client[client].DamageDealtToSCP >= 100.0)
+			{
+				int pointsToGive = RoundToFloor(Client[client].DamageDealtToSCP / 100.0);
+				Gamemode_GrantRolePlayPoints(client, pointsToGive);
+				Client[client].DamageDealtToSCP -= pointsToGive * 100.0;
+			}
+		}
+	}
+
 	if(Classes_GetByIndex(Client[client].Class, class) && class.OnDealDamage!=INVALID_FUNCTION)
 	{
 		Call_StartFunction(null, class.OnDealDamage);
@@ -739,7 +755,35 @@ bool Classes_OnKeycard(int client, any access, int &value)
 
 void Classes_OnKill(int client, int victim)
 {
-	ClassEnum class;
+	ClassEnum class, victimClass;
+	
+	if (Classes_GetByIndex(Client[client].Class, class) && Classes_GetByIndex(Client[victim].Class, victimClass))
+	{
+		if (!IsFriendly(Client[client].Class, Client[victim].Class))
+		{
+			if (victimClass.Group == 0 && !victimClass.Human) // SCP
+			{
+				Gamemode_GrantRolePlayPoints(client, 5);
+			}
+			else if (!victimClass.Vip && victimClass.Group > 0) // Support force (Chaos/MTF)
+			{
+				Gamemode_GrantRolePlayPoints(client, 1);
+			}
+			
+			if (class.Group == 0 && !class.Human) // SCP kill logic
+			{
+				if (victimClass.Vip)
+				{
+					Gamemode_GrantRolePlayPoints(client, 2);
+				}
+				else if (victimClass.Group > 0) // Support force
+				{
+					Gamemode_GrantRolePlayPoints(client, 3);
+				}
+			}
+		}
+	}
+
 	if(!Classes_GetByIndex(Client[client].Class, class) || class.OnKill==INVALID_FUNCTION)
 		return;
 
@@ -812,7 +856,68 @@ void Classes_OnSpeed(int client, float &speed)
 Action Classes_OnTakeDamage(int client, int attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
 {
 	Action result = Plugin_Continue;
-	ClassEnum class;
+	ClassEnum class, attackerClass;
+	
+	// Prevent damage to captured personnel from support forces
+	if (IsValidClient(attacker) && attacker != client && Client[client].Disarmer > 0)
+	{
+		if (Classes_GetByIndex(Client[attacker].Class, attackerClass) && !attackerClass.Vip && attackerClass.Group > 0)
+		{
+			damage = 0.0;
+			return Plugin_Changed;
+		}
+	}
+	
+	// Lethal damage capture logic
+	float estimatedDamage = damage;
+	if (damagetype & DMG_CRIT)
+		estimatedDamage *= 3.0;
+	else
+		estimatedDamage *= 1.5; // Account for TF2 damage ramp-up
+		
+	if (IsValidClient(attacker) && attacker != client && GetClientHealth(client)  - RoundToNearest(estimatedDamage) <= 0)
+	{
+		if (Classes_GetByIndex(Client[client].Class, class) && class.Vip && Client[client].Disarmer == 0)
+		{
+			if (Classes_GetByIndex(Client[attacker].Class, attackerClass) && !attackerClass.Vip && attackerClass.Group > 0)
+			{
+				if (class.Group != attackerClass.Group)
+				{	
+					TF2_AddCondition(client, TFCond_PasstimePenaltyDebuff);
+					BfWrite bf = view_as<BfWrite>(StartMessageOne("HudNotifyCustom", client));
+					if(bf)
+					{
+						char buffer[64];
+						FormatEx(buffer, sizeof(buffer), "%T", "disarmed", attacker);
+						bf.WriteString(buffer);
+						bf.WriteString("ico_notify_flag_moving_alt");
+						bf.WriteByte(view_as<int>(TFTeam_Red));
+						EndMessage();
+					}
+					
+					SZF_DropItem(client);
+					Items_DropAllItems(client);
+					for(int i; i<AMMO_MAX; i++)
+					{
+						SetEntProp(client, Prop_Data, "m_iAmmo", 0, _, i);
+					}
+					Items_SetEmptyWeapon(client);
+					
+					Client[client].LastWeaponTime = 0.0;
+					Client[client].Disarmer = attacker;
+					SDKCall_SetSpeed(client);
+					CreateTimer(1.0, CheckAlivePlayers, _, TIMER_FLAG_NO_MAPCHANGE);
+
+					TF2_StunPlayer(client, 3.0, 0.9, TF_STUNFLAG_BONKSTUCK|TF_STUNFLAG_NOSOUNDOREFFECT);
+
+					// Capture instead of killing
+					damage = 0.0;
+					return Plugin_Changed;
+				}
+			}
+		}
+	}
+
 	if(Classes_GetByIndex(Client[client].Class, class) && class.OnTakeDamage!=INVALID_FUNCTION)
 	{
 		Call_StartFunction(null, class.OnTakeDamage);
@@ -1247,12 +1352,14 @@ public void Classes_CondDBoi(int client, TFCond cond)
 				Gamemode_AddValue("dcapture");
 				index = Classes_GetByName("mtfs", class);
 
-				// reward the disarmer with 15% karma
+				// reward the disarmer with 15% karma and 3 points
 				Classes_ApplyKarmaBonus(Client[client].Disarmer, 15.0, false);
+				Gamemode_GrantRolePlayPoints(Client[client].Disarmer, 3);
 			}
 			else
 			{
 				Gamemode_AddValue("descape");
+				Gamemode_GrantRolePlayPoints(client, 3);
 				GiveAchievement(Achievement_EscapeDClass, client);
 				index = Classes_GetByName("chaosd", class);
 
@@ -1307,12 +1414,14 @@ public void Classes_CondSci(int client, TFCond cond)
 				Gamemode_AddValue("scapture");
 				index = Classes_GetByName("chaosd", class);
 
-				// reward the disarmer with 15% karma
+				// reward the disarmer with 15% karma and 3 points
 				Classes_ApplyKarmaBonus(Client[client].Disarmer, 15.0, false);				
+				Gamemode_GrantRolePlayPoints(Client[client].Disarmer, 3);
 			}
 			else
 			{
 				Gamemode_AddValue("sescape");
+				Gamemode_GrantRolePlayPoints(client, 3);
 				GiveAchievement(Achievement_EscapeSci, client);
 				index = Classes_GetByName("mtfs", class);
 

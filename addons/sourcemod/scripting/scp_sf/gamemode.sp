@@ -75,6 +75,7 @@ static SoundEnum MusicAlone;
 static SoundEnum MusicFloors[10];
 
 int VIPsAlive;
+int HumansAlive;
 bool DebugPreventRoundWin;
 
 ArrayList Gamemode_Setup(KeyValues main, KeyValues map)
@@ -870,6 +871,17 @@ void Gamemode_AddValue(const char[] key, int amount=1)
 	}
 }
 
+void Gamemode_GrantRolePlayPoints(int client, int amount)
+{
+	if(client < 1 || client > MaxClients || !IsClientInGame(client)) return;
+	Client[client].RolePlayPoints += amount;
+	Client[client].QueuePoints += amount;
+	
+	char buffer[32];
+	IntToString(Client[client].QueuePoints, buffer, sizeof(buffer));
+	CookieQueuePoints.Set(client, buffer);
+}
+
 bool Gamemode_GetValue(const char[] key, int &value)
 {
 	return GameInfo.GetValue(key, value);
@@ -1186,10 +1198,14 @@ public bool Gamecode_CountVIPs()
 	bool salive;
 	
 	VIPsAlive = 0;
+	HumansAlive = 0;
 	for(int i=1; i<=MaxClients; i++)
 	{
 		if(!IsValidClient(i) || IsSpec(i) || !Classes_GetByIndex(Client[i].Class, class))
 			continue;
+
+		if(class.Human)
+			HumansAlive++;
 
 		if(class.Vip)	// Class-D and Scientists
 			VIPsAlive++;
@@ -1896,5 +1912,112 @@ public int Gamemode_PresetRandomOnce(ArrayList list, ArrayList current)
 		if(current.FindValue(class) == -1)
 			return class;
 	}
+
 	return -1;
+}
+
+public bool Gamemode_ConditionRolePlay(TFTeam &team)
+{
+	ClassEnum class;
+	bool f_mtf = false;
+	bool f_chaos = false;
+	bool f_scp = false;
+
+	for(int i=1; i<=MaxClients; i++)
+	{
+		if(!IsValidClient(i) || IsSpec(i) || !Classes_GetByIndex(Client[i].Class, class))
+			continue;
+
+		if(class.Group == 0) // SCP
+		{
+			f_scp = true;
+		}
+		else if(class.Group == 1) // Chaos/DBoi
+		{
+			f_chaos = true;
+		}
+		else if(class.Group > 1) // MTF/Sci/Guard
+		{
+			f_mtf = true;
+		}
+	}
+
+	int aliveFactions = (f_mtf ? 1 : 0) + (f_chaos ? 1 : 0) + (f_scp ? 1 : 0);
+
+	if(aliveFactions <= 1)
+	{
+		int group = 0;
+		if(f_mtf || f_chaos)
+		{
+			team = TFTeam_Blue;
+			group = 2; // Arbitrary for color
+		}
+		else if(f_scp)
+		{
+			team = TFTeam_Red;
+			group = 0;
+		}
+		else
+		{
+			team = TFTeam_Unassigned;
+			group = 0;
+		}
+
+		EndRoundRelay(group);
+
+		int[] playerIndexes = new int[MaxClients];
+		int count = 0;
+		for(int i=1; i<=MaxClients; i++)
+		{
+			if(IsClientInGame(i) && Client[i].RolePlayPoints > 0)
+			{
+				playerIndexes[count++] = i;
+			}
+		}
+
+		// Sort descending
+		for(int i=0; i<count-1; i++)
+		{
+			for(int j=i+1; j<count; j++)
+			{
+				if(Client[playerIndexes[i]].RolePlayPoints < Client[playerIndexes[j]].RolePlayPoints)
+				{
+					int temp = playerIndexes[i];
+					playerIndexes[i] = playerIndexes[j];
+					playerIndexes[j] = temp;
+				}
+			}
+		}
+
+		int minutes, seconds;
+		TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);
+
+		char p1[128], p2[128], p3[128], p4[128], p5[128];
+		if(count > 0) FormatEx(p1, sizeof(p1), "1위: %N - %d점", playerIndexes[0], Client[playerIndexes[0]].RolePlayPoints);
+		else p1 = "";
+		if(count > 1) FormatEx(p2, sizeof(p2), "2위: %N - %d점", playerIndexes[1], Client[playerIndexes[1]].RolePlayPoints);
+		else p2 = "";
+		if(count > 2) FormatEx(p3, sizeof(p3), "3위: %N - %d점", playerIndexes[2], Client[playerIndexes[2]].RolePlayPoints);
+		else p3 = "";
+		if(count > 3) FormatEx(p4, sizeof(p4), "4위: %N - %d점", playerIndexes[3], Client[playerIndexes[3]].RolePlayPoints);
+		else p4 = "";
+		if(count > 4) FormatEx(p5, sizeof(p5), "5위: %N - %d점", playerIndexes[4], Client[playerIndexes[4]].RolePlayPoints);
+		else p5 = "";
+
+		SetHudTextParamsEx(-1.0, 0.3, 17.5, TeamColors[group], {255, 255, 255, 255}, 1, 2.0, 1.0, 1.0);
+		for(int client=1; client<=MaxClients; client++)
+		{
+			if(IsClientInGame(client))
+			{
+				char buffer[1024];
+				FormatEx(buffer, sizeof(buffer), "상황종료\n \n%s\n%s\n%s\n%s\n%s\n \n당신의 이번 라운드 점수: %d\n경과 시간: %02d:%02d", 
+					p1, p2, p3, p4, p5, Client[client].RolePlayPoints, minutes, seconds);
+				ShowSyncHudText(client, HudGame, "%s", buffer);
+			}
+		}
+
+		return true;
+	}
+
+	return false;
 }
