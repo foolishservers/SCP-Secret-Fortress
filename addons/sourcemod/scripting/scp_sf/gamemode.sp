@@ -1600,60 +1600,62 @@ public bool Gamemode_ConditionIntegrated(TFTeam &team)
 
 public Action Timer_Explode_Auto_Alpha_Warhead(Handle timer)
 {
-	int vescape, vtotal, pkill, ptotal, vkill, mkill;
-	GameInfo.GetValue("sescape", vescape);
-	GameInfo.GetValue("stotal", vtotal);
-	GameInfo.GetValue("pkill", pkill);
-	GameInfo.GetValue("ptotal", ptotal);
-	GameInfo.GetValue("vkill", vkill);
-	GameInfo.GetValue("mkill", mkill);
-	
-	Gamecode_CountVIPs();
-
-	int sEscapeScore = vescape * 4;
-	int pKillScore = pkill * 5;
-	
-	int vKillScore = vkill * 2;
-	
-	int vipTotalScore = sEscapeScore + pKillScore;
-	int scpTotalScore = vKillScore /*+ mkill*/;
-
-	int group;
-	TFTeam team;
-
-	if(vipTotalScore > scpTotalScore)
-	{
-		team = TFTeam_Blue;
-		group = 2;
-	}
-	else if(vipTotalScore < scpTotalScore)
-	{
-		team = TFTeam_Red;
-		group = 3;
-	}
-	else
-	{
-		team = TFTeam_Unassigned;
-		group = 0;
-	}
+	int group = 0;
+	TFTeam team = TFTeam_Unassigned;
 
 	EndRoundRelay(group);
 	Enabled = false;
 	EndRound(team);
 
-	int minutes, seconds;
-	TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);	
+	int[] playerIndexes = new int[MaxClients];
+	int count = 0;
+	for(int i=1; i<=MaxClients; i++)
+	{
+		if(IsClientInGame(i) && Client[i].RolePlayPoints > 0)
+		{
+			playerIndexes[count++] = i;
+		}
+	}
 
-	char buffer[16];
-	FormatEx(buffer, sizeof(buffer), "team_%d", group);
+	// Sort descending
+	for(int i=0; i<count-1; i++)
+	{
+		for(int j=i+1; j<count; j++)
+		{
+			if(Client[playerIndexes[i]].RolePlayPoints < Client[playerIndexes[j]].RolePlayPoints)
+			{
+				int temp = playerIndexes[i];
+				playerIndexes[i] = playerIndexes[j];
+				playerIndexes[j] = temp;
+			}
+		}
+	}
+
+	int minutes, seconds;
+	TimeToMinutesSeconds(GetGameTime() - RoundStartAt, minutes, seconds);
+
+	char p1[128], p2[128], p3[128], p4[128], p5[128];
+	if(count > 0) FormatEx(p1, sizeof(p1), "1위: %N - %d점", playerIndexes[0], Client[playerIndexes[0]].RolePlayPoints);
+	else p1 = "";
+	if(count > 1) FormatEx(p2, sizeof(p2), "2위: %N - %d점", playerIndexes[1], Client[playerIndexes[1]].RolePlayPoints);
+	else p2 = "";
+	if(count > 2) FormatEx(p3, sizeof(p3), "3위: %N - %d점", playerIndexes[2], Client[playerIndexes[2]].RolePlayPoints);
+	else p3 = "";
+	if(count > 3) FormatEx(p4, sizeof(p4), "4위: %N - %d점", playerIndexes[3], Client[playerIndexes[3]].RolePlayPoints);
+	else p4 = "";
+	if(count > 4) FormatEx(p5, sizeof(p5), "5위: %N - %d점", playerIndexes[4], Client[playerIndexes[4]].RolePlayPoints);
+	else p5 = "";
+
 	SetHudTextParamsEx(-1.0, 0.3, 17.5, TeamColors[group], {255, 255, 255, 255}, 1, 2.0, 1.0, 1.0);
 	for(int client=1; client<=MaxClients; client++)
 	{
 		if(!IsValidClient(client))
 			continue;
 
-		SetGlobalTransTarget(client);
-		ShowSyncHudText(client, HudGame, "%t", "end_screen_integrated", buffer, vescape, vtotal, mkill, pkill, ptotal, vipTotalScore, scpTotalScore, minutes, seconds);
+		char buffer[1024];
+		FormatEx(buffer, sizeof(buffer), "상황종료\n(알파 탄두 폭발)\n \n%s\n%s\n%s\n%s\n%s\n \n당신의 이번 라운드 점수: %d\n경과 시간: %02d:%02d", 
+			p1, p2, p3, p4, p5, Client[client].RolePlayPoints, minutes, seconds);
+		ShowSyncHudText(client, HudGame, "%s", buffer);
 
 		FadeMessage(client, 5000, 5000, 0x0001, 0, 0, 0, 255);
 	}

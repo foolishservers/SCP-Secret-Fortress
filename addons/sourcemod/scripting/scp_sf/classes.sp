@@ -767,7 +767,10 @@ void Classes_OnKill(int client, int victim)
 			}
 			else if (!victimClass.Vip && victimClass.Group > 0) // Support force (Chaos/MTF)
 			{
-				Gamemode_GrantRolePlayPoints(client, 1);
+				if (class.Group != 0) // If killer is not SCP (i.e. another Support Force)
+				{
+					Gamemode_GrantRolePlayPoints(client, 1);
+				}
 			}
 			
 			if (class.Group == 0 && !class.Human) // SCP kill logic
@@ -861,10 +864,13 @@ Action Classes_OnTakeDamage(int client, int attacker, int &inflictor, float &dam
 	// Prevent damage to captured personnel from support forces
 	if (IsValidClient(attacker) && attacker != client && Client[client].Disarmer > 0)
 	{
-		if (Classes_GetByIndex(Client[attacker].Class, attackerClass) && !attackerClass.Vip && attackerClass.Group > 0)
+		if (Classes_GetByIndex(Client[client].Class, class) && class.Vip)
 		{
-			damage = 0.0;
-			return Plugin_Changed;
+			if (Classes_GetByIndex(Client[attacker].Class, attackerClass) && !attackerClass.Vip && attackerClass.Group > 0)
+			{
+				damage = 0.0;
+				return Plugin_Changed;
+			}
 		}
 	}
 	

@@ -703,7 +703,7 @@ public void OnTimerFinished(const char[] output, int entity, int client, float d
 			if(eRoundTimer != -1)
 			{
 				DispatchKeyValue(eRoundTimer, "targetname", "auto_alpha_warhead");
-				DispatchKeyValue(eRoundTimer, "timer_length", "200");
+				DispatchKeyValue(eRoundTimer, "timer_length", "60");
 				DispatchKeyValue(eRoundTimer, "show_in_hud", "1");
 				DispatchKeyValue(eRoundTimer, "reset_time", "1");
 				DispatchKeyValue(eRoundTimer, "auto_countdown", "0");
@@ -711,7 +711,7 @@ public void OnTimerFinished(const char[] output, int entity, int client, float d
 		
 				AcceptEntityInput(eRoundTimer, "Enable");
 		
-				CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_warning", 3, 20);
+				CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_warning", 1, 0);
 				//AutoAlphaWarheadTimer = CreateTimer(200.0, Timer_Auto_Alpha_Warhead_1);
 			}
 		}
@@ -1490,8 +1490,8 @@ public Action OnObjectDestroy(Event event, const char[] name, bool dontBroadcast
 
 public Action OnPlayerHurt(Event event, const char[] name, bool dontBroadcast)
 {
-	event.SetBool("allseecrit", false);
-	event.SetInt("damageamount", 0);
+	//event.SetBool("allseecrit", false);
+	//event.SetInt("damageamount", 0); to allow damage numbers to show up!
 
 	int userid = event.GetInt("userid");
 	int client = GetClientOfUserId(userid);

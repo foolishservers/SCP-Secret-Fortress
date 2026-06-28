@@ -1250,7 +1250,7 @@
 	}
 	"auto_alpha_warhead_active_2"	// Chat
 	{
-		"ko"		"{Gray}알파 핵탄두{default}가 폭파되었습니다..."
+		"ko"		"{Gray}알파 핵탄두{default} 점화중.."
 	}
 	"light_decontamination"	// Chat
 	{
