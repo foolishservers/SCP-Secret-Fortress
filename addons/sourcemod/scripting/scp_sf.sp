@@ -2620,7 +2620,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					Client[client].AloneIn = FAR_FUTURE;
 					if(showHud)
 					{
-						SetHudTextParamsEx(0.14, 0.93, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
+						SetHudTextParamsEx(0.14, 0.93, 0.5, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
 						ShowSyncHudText(client, HudPlayer, "%t", "disarmed_by", Client[client].Disarmer);
 					}
 				}
@@ -2714,7 +2714,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 
 						Format(buffer, sizeof(buffer), "%s\n정신력: %d / 45", buffer, Client[client].Sanity);
 
-						SetHudTextParamsEx(0.14, 0.93, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
+						SetHudTextParamsEx(0.14, 0.93, 0.5, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
 						ShowSyncHudText(client, HudGame, "%t", "sprint", buffer);
 					}
 				}
@@ -2723,7 +2723,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			// What class am I again
 			if(class.Human && showHud)
 			{
-				SetHudTextParamsEx(-1.0, 0.08, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
+				SetHudTextParamsEx(-1.0, 0.08, 0.5, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
 				char roleBuffer[256];
 				Format(roleBuffer, sizeof(roleBuffer), "%T\n라운드 점수: %d", class.Display, client, Client[client].RolePlayPoints);
 				ShowSyncHudText(client, HudClass, "%s", roleBuffer);
@@ -2732,9 +2732,30 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			if (IsSCP(client) && !IsSpec(client) && showHud)
 			{
 				// kill counter + how many humans left
-				SetHudTextParamsEx(-1.0, 0.1, 0.35, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
+				SetHudTextParamsEx(-1.0, 0.1, 0.5, Client[client].Colors, Client[client].Colors, 0, 0.1, 0.05, 0.05);
 				char roleBuffer[256];
 				Format(roleBuffer, sizeof(roleBuffer), "%T\n라운드 점수: %d", "kill_counter", client, Client[client].Kills, HumansAlive, Client[client].RolePlayPoints);
+
+				if (StrEqual(class.Name, "scp939"))
+				{
+					if (view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_nDisguiseClass")) != TFClass_Unknown)
+					{
+						static int disguiseTargetOffset = -1;
+						if (disguiseTargetOffset == -1)
+							disguiseTargetOffset = FindSendPropInfo("CTFPlayer", "m_iDisguiseHealth") - 4;
+		
+						int target = GetEntDataEnt2(client, disguiseTargetOffset);
+						if (0 < target && target <= MaxClients)
+						{
+							ClassEnum targetClass;
+							if(Classes_GetByIndex(Client[target].Class, targetClass))
+							{
+								Format(roleBuffer, sizeof(roleBuffer), "%s\n변장 중인 역할: %T", roleBuffer, targetClass.Display, client);
+							}
+						}
+					}
+				}
+
 				ShowSyncHudText(client, HudClass, "%s", roleBuffer);
 			}
 		}

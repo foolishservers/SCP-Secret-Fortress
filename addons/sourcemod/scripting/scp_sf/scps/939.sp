@@ -1,6 +1,16 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+enum
+{
+	VISION_MODE_NONE = 0,
+	VISION_MODE_PYRO,
+	VISION_MODE_HALLOWEEN,
+	VISION_MODE_ROME,
+
+	MAX_VISION_MODES
+};
+
 static const int HealthMax = 3000;	// Max standard health
 static const int HealthExtra = 3000;	// Max regenerable health
 
@@ -8,6 +18,9 @@ static const float SpeedExtra = 70.0;	// Extra speed while low health
 static const float GlowRange = 800.0;	// Max outline range
 
 static int Health[MAXPLAYERS + 1];
+
+static int g_iOffsetDisguiseCompleteTime;
+static float g_flDisguiseCompleteTime;
 
 public bool SCP939_Create(int client)
 {
@@ -31,6 +44,9 @@ public bool SCP939_Create(int client)
 		TF2Attrib_SetByDefIndex(weapon, 292, view_as<float>(64));
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", account);
 	}
+
+	SDKHook(client, SDKHook_PreThink, SCP939_ThinkPre);
+	SDKHook(client, SDKHook_PreThinkPost, SCP939_ThinkPost);
 
 	#if defined _tf2_pets_included
  	TF2Pets_SetHidePets(client, true);
@@ -140,4 +156,114 @@ public bool SCP939_OnGlowPlayer(int client, int victim)
 			return true;
 	}
 	return false;
+}
+
+public void SCP939_ThinkPre(int client)
+{
+	ClassEnum class;
+	if(!Classes_GetByIndex(Client[client].Class, class))
+	{
+		SDKUnhook(client, SDKHook_PreThink, SCP939_ThinkPre);
+		return;
+	}
+
+	if(!StrEqual(class.Name, "scp939"))
+	{
+		SDKUnhook(client, SDKHook_PreThink, SCP939_ThinkPre);
+		return;
+	}
+
+	if (!g_iOffsetDisguiseCompleteTime)
+		g_iOffsetDisguiseCompleteTime = FindSendPropInfo("CTFPlayer", "m_unTauntSourceItemID_High") + 4;
+	
+	g_flDisguiseCompleteTime = GetEntDataFloat(client, g_iOffsetDisguiseCompleteTime);
+}
+
+public void SCP939_ThinkPost(int client)
+{
+	ClassEnum class;
+	if(!Classes_GetByIndex(Client[client].Class, class))
+	{
+		SDKUnhook(client, SDKHook_PreThinkPost, SCP939_ThinkPost);
+		return;
+	}
+
+	if(!StrEqual(class.Name, "scp939"))
+	{
+		SDKUnhook(client, SDKHook_PreThinkPost, SCP939_ThinkPost);
+		return;
+	}
+
+	if (g_flDisguiseCompleteTime && !GetEntDataFloat(client, g_iOffsetDisguiseCompleteTime))
+		SCP939_OnDisguise(client);
+}
+
+void SCP939_OnDisguise(int client)
+{
+	if (view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_nDisguiseClass")) == TFClass_Unknown) return;
+	
+	int offset = FindSendPropInfo("CTFPlayer", "m_iDisguiseHealth") - 4;	// m_hDisguiseTarget
+	int target = GetEntDataEnt2(client, offset);
+	if (0 < target <= MaxClients)
+	{
+		ClassEnum class;
+		if(Classes_GetByIndex(Client[target].Class, class))
+		{
+			SetVariantString(class.Model);
+			AcceptEntityInput(client, "SetCustomModel");
+			SetEntProp(client, Prop_Send, "m_bUseClassAnimations", true);
+			SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", class.ModelIndex, _, 0);
+			SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", class.ModelAlt, _, 3);
+
+			int weapon = GetEntPropEnt(client, Prop_Send, "m_hDisguiseWeapon");
+			if (weapon != INVALID_ENT_REFERENCE && GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex") != 195)
+			{
+				RemoveEntity(weapon);
+				weapon = INVALID_ENT_REFERENCE;
+			}
+	
+			if (weapon == INVALID_ENT_REFERENCE)
+			{
+				Handle item = TF2Items_CreateItem(OVERRIDE_ALL|FORCE_GENERATION);
+				if(item)
+				{
+					TF2Items_SetClassname(item, "tf_weapon_fists");
+					TF2Items_SetItemIndex(item, 195);
+					TF2Items_SetLevel(item, 101);
+					TF2Items_SetQuality(item, 6);
+					weapon = TF2Items_GiveNamedItem(client, item);
+					delete item;
+
+					SetEntPropEnt(weapon, Prop_Send, "m_hOwner", client);
+					SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
+		
+					SetEntityMoveType(weapon, MOVETYPE_NONE);
+					SetEntProp(weapon, Prop_Send, "m_fEffects", GetEntProp(weapon, Prop_Send, "m_fEffects")|EF_BONEMERGE);
+					SetVariantString("!activator");
+					AcceptEntityInput(weapon, "SetParent", client);
+		
+					SetEntProp(weapon, Prop_Send, "m_iState", 2);	// WEAPON_IS_ACTIVE
+					SetEntProp(weapon, Prop_Send, "m_bDisguiseWeapon", true);
+		
+					SetEntPropEnt(client, Prop_Send, "m_hDisguiseWeapon", weapon);
+				}
+			}
+		}
+	}
+}
+
+public void SCP939_OnCondRemoved(int client, TFCond condition)
+{
+	if(condition == TFCond_Disguised)
+	{
+		ClassEnum class;
+		if(Classes_GetByIndex(Client[client].Class, class))
+		{
+			SetVariantString(class.Model);
+			AcceptEntityInput(client, "SetCustomModel");
+			SetEntProp(client, Prop_Send, "m_bUseClassAnimations", true);
+			SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", class.ModelIndex, _, 0);
+			SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", class.ModelAlt, _, 3);
+		}
+	}
 }

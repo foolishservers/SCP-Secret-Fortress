@@ -460,6 +460,8 @@ void Classes_PlayerSpawn(int client)
 			TF2_AddCondition(client, TFCond_DodgeChance, 3.0);
 			TF2Attrib_SetByDefIndex(client, 49, 1.0);
 		}
+
+		TF2Attrib_SetByName(client, "reveal disguised victim on hit", 1.0);
 	}
 }
 

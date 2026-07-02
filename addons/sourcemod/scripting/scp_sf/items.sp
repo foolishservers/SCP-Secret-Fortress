@@ -2571,7 +2571,7 @@ public bool Items_DisarmerButton(int client, int weapon, int &buttons, int &hold
 		ClassEnum class;
 		Classes_GetByIndex(Client[target].Class, class);
 		
-		SetHudTextParamsEx(-1.0, 0.6, 0.35, Client[client].Colors, Client[client].Colors, 0, 1.0, 0.01, 0.5);
+		SetHudTextParamsEx(-1.0, 0.6, 0.5, Client[client].Colors, Client[client].Colors, 0, 1.0, 0.01, 0.5);
 		if(canDisarm)
 		{
 			ShowSyncHudText(client, HudPlayer, "%t", "disarming_other", class.Display, DisarmerCharge[client]);

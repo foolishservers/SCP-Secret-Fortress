@@ -260,12 +260,12 @@ public void SCP173_OnButton(int client, int button)
 		{
 			if(BlinkCharge[client] >= 100.0)
 			{
-				SetHudTextParams(-1.0, -1.0, 0.35, 255, 0, 0, 255, 0, 1.0, 0.01, 0.5);
+				SetHudTextParams(-1.0, -1.0, 0.5, 255, 0, 0, 255, 0, 1.0, 0.01, 0.5);
 				ShowSyncHudText(client, HudPlayer, players ? "ATTACK2" : "100%%");
 			}
 			else if(players)
 			{
-				SetHudTextParams(-1.0, -1.0, 0.35, 255, 255, 255, 255, 0, 1.0, 0.01, 2.5);
+				SetHudTextParams(-1.0, -1.0, 0.5, 255, 255, 255, 255, 0, 1.0, 0.01, 2.5);
 				ShowSyncHudText(client, HudPlayer, "%.0f%%", BlinkCharge[client]);
 			}
 		}
