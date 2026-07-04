@@ -7,6 +7,7 @@ static int IndexSeeman;
 static int IndexSeeldier;
 static int IndexSeeldier2;
 static const char Pootis[] = "freak_fortress_2/pootis_engage/heavy_duo_intro2.mp3";
+static const char Pootis2[] = "freak_fortress_2/pootis_engage/be_heavy_dance1.mp3";
 static const char Seeduo[] = "freak_fortress_2/seeman/seecombo_begin.wav";
 static const char Seeman[] = "freak_fortress_2/seeman/seeman_see.wav";
 static const char Seeldier[] = "freak_fortress_2/seeman/seeldier_see.wav";
@@ -226,6 +227,7 @@ static void GiveAngerWeapon(int client)
 		ApplyStrangeRank(weapon, 18);
 		SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client, false));
 		SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);
+		EmitSoundToAll(Pootis2, client);
 	}
 }
 
@@ -281,6 +283,7 @@ public void HeavyRed_OnButton(int client, int button)
 		Client[client].Extra3 -= 0.5;
 		if(Client[client].Extra3 > 100.0)
 		{
+			EmitSoundToAll(Pootis2, client);
 			Client[client].Extra3 = 100.0;
 			SDKCall_SetSpeed(client);
 		}

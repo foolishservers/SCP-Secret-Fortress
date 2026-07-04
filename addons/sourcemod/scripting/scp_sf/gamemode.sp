@@ -1772,13 +1772,19 @@ public float Gamemode_WaveRespawnTickets(ArrayList &list, ArrayList &players)
 		WaveEnum wave;
 		WaveList.GetArray(WaveIndex, wave);
 
-		if(length > wave.TicketsLeft)
-			length = wave.TicketsLeft;
+		// Remove capping: let length remain equal to players.Length
+		// so all spectators are spawned.
+		// if(length > wave.TicketsLeft)
+		// 	length = wave.TicketsLeft;
 
 		switch(wave.Type)
 		{
 			case 0:
+			{
 				wave.TicketsLeft -= length;
+				if(wave.TicketsLeft < 0)
+					wave.TicketsLeft = 0;
+			}
 
 			case 1:
 				wave.TicketsLeft = 0;
@@ -1798,8 +1804,8 @@ public float Gamemode_WaveRespawnTickets(ArrayList &list, ArrayList &players)
 			if(found && !class.Group)
 				count++;
 
-			if(!wave.TicketsLeft && IsSpec(i))
-				CPrintToChat(i, "%s%t", PREFIX, "spawn_ranout");
+			// if(!wave.TicketsLeft && IsSpec(i))
+			// 	CPrintToChat(i, "%s%t", PREFIX, "spawn_ranout");
 
 			if(wave.Message[0])
 			{
