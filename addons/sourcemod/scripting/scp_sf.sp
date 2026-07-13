@@ -89,11 +89,16 @@ bool SourceComms = false;		// SourceComms++
 bool BaseComm = false;		// BaseComm
 #endif
 
+#if defined _tf2_pets_included
+bool TF2Pets = false;		// TF2 Pets
+#endif
+
 Handle HudPlayer;
 Handle HudClass;
 Handle HudGame;
 
 Handle AutoAlphaWarheadTimer;
+bool AutoAlphaWarheadActive = false;
 
 Cookie CookieTraining;
 Cookie CookieColor;
@@ -324,6 +329,10 @@ public void OnPluginStart()
 	BaseComm = LibraryExists("basecomm");
 	#endif
 
+	#if defined _tf2_pets_included
+	TF2Pets = LibraryExists("tf2_pets") || LibraryExists("tf2pets");
+	#endif
+
 	HudPlayer = CreateHudSynchronizer();
 	HudClass = CreateHudSynchronizer();
 	HudGame = CreateHudSynchronizer();
@@ -383,6 +392,11 @@ public void OnLibraryAdded(const char[] name)
 	if(StrEqual(name, "sourcecomms++"))
 		SourceComms = true;
 	#endif
+
+	#if defined _tf2_pets_included
+	if(StrEqual(name, "tf2_pets") || StrEqual(name, "tf2pets"))
+		TF2Pets = true;
+	#endif
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -398,6 +412,11 @@ public void OnLibraryRemoved(const char[] name)
 	#if defined _sourcecomms_included
 	if(StrEqual(name, "sourcecomms++"))
 		SourceComms = false;
+	#endif
+
+	#if defined _tf2_pets_included
+	if(StrEqual(name, "tf2_pets") || StrEqual(name, "tf2pets"))
+		TF2Pets = false;
 	#endif
 }
 
@@ -712,6 +731,7 @@ public void OnTimerFinished(const char[] output, int entity, int client, float d
 				AcceptEntityInput(eRoundTimer, "Enable");
 		
 				CPrintToChatAll("%s%t", PREFIX, "auto_alpha_warhead_warning", 1, 0);
+				AutoAlphaWarheadActive = true;
 				//AutoAlphaWarheadTimer = CreateTimer(200.0, Timer_Auto_Alpha_Warhead_1);
 			}
 		}
@@ -766,6 +786,7 @@ public Action Timer_Auto_Alpha_Warhead_4(Handle timer)
 
 public void EndAutoAlphaWarhead()
 {
+	AutoAlphaWarheadActive = false;
 	if(AutoAlphaWarheadTimer != INVALID_HANDLE)
 	{
 		KillTimer(AutoAlphaWarheadTimer);
@@ -1420,7 +1441,8 @@ public void OnPlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 		return;
 
 	#if defined _tf2_pets_included
- 	TF2Pets_SetPetVisibility(client, true);
+	if (TF2Pets)
+	 	TF2Pets_SetPetVisibility(client, true);
 	#endif
 	
 	// this is terrible, we need a count of currently alive vips (for HUD) on round start 
@@ -2991,7 +3013,11 @@ public void UpdateListenOverrides(float engineTime)
 			}
 
 			bool success;
-			if(range>0 && hearing>0)
+			if (aclass.Group == iclass.Group || (Client[client[a]].IsVip && Client[client[i]].IsVip))
+			{
+				success = true;
+			}
+			else if(range>0 && hearing>0)
 			{
 				if(radio[a]>1 && radio[i]>1)
 					range *= radio[a];

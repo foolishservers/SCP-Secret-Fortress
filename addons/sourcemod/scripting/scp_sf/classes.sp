@@ -459,6 +459,14 @@ void Classes_PlayerSpawn(int client)
 			TF2_AddCondition(client, TFCond_NoHealingDamageBuff, 1.0);
 			TF2_AddCondition(client, TFCond_DodgeChance, 3.0);
 			TF2Attrib_SetByDefIndex(client, 49, 1.0);
+			
+			if(!IsSCP(client))
+			{
+				TF2Attrib_SetByDefIndex(client, 62, 0.9);
+				TF2Attrib_SetByDefIndex(client, 64, 0.6);
+				TF2Attrib_SetByDefIndex(client, 66, 0.6);
+				TF2Attrib_SetByDefIndex(client, 252, 0.2);
+			}
 		}
 
 		TF2Attrib_SetByName(client, "reveal disguised victim on hit", 1.0);
@@ -556,7 +564,19 @@ int Classes_GetMaxItems(int client, int type)
 	{
 		ClassEnum class;
 		if(Classes_GetByIndex(Client[client].Class, class))
-			return class.MaxItems[type];
+		{
+			int max = class.MaxItems[type];
+			if (!IsSCP(client))
+			{
+				switch (type)
+				{
+					case 1: max += 2;
+					case 3: max += 1;
+					case 7: max += 1;
+				}
+			}
+			return max;
+		}
 	}
 	return 0;
 }
@@ -730,6 +750,9 @@ bool Classes_OnDoorWalk(int client, int entity)
 
 bool Classes_OnGlowPlayer(int client, int victim)
 {
+	if(AutoAlphaWarheadActive || AutoAlphaWarheadTimer != INVALID_HANDLE)
+		return true;
+
 	bool result;
 	ClassEnum class;
 	if(Classes_GetByIndex(Client[client].Class, class) && class.OnGlowPlayer!=INVALID_FUNCTION)
@@ -1003,7 +1026,8 @@ public bool Classes_GhostSpawn(int client)
 	}
 
 	#if defined _tf2_pets_included
- 	TF2Pets_SetPetVisibility(client, false);
+	if (TF2Pets)
+	 	TF2Pets_SetPetVisibility(client, false);
 	#endif
 
 	return true;
@@ -1807,8 +1831,11 @@ public bool Classes_GhostVoiceAlt(int client)
 				SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", model, _, 3);
 
 				#if defined _tf2_pets_included
-    			TF2Pets_SetPetVisibility(client, false);
-				TF2Pets_SetHidePets(client, false);
+				if (TF2Pets)
+				{
+	    			TF2Pets_SetPetVisibility(client, false);
+					TF2Pets_SetHidePets(client, false);
+				}
 				#endif
 			}
 
@@ -1830,8 +1857,11 @@ public bool Classes_GhostVoiceAlt(int client)
 			TF2_RespawnPlayer(client);
 			Client[client].NextSongAt = 0.0;
 			#if defined _tf2_pets_included
-    		TF2Pets_SetPetVisibility(client, true);
-			TF2Pets_SetHidePets(client, false);
+			if (TF2Pets)
+			{
+	    		TF2Pets_SetPetVisibility(client, true);
+				TF2Pets_SetHidePets(client, false);
+			}
 			#endif
 			break;
 		}

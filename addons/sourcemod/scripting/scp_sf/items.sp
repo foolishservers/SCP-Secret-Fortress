@@ -309,6 +309,9 @@ ArrayList Items_ArrayList(int client, int slot=-1, bool all=false)
 
 int Items_CreateWeapon(int client, int index, bool equip=true, bool clip=false, bool ammo=false, int ground=-1)
 {
+	if(index == 30019 || index == 30020 || index == 30021 || index == 30016)
+		return -1;
+
 	int entity = index;
 	switch(Forward_OnWeaponPre(client, ground, entity))
 	{
@@ -1336,6 +1339,11 @@ void Items_Ammo(int client, int type, int &ammo)
 {
 	int i, entity;
 	WeaponEnum weapon;
+	
+	if(!IsSCP(client))
+	{
+		Items_HeavyAmmo(client, type, ammo);
+	}
 	while((entity=Items_Iterator(client, i, true)) != -1)
 	{
 		if(!Items_GetWeaponByIndex(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"), weapon) || weapon.OnAmmo==INVALID_FUNCTION)

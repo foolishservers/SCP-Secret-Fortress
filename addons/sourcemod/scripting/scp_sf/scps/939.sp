@@ -49,7 +49,8 @@ public bool SCP939_Create(int client)
 	SDKHook(client, SDKHook_PreThinkPost, SCP939_ThinkPost);
 
 	#if defined _tf2_pets_included
- 	TF2Pets_SetHidePets(client, true);
+	if (TF2Pets)
+	 	TF2Pets_SetHidePets(client, true);
 	#endif
 
 	return false;
